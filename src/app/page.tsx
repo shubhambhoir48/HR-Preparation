@@ -184,6 +184,28 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
     saveState(updated, comp.id);
   };
 
+  const handleDeleteCompany = (id: string) => {
+    if (targetCompanies.length <= 1) {
+      handleOpenModal('Action Not Allowed', 'You must keep at least one target company profile.');
+      return;
+    }
+    const updated = targetCompanies.filter((c) => c.id !== id);
+    let newActiveId = activeCompanyId;
+    if (activeCompanyId === id) {
+      newActiveId = updated[0].id;
+    }
+    setTargetCompanies(updated);
+    setActiveCompanyId(newActiveId);
+    saveState(updated, newActiveId);
+    handleOpenModal('Company Deleted', 'Target company removed from your active apply list.');
+  };
+
+  const handleUpdateCompany = (company: TargetCompany) => {
+    const updated = targetCompanies.map((c) => (c.id === company.id ? company : c));
+    setTargetCompanies(updated);
+    saveState(updated, activeCompanyId);
+  };
+
   const handleToggleSOPRead = (id: number) => {
     const reads = userProgress.sopsRead.includes(id)
       ? userProgress.sopsRead.filter((x) => x !== id)
@@ -284,6 +306,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
                 saveState(targetCompanies, id);
               }}
               onAddCompany={handleAddCompany}
+              onDeleteCompany={handleDeleteCompany}
+              onUpdateCompany={handleUpdateCompany}
               onOpenModal={handleOpenModal}
             />
           )}
@@ -349,7 +373,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             <span>
               HR Lead Mastery & Multi-Company Accelerator Platform &bull; Netlify Blobs & Gemini AI Powered
             </span>
-            <span className="text-slate-400">Targeting HR Excellence in Startups & Top IT MNCs</span>
+            <span className="text-slate-400">Targeting HR Excellence for Priyanka Vartak</span>
           </div>
         </footer>
       </div>

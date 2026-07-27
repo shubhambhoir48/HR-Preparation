@@ -8,6 +8,14 @@ export interface TargetCompany {
   type: 'Startup' | 'SaaS' | 'Enterprise';
   jd: string;
   aiNotes?: string;
+  interviewOutcome?: 'Shortlisted' | 'Rejected' | 'Interview Pending' | 'Offer Received';
+  askedQuestions?: string;
+  failureAnalysis?: string;
+  remediationPlan?: {
+    adaptiveSummary: string;
+    recommendedFocus: string[];
+    actionPlan: string;
+  };
 }
 
 export interface SOPPlaybook {
