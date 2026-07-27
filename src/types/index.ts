@@ -49,11 +49,24 @@ export interface StarStory {
   result: string;
 }
 
+export interface CustomTrainingModule {
+  title: string;
+  summary: string;
+  strengths: string[];
+  gaps: string[];
+  recommendedSOPs: string[];
+  recommendedTopics: string[];
+  priorityAction: string;
+}
+
 export interface UserProfile {
   name: string;
   level: string;
   linkedIn: string;
   resumeText: string;
+  resumeFileName?: string;
+  parsedSkills?: string[];
+  customTrainingModule?: CustomTrainingModule;
 }
 
 export interface UserProgress {
