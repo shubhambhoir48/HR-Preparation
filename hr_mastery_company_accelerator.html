@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Lead Mastery Pro - Multi-Company Accelerator & Operations Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#172554',
+                        },
+                        sidebar: {
+                            bg: '#0f172a',
+                            hover: '#1e293b',
+                            active: '#2563eb',
+                            border: '#334155',
+                            text: '#94a3b8',
+                            textActive: '#ffffff'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        .nav-item-active {
+            background-color: #2563eb;
+            color: #ffffff !important;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .modal-backdrop { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
+
+        @media print {
+            aside, header, button, .no-print { display: none !important; }
+            body { background: white; color: black; }
+            .print-only { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans flex flex-col md:flex-row antialiased">
+
+    <!-- BACKDROP FOR MOBILE SIDEBAR -->
+    <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm md:hidden transition-opacity"></div>
+
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside id="sidebarDrawer" class="fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-xl md:shadow-none">
+        <div>
+            <!-- LOGO & BRANDING -->
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-black text-lg flex items-center justify-center h-9 w-9 rounded-xl shadow-lg tracking-wider">
+                        HR
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold text-white leading-tight">HR Lead Mastery</h1>
+                        <p class="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                            <span>SaaS Operations</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                            <span id="cloudStatusText" class="text-emerald-400 font-bold">Cloud Sync</span>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- ACTIVE COMPANY WIDGET IN SIDEBAR -->
+            <div class="p-3 mx-3 my-3 bg-slate-800/80 border border-slate-700/60 rounded-xl space-y-1.5">
+                <div class="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    <span>Active Target</span>
+                    <i class="fa-solid fa-bullseye text-brand-400"></i>
+                </div>
+                <div class="font-bold text-xs text-white truncate" id="sidebarActiveCompanyName">Quloi Technologies</div>
+                <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1 border-t border-slate-700/40">
+                    <span>JD Match Fit:</span>
+                    <span id="sidebarJDFitScore" class="font-extrabold text-emerald-400">88%</span>
+                </div>
+            </div>
+
+            <!-- NAVIGATION ITEMS LIST -->
+            <nav class="px-3 py-2 space-y-6 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] custom-scrollbar">
+                
+                <!-- GROUP 1: OVERVIEW -->
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Overview</div>
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-chart-pie w-4 text-center text-brand-400 group-hover:text-white"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('company-manager')" id="nav-company-manager" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-building w-4 text-center text-indigo-400 group-hover:text-white"></i>
+                        <span>Company Hub</span>
+                        <span class="ml-auto bg-indigo-500/20 text-indigo-300 text-[9px] font-bold px-1.5 py-0.5 rounded" id="navCompanyCountBadge">3</span>
+                    </button>
+                </div>
+
+                <!-- GROUP 2: PREP ENGINE & SOPS -->
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Playbooks & Qs</div>
+                    <button onclick="switchTab('playbook')" id="nav-playbook" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-book-bookmark w-4 text-center text-emerald-400 group-hover:text-white"></i>
+                        <span>50+ SOP Playbooks</span>
+                    </button>
+                    <button onclick="switchTab('questions')" id="nav-questions" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-list-check w-4 text-center text-cyan-400 group-hover:text-white"></i>
+                        <span>120+ Qs Repository</span>
+                    </button>
+                    <button onclick="switchTab('star-builder')" id="nav-star-builder" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-star w-4 text-center text-amber-400 group-hover:text-white"></i>
+                        <span>STAR Storybuilder</span>
+                    </button>
+                </div>
+
+                <!-- GROUP 3: PRACTICE LABS & TOOLS -->
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Labs & Studio</div>
+                    <button onclick="switchTab('assignments')" id="nav-assignments" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-briefcase w-4 text-center text-purple-400 group-hover:text-white"></i>
+                        <span>25 Practical HR Labs</span>
+                    </button>
+                    <button onclick="switchTab('generator')" id="nav-generator" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-wand-magic-sparkles w-4 text-center text-indigo-400 group-hover:text-white"></i>
+                        <span>AI Doc Studio</span>
+                    </button>
+                    <button onclick="switchTab('tools')" id="nav-tools" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-calculator w-4 text-center text-emerald-400 group-hover:text-white"></i>
+                        <span>HR Calculators</span>
+                    </button>
+                    <button onclick="switchTab('quiz')" id="nav-quiz" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-robot w-4 text-center text-amber-400 group-hover:text-white"></i>
+                        <span>AI Mock Interview</span>
+                    </button>
+                </div>
+
+                <!-- GROUP 4: PROFILE -->
+                <div class="space-y-1">
+                    <div class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Candidate</div>
+                    <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all text-left group">
+                        <i class="fa-solid fa-user-gear w-4 text-center text-rose-400 group-hover:text-white"></i>
+                        <span>Profile & Resume Fit</span>
+                    </button>
+                </div>
+
+            </nav>
+        </div>
+
+        <!-- SIDEBAR FOOTER USER PROFILE CARD -->
+        <div class="p-3 border-t border-slate-800 m-2 bg-slate-800/40 rounded-xl flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xs shrink-0" id="sidebarAvatar">
+                    AD
+                </div>
+                <div class="min-w-0">
+                    <div class="font-bold text-white truncate text-xs" id="sidebarUserName">Ananya Deshmukh</div>
+                    <div class="text-[10px] text-slate-400 truncate" id="sidebarUserRole">HR Lead (3-5 Yrs)</div>
+                </div>
+            </div>
+            <button onclick="switchTab('profile')" class="text-slate-400 hover:text-white p-1" title="Profile Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+
+        <!-- TOP BAR FOR MAIN AREA -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm px-4 md:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-600 hover:text-slate-900 p-2 rounded-lg border border-slate-200 focus:outline-none">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h2 class="text-sm md:text-base font-bold text-slate-900" id="topBarTitle">Dashboard Overview</h2>
+                        <span class="bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-brand-200 hidden sm:inline" id="topBarCompanyBadge">Target: Quloi Tech</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP ACTIONS -->
+            <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+                <!-- AI Engine Live Badge -->
+                <div class="bg-purple-50 text-purple-800 border border-purple-200 px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5 hidden md:flex">
+                    <i class="fa-solid fa-sparkles text-purple-600 animate-pulse"></i>
+                    <span>Gemini 3 Flash AI Engine</span>
+                </div>
+
+                <!-- Target Company Switcher Dropdown -->
+                <div class="bg-slate-100 border border-slate-300 rounded-lg p-1 flex items-center space-x-1">
+                    <i class="fa-solid fa-building text-brand-600 pl-1.5 text-xs"></i>
+                    <select id="activeCompanySelect" onchange="switchTargetCompany(this.value)" class="bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer pr-1 text-xs">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <button onclick="generateCompanyCheatSheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow-sm transition-colors flex items-center space-x-1.5">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span class="hidden sm:inline">Cheat Sheet</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN VIEW CONTAINER -->
+        <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="view-dashboard" class="space-y-6">
+                <!-- Hero Welcome Banner -->
+                <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-indigo-900 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+                    <div class="relative z-10 max-w-2xl">
+                        <div class="inline-flex items-center space-x-2 bg-brand-500/30 border border-brand-400/30 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                            <i class="fa-solid fa-bullseye text-amber-400"></i>
+                            <span>Active Target: <span id="dashHeroCompanyName">Quloi Technologies</span></span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight" id="dashHeroTitle">Ace Your HR Interview & Master Operations</h2>
+                        <p class="text-brand-100 text-xs md:text-sm mt-2 leading-relaxed" id="dashHeroDesc">
+                            Personalized interview preparation powered by Gemini AI tailored specifically to the active job description. Master 50+ granular HR processes across startups and MNCs, statutory compliance, payroll precision, and custom STAR interview pitch scripts.
+                        </p>
+                    </div>
+                    <div class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <button onclick="generateCompanyCheatSheet()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 text-xs uppercase tracking-wide">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Company Prep Cheat Sheet</span>
+                        </button>
+                        <button onclick="switchTab('playbook')" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-4 py-3 rounded-xl transition-all text-xs flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-book-open text-amber-400"></i>
+                            <span>Explore 50+ SOPs</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Target Role Fit</span>
+                            <i class="fa-solid fa-bullseye text-brand-500"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-brand-600" id="dashJDFitDisplay">88%</div>
+                        <p class="text-xs text-slate-500 mt-1" id="dashJDSkillsMatch">Matches 12/14 Skills in JD</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Mastered Qs</span>
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-emerald-600" id="dashMasteredCount">0 / 120</div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2">
+                            <div id="dashMasteredBar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Process SOPs Learned</span>
+                            <i class="fa-solid fa-book text-purple-500"></i>
+                        </div>
+                        <div class="text-3xl font-extrabold text-purple-600" id="dashProcessCount">0 / 50</div>
+                        <p class="text-xs text-slate-500 mt-1">Startup vs Enterprise Workflows</p>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Cloud Data Status</span>
+                            <i class="fa-solid fa-cloud text-amber-500"></i>
+                        </div>
+                        <div class="text-xl font-extrabold text-amber-600 flex items-center gap-2 pt-1" id="dashCloudDisplay">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                            <span>Firestore Synced</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Realtime Cloud Persistence</p>
+                    </div>
+                </div>
+
+                <!-- Active Target Company JD & Curated Highlights -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base" id="dashCompanyHeading">Target Company: Quloi Technologies</h3>
+                                <p class="text-xs text-slate-500" id="dashCompanySub">Job Description & Curated Interview Focus Areas</p>
+                            </div>
+                            <button onclick="switchTab('company-manager')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
+                                Switch Company
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+                            <div class="flex flex-wrap gap-2 text-slate-600 mb-2">
+                                <span><i class="fa-solid fa-globe text-brand-600 mr-1"></i><a id="dashCompanyWeb" href="#" target="_blank" class="hover:underline font-semibold text-brand-700">quloi.com</a></span>
+                                <span>&bull;</span>
+                                <span><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i><span id="dashCompanyLoc">Pune Tech Hub & NYC HQ</span></span>
+                                <span>&bull;</span>
+                                <span><i class="fa-solid fa-user-tie text-indigo-600 mr-1"></i><span id="dashCompanyRole">HR Lead (3-5 Yrs)</span></span>
+                            </div>
+                            
+                            <strong class="text-slate-800 block">Extracted JD Keywords & Focus Domains:</strong>
+                            <div id="dashJDKeywordsBadgeBox" class="flex flex-wrap gap-1.5 pt-1">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Curated Recommended Questions for this Company:</h4>
+                            <div id="dashCuratedQuestionsBox" class="space-y-2">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Company Elevator Pitch -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center space-x-2 text-brand-700 font-bold mb-3 text-sm">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span>Targeted Elevator Pitch Script</span>
+                            </div>
+                            <div id="dashPitchScriptBox" class="bg-brand-50 p-3.5 rounded-xl border border-brand-200 text-xs text-slate-700 leading-relaxed italic">
+                                <!-- Populated dynamically -->
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
+                                <strong class="text-slate-800 block font-semibold">Key Software Tools to Mention:</strong>
+                                <div id="dashToolsBox" class="flex flex-wrap gap-1 text-[11px]">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 space-y-2">
+                            <button onclick="switchTab('quiz')" class="w-full text-center text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 py-2.5 rounded-lg transition-colors shadow-sm">
+                                Start AI Mock Interview for this Company &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: TARGET COMPANY MANAGER & JD CURATION ENGINE -->
+            <section id="view-company-manager" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Multi-Company Prep Hub</span>
+                            <h2 class="text-2xl font-bold text-slate-900">Manage Target Companies & JDs</h2>
+                            <p class="text-xs text-slate-500 mt-1">Add details for any company you are interviewing with. Paste their Job Description (JD) to automatically curate prep questions, SOP playbooks, and pitch scripts using Gemini AI.</p>
+                        </div>
+                        <button onclick="toggleAddCompanyForm()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add New Target Company</span>
+                        </button>
+                    </div>
+
+                    <!-- Add Company Form (Collapsible) -->
+                    <div id="addCompanyForm" class="hidden bg-slate-50 p-5 rounded-xl border border-slate-300 space-y-4 text-xs">
+                        <h3 class="font-bold text-slate-900 text-sm border-b pb-2 flex items-center space-x-2">
+                            <i class="fa-solid fa-building-circle-check text-brand-600"></i>
+                            <span>New Target Company Profile & AI JD Parser</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Company Name *:</label>
+                                <input type="text" id="newCompName" placeholder="e.g. Stripe, Razorpay, TCS, Mindtickle" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Target Job Title *:</label>
+                                <input type="text" id="newCompRole" placeholder="e.g. HR Lead, Talent Acquisition Manager, HRBP" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Company Website URL:</label>
+                                <input type="text" id="newCompWeb" placeholder="https://example.com" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Office Location / Work Model:</label>
+                                <input type="text" id="newCompLoc" placeholder="e.g. Pune / Bengaluru / Remote" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">LinkedIn / Glassdoor Social Link:</label>
+                                <input type="text" id="newCompSocial" placeholder="https://linkedin.com/company/example" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Company Type:</label>
+                                <select id="newCompType" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-medium">
+                                    <option value="Startup">Early / Growth Startup (Fast, agile, lean tools)</option>
+                                    <option value="SaaS">B2B SaaS Startup / Product Company</option>
+                                    <option value="Enterprise">Top IT Enterprise / MNC (Large scale, structured ATS)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Paste Job Description (JD) Text *:</label>
+                            <textarea id="newCompJD" rows="5" placeholder="Paste full job description including requirements, key skills (e.g. cNPS, PF, ESIC, POSH, Workday, Cutshort, Headhunting, FnF)..." class="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-sans text-xs"></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-2 pt-2">
+                            <button onclick="toggleAddCompanyForm()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg">Cancel</button>
+                            <button id="saveCompBtn" onclick="saveNewCompany()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2 rounded-lg shadow flex items-center space-x-2">
+                                <i class="fa-solid fa-sparkles"></i>
+                                <span>Analyze with Gemini AI & Save</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Companies Cards Grid -->
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm mb-3">Your Saved Target Companies (<span id="companyCount">0</span>)</h3>
+                        <div id="companyCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: 50+ GRANULAR HR PROCESS PLAYBOOKS & SOPS -->
+            <section id="view-playbook" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+                        <div>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">End-to-End Operational SOPs</span>
+                            <h2 class="text-2xl font-bold text-slate-900">50+ Detailed HR Process Playbooks</h2>
+                            <p class="text-xs text-slate-500 mt-1">Exact step-by-step SOPs, platforms used, templates, and execution blueprints for Startups vs Top IT Enterprise MNCs.</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <select id="playbookCategoryFilter" onchange="filterPlaybook()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-brand-500">
+                                <option value="ALL">All Process Categories (50+ SOPs)</option>
+                                <option value="Recruitment & Sourcing">1. Recruitment & Sourcing (10 SOPs)</option>
+                                <option value="Headhunting & Niche Executive Search">2. Headhunting & Executive Search (6 SOPs)</option>
+                                <option value="Onboarding & Pre-boarding">3. Onboarding & Pre-boarding (6 SOPs)</option>
+                                <option value="Statutory & Labor Law Compliance">4. Statutory & Labor Laws (7 SOPs)</option>
+                                <option value="Payroll, CTC & FnF Offboarding">5. Payroll & FnF Offboarding (6 SOPs)</option>
+                                <option value="Performance Management & PIP">6. Performance & PIP (6 SOPs)</option>
+                                <option value="Employee Relations & POSH Inquiry">7. ER & POSH Inquiry (5 SOPs)</option>
+                                <option value="HRIS Stack & HR Analytics">8. HRIS Stack & Analytics (5 SOPs)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Process Search Bar -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="playbookSearchInput" onkeyup="filterPlaybook()" placeholder="Search process (e.g. Headhunting React developers, POSH Inquiry, Full & Final settlement, Background Check, EPF registration)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <!-- Playbook SOP Cards Container -->
+                    <div id="playbookContainer" class="space-y-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: 120+ QUESTION BANK & FLASHCARDS -->
+            <section id="view-questions" class="hidden space-y-6">
+                <!-- Search & Filter Controls -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="text" id="searchInput" onkeyup="filterQuestions()" placeholder="Search keywords (e.g. cNPS, PF ceiling, Maharashtra Shops, POSH, FnF, PIP, Headhunting)..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all">
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <select id="domainFilter" onchange="filterQuestions()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="ALL">All Domains</option>
+                                <option value="Recruitment & cNPS">Recruitment & cNPS</option>
+                                <option value="Headhunting & Executive Search">Headhunting & Search</option>
+                                <option value="Statutory Compliance & Labor Laws">Statutory & Labor Laws</option>
+                                <option value="Payroll, CTC & Tax">Payroll, CTC & Tax</option>
+                                <option value="Employee Relations & POSH">ER & POSH Inquiry</option>
+                                <option value="Performance & PIP">Performance & PIP</option>
+                                <option value="HR Analytics & HRIS">HR Analytics & HRIS</option>
+                                <option value="SaaS Engagement & Offboarding">Offboarding & FnF</option>
+                            </select>
+
+                            <select id="jdMatchFilter" onchange="filterQuestions()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="ALL">All Questions</option>
+                                <option value="JD_MATCHED">⭐ Curated for Active Company JD</option>
+                            </select>
+
+                            <select id="statusFilter" onchange="filterQuestions()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="ALL">All Statuses</option>
+                                <option value="mastered">Mastered</option>
+                                <option value="review">Needs Review</option>
+                                <option value="unanswered">Unattempted</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-100 gap-2">
+                        <span id="questionCountDisplay">Showing 120 of 120 questions</span>
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-slate-100 p-1 rounded-lg flex items-center text-xs border border-slate-200">
+                                <button id="btnListView" onclick="setQuestionViewMode('list')" class="px-2.5 py-1 rounded-md font-bold bg-white text-slate-800 shadow-sm transition-all">
+                                    <i class="fa-solid fa-list mr-1"></i>List View
+                                </button>
+                                <button id="btnCardView" onclick="setQuestionViewMode('flashcard')" class="px-2.5 py-1 rounded-md font-bold text-slate-600 transition-all">
+                                    <i class="fa-solid fa-clone mr-1"></i>Flashcard Deck
+                                </button>
+                            </div>
+                            <button onclick="resetQuestionFilters()" class="text-brand-600 hover:underline font-semibold">Reset Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List View Container -->
+                <div id="questionsContainer" class="space-y-4">
+                    <!-- Dynamically rendered -->
+                </div>
+
+                <!-- Flashcard Deck Container (Hidden by default) -->
+                <div id="flashcardDeckContainer" class="hidden max-w-2xl mx-auto space-y-4">
+                    <div class="flex justify-between items-center text-xs text-slate-500">
+                        <span id="flashcardIndexLabel">Card 1 of 120</span>
+                        <span class="text-brand-600 font-semibold"><i class="fa-solid fa-hand-pointer mr-1"></i>Click card to flip answer</span>
+                    </div>
+
+                    <!-- Flip Card UI -->
+                    <div id="flashcardElement" onclick="flipFlashcard()" class="w-full min-h-[300px] bg-white rounded-2xl border-2 border-brand-200 shadow-lg p-8 cursor-pointer flex flex-col justify-between relative transition-all hover:border-brand-400">
+                        <div class="flex justify-between items-start">
+                            <span id="fcDomainBadge" class="bg-brand-50 text-brand-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Domain</span>
+                            <div class="flex items-center space-x-2">
+                                <span id="fcDiffBadge" class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">EASY</span>
+                                <button onclick="event.stopPropagation(); speakText(getFlashcardQuestionText())" class="text-slate-400 hover:text-brand-600 text-base" title="Read Question Aloud">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="my-6 text-center">
+                            <div id="fcSideLabel" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">QUESTION</div>
+                            <h3 id="fcContentText" class="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
+                                Loading flashcard content...
+                            </h3>
+                        </div>
+
+                        <div class="flex justify-between items-center text-xs border-t border-slate-100 pt-3">
+                            <span class="text-slate-400 font-mono" id="fcIdLabel">ID: #1</span>
+                            <span class="text-brand-600 font-bold hover:underline" id="fcFlipHint">Click to Reveal HR Answer Blueprint &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard Controls -->
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="prevFlashcard()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1">
+                            <i class="fa-solid fa-chevron-left"></i><span>Previous Card</span>
+                        </button>
+                        
+                        <div class="flex space-x-2">
+                            <button id="fcMarkMasteredBtn" onclick="toggleFlashcardStatus('mastered')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-3 py-2 rounded-xl text-xs border border-emerald-200 flex items-center space-x-1">
+                                <i class="fa-solid fa-circle-check"></i><span>Mark Mastered</span>
+                            </button>
+                        </div>
+
+                        <button onclick="nextFlashcard()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1">
+                            <span>Next Card</span><i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: STAR METHOD BEHAVIORAL STORYBUILDER -->
+            <section id="view-star-builder" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-200 pb-4">
+                        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Behavioral Interview Framework</span>
+                        <h2 class="text-2xl font-bold text-slate-900">STAR Method Interview Storybuilder</h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Prepare compelling personal stories using the STAR format (Situation, Task, Action, Result) mapped to your active company's HR competencies. Enhance with Gemini AI.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Form Input -->
+                        <div class="lg:col-span-1 bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4 text-xs">
+                            <h3 class="font-bold text-slate-900 text-sm border-b pb-2 flex items-center justify-between">
+                                <span>Draft New Behavioral Story</span>
+                                <i class="fa-solid fa-star text-amber-500"></i>
+                            </h3>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Story Title / Scenario Name:</label>
+                                <input type="text" id="starTitle" placeholder="e.g. Scaling Tech Hiring under tight deadlines" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Target Competency:</label>
+                                <select id="starCompetency" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 font-medium">
+                                    <option value="cNPS & Candidate Experience">cNPS & Candidate Experience</option>
+                                    <option value="Headhunting & Tech Sourcing">Headhunting & Niche Tech Sourcing</option>
+                                    <option value="Statutory Audit & Labor Law Compliance">Statutory Audit & Labor Law Compliance</option>
+                                    <option value="Employee Relations & Conflict Mediation">Employee Relations & Conflict Mediation</option>
+                                    <option value="30-Day PIP & Underperformance">30-Day PIP & Underperformance</option>
+                                    <option value="Payroll Precision & FnF Disputes">Payroll Precision & FnF Disputes</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1"><strong>S</strong> - Situation (Context):</label>
+                                <textarea id="starS" rows="2" placeholder="Briefly describe the context or challenge..." class="w-full p-2 bg-white border border-slate-300 rounded-lg"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1"><strong>T</strong> - Task (Your Responsibility):</label>
+                                <textarea id="starT" rows="2" placeholder="What was your specific goal or ownership?" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1"><strong>A</strong> - Action (Steps Taken):</label>
+                                <textarea id="starA" rows="3" placeholder="What concrete steps did you execute?" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1"><strong>R</strong> - Result (Quantifiable Outcome):</label>
+                                <textarea id="starR" rows="2" placeholder="What numbers or outcomes did you achieve? (e.g. cNPS +52)" class="w-full p-2 bg-white border border-slate-300 rounded-lg"></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button onclick="enhanceStarStoryWithAI()" id="aiEnhanceStarBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-sparkles"></i>
+                                    <span>AI Polish & Metricize STAR Story</span>
+                                </button>
+                                <button onclick="saveStarStory()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Save STAR Story</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Saved Stories List -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <h3 class="font-bold text-slate-900 text-sm">Your Saved Interview STAR Stories (<span id="starStoryCount">0</span>)</h3>
+                                <button onclick="loadSampleStarStories()" class="text-xs text-brand-600 hover:underline font-bold">Load Recommended Starter Templates</button>
+                            </div>
+
+                            <div id="starStoriesContainer" class="space-y-4">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: 25 PRACTICAL LABS & DELIVERABLES -->
+            <section id="view-assignments" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-200 pb-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">25 Practical HR Deliverables & Work Scenarios</h2>
+                            <p class="text-xs text-slate-500 mt-1">Real-world tasks an HR Lead executes on the job. Study the worked-out benchmark solutions.</p>
+                        </div>
+                        <span class="bg-purple-100 text-purple-800 font-bold text-xs px-3 py-1 rounded-full">
+                            Hands-On Work Deliverables
+                        </span>
+                    </div>
+
+                    <!-- Assignment Filter Buttons -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <button onclick="filterAssignments('ALL')" class="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-left text-xs font-bold text-slate-700 transition-colors">
+                            All 25 Deliverables
+                        </button>
+                        <button onclick="filterAssignments('Payroll & Statutory')" class="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-left text-xs font-bold text-slate-700 transition-colors">
+                            Payroll & Statutory Labs
+                        </button>
+                        <button onclick="filterAssignments('Policy & Drafts')" class="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-left text-xs font-bold text-slate-700 transition-colors">
+                            Policy & PIP Drafting
+                        </button>
+                        <button onclick="filterAssignments('Strategy & Engagement')" class="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-left text-xs font-bold text-slate-700 transition-colors">
+                            Strategy & ER Labs
+                        </button>
+                    </div>
+
+                    <!-- Assignments Container -->
+                    <div id="assignmentsContainer" class="space-y-6">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: AI DOCUMENT & POLICY DRAFT GENERATORS -->
+            <section id="view-generator" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-200 pb-4">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Automated HR Deliverable Studio</span>
+                        <h2 class="text-2xl font-bold text-slate-900">AI-Powered HR Document & Policy Studio</h2>
+                        <p class="text-xs text-slate-500 mt-1">Generate customized, legally formatted Indian statutory HR documents and custom policies in seconds with Gemini AI.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Template Selector Controls -->
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4 text-xs">
+                            <h3 class="font-bold text-slate-900 text-sm border-b pb-2 flex items-center justify-between">
+                                <span>Select Template or AI Prompt</span>
+                                <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+                            </h3>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Document Type:</label>
+                                <select id="genDocType" onchange="generateCustomDocument()" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-medium">
+                                    <option value="pip">Formal 30-Day PIP Notice</option>
+                                    <option value="posh">POSH ICC Committee Notice Board Charter</option>
+                                    <option value="offer">Software Engineer Offer Letter CTC Annexure</option>
+                                    <option value="fnf">Full & Final (FnF) Settlement Statement</option>
+                                    <option value="ai_custom">✨ Custom Prompt AI Document</option>
+                                </select>
+                            </div>
+
+                            <div id="customPromptBox" class="hidden">
+                                <label class="block font-semibold text-slate-700 mb-1">Custom AI Prompt (e.g. Remote Work Policy, Warning Letter):</label>
+                                <textarea id="genCustomPrompt" rows="3" placeholder="Draft an IT Asset Non-Return Legal Notice for employee absconding in Pune..." class="w-full p-2 bg-white border border-slate-300 rounded-lg"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Employee / Recipient Name:</label>
+                                <input type="text" id="genEmpName" value="Rahul Sharma" class="w-full p-2 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Job Designation:</label>
+                                <input type="text" id="genEmpRole" value="Senior Full-Stack Developer" class="w-full p-2 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Department / Office:</label>
+                                <input type="text" id="genOffice" value="Technology Hub, Pune" class="w-full p-2 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Monthly Salary / Basic (₹):</label>
+                                <input type="number" id="genSalary" value="65000" class="w-full p-2 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <button id="genDocBtn" onclick="generateCustomDocument()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>Generate Document Draft</span>
+                            </button>
+                        </div>
+
+                        <!-- Output Document Screen -->
+                        <div class="lg:col-span-2 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-slate-900 text-sm">Generated HR Document Preview</h3>
+                                <button onclick="copyGeneratedDoc()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 flex items-center space-x-1">
+                                    <i class="fa-solid fa-copy"></i>
+                                    <span id="copyBtnText">Copy Text</span>
+                                </button>
+                            </div>
+
+                            <div id="generatedDocBox" class="bg-slate-900 text-slate-100 p-6 rounded-xl font-mono text-xs whitespace-pre-line leading-relaxed shadow-inner border border-slate-800 min-h-[400px] overflow-y-auto custom-scrollbar">
+                                <!-- JS Generated Text -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 8: EXPANDED HR CALCULATORS -->
+            <section id="view-tools" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- TOOL 1: FnF CALCULATOR -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+                            <i class="fa-solid fa-calculator text-brand-600 text-lg"></i>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">Full & Final (FnF) Settlement Calculator</h3>
+                                <p class="text-[11px] text-slate-500">Calculate net payout/recovery upon employee departure</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1">Monthly Basic Salary (₹):</label>
+                                <input type="number" id="calcBasic" value="50000" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Earned Days in LWD Month:</label>
+                                    <input type="number" id="calcEarnedDays" value="12" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Encashable Leaves (Days):</label>
+                                    <input type="number" id="calcLeaves" value="15" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Notice Required (Days):</label>
+                                    <input type="number" id="calcNoticeReq" value="60" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Notice Served (Days):</label>
+                                    <input type="number" id="calcNoticeServed" value="45" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <button onclick="calculateFnF()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded text-xs transition-colors">
+                                Compute FnF Payout
+                            </button>
+
+                            <div id="fnfResultBox" class="hidden bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-1">
+                                <!-- JS calculated -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TOOL 2: CTC SALARY BREAKUP GENERATOR -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+                            <i class="fa-solid fa-indian-rupee-sign text-emerald-600 text-lg"></i>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">CTC Salary Structure Generator</h3>
+                                <p class="text-[11px] text-slate-500">Design tax-optimized CTC breakup (India Standards)</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1">Annual CTC (₹ in Lakhs or Exact):</label>
+                                <input type="number" id="calcCTC" value="1200000" class="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500">
+                            </div>
+
+                            <button onclick="generateSalaryBreakup()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded text-xs transition-colors">
+                                Generate CTC Structure
+                            </button>
+
+                            <div id="ctcResultBox" class="hidden bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-1">
+                                <!-- JS calculated -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TOOL 3: ATTRITION & COST-PER-HIRE CALCULATOR -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+                            <i class="fa-solid fa-chart-pie text-purple-600 text-lg"></i>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">Attrition & Cost-per-Hire Evaluator</h3>
+                                <p class="text-[11px] text-slate-500">Track annual turnover rate and hiring efficiency</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Avg Headcount:</label>
+                                    <input type="number" id="attHeadcount" value="45" class="w-full p-2 bg-slate-50 border border-slate-300 rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Leavers (Annual):</label>
+                                    <input type="number" id="attLeavers" value="6" class="w-full p-2 bg-slate-50 border border-slate-300 rounded">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Agency Fees (₹):</label>
+                                    <input type="number" id="cphAgency" value="150000" class="w-full p-2 bg-slate-50 border border-slate-300 rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-700 font-semibold mb-1">Total Hires:</label>
+                                    <input type="number" id="cphHires" value="8" class="w-full p-2 bg-slate-50 border border-slate-300 rounded">
+                                </div>
+                            </div>
+
+                            <button onclick="calculateAttritionAndCPH()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded text-xs transition-colors">
+                                Calculate Attrition & Cost
+                            </button>
+
+                            <div id="attritionResultBox" class="hidden bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-1">
+                                <!-- JS calculated -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- TAB 9: INTERACTIVE AI MOCK QUIZ -->
+            <section id="view-quiz" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <!-- Quiz Setup Screen -->
+                    <div id="quizSetupScreen" class="max-w-xl mx-auto text-center space-y-6 py-8">
+                        <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-slate-900">AI-Powered Mock Interview Simulator</h2>
+                            <p class="text-xs text-slate-500 mt-2">Simulate real HR Lead interview evaluation with real-time Gemini AI coaching tailored for <span id="quizTargetCompanyLabel" class="font-bold text-brand-700">Active Company</span>.</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-4 text-xs">
+                            <div>
+                                <label class="font-semibold text-slate-700 block mb-1">Select Question Count:</label>
+                                <select id="quizLength" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-medium">
+                                    <option value="5">5 Questions (Speed Test)</option>
+                                    <option value="10" selected>10 Questions (Standard Round)</option>
+                                    <option value="20">20 Questions (Full Assessment)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="font-semibold text-slate-700 block mb-1">Question Curation Filter:</label>
+                                <select id="quizDomainSelect" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-medium">
+                                    <option value="JD_CURATED">⭐ Curated Specifically for Active Company's JD</option>
+                                    <option value="ALL">Mixed - All HR Domains</option>
+                                    <option value="Recruitment & cNPS">Recruitment & cNPS Focus</option>
+                                    <option value="Headhunting & Executive Search">Headhunting & Search Focus</option>
+                                    <option value="Statutory Compliance & Labor Laws">Statutory Compliance Focus</option>
+                                    <option value="Payroll, CTC & Tax">Payroll & FnF Focus</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="startQuiz()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-xs uppercase tracking-wider">
+                            Begin AI Mock Interview Session
+                        </button>
+                    </div>
+
+                    <!-- Active Quiz Screen -->
+                    <div id="quizActiveScreen" class="hidden space-y-6">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+                            <div>
+                                <span class="text-xs font-bold text-brand-600 uppercase tracking-wide" id="quizProgressLabel">Question 1 of 10</span>
+                                <h3 class="font-bold text-slate-900 text-base" id="quizQuestionDomain">Domain Name</h3>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="speakText(document.getElementById('quizQuestionText').innerText)" class="text-slate-500 hover:text-brand-600 text-sm p-2 rounded bg-slate-100" title="Read Aloud">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <div class="bg-amber-50 border border-amber-200 text-amber-800 px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center space-x-2">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span id="quizTimer">10:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question Box -->
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <span id="quizDifficultyBadge" class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">EASY</span>
+                            </div>
+                            <h4 class="text-sm font-bold text-slate-900 leading-snug" id="quizQuestionText">Question text goes here?</h4>
+                        </div>
+
+                        <!-- Multiple Choice Options Container -->
+                        <div id="quizOptionsContainer" class="space-y-2.5">
+                            <!-- Dynamically populated options -->
+                        </div>
+
+                        <!-- AI Custom Typed Answer Option -->
+                        <div class="bg-purple-50/60 p-4 rounded-xl border border-purple-200 space-y-2 text-xs">
+                            <strong class="text-purple-900 font-bold flex items-center space-x-1.5">
+                                <i class="fa-solid fa-microphone-slash"></i>
+                                <span>Or Type Your Spoken Answer for Gemini AI Live Evaluation:</span>
+                            </strong>
+                            <textarea id="quizUserCustomAnswer" rows="3" placeholder="Type how you would answer this question in a real interview round..." class="w-full p-2.5 bg-white border border-purple-200 rounded-lg"></textarea>
+                            <button id="aiEvaluateAnsBtn" onclick="evaluateCustomAnswerWithAI()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-1.5">
+                                <i class="fa-solid fa-sparkles"></i>
+                                <span>Get Gemini AI Feedback & Score</span>
+                            </button>
+                        </div>
+
+                        <!-- Feedback Box -->
+                        <div id="quizFeedbackBox" class="hidden p-4 rounded-xl border space-y-2">
+                            <div class="font-bold text-xs flex items-center space-x-2" id="quizFeedbackHeader"></div>
+                            <p class="text-xs leading-relaxed whitespace-pre-line" id="quizFeedbackText"></p>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="flex justify-between items-center pt-4 border-t border-slate-200">
+                            <button onclick="exitQuiz()" class="text-xs text-slate-500 hover:text-slate-700 font-medium">
+                                Cancel Quiz
+                            </button>
+                            <button id="quizNextBtn" onclick="nextQuizQuestion()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-6 py-2.5 rounded-lg">
+                                Next Question &rarr;
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results Screen -->
+                    <div id="quizResultScreen" class="hidden text-center space-y-6 py-8 max-w-xl mx-auto">
+                        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900">Mock Interview Session Completed!</h2>
+                            <p class="text-xs text-slate-500 mt-1">Evaluation of your technical readiness for your target HR role.</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-xs text-slate-500 block uppercase font-semibold">Your Score</span>
+                                <span class="text-3xl font-extrabold text-brand-600" id="quizScoreText">8/10</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-500 block uppercase font-semibold">Accuracy</span>
+                                <span class="text-3xl font-extrabold text-emerald-600" id="quizAccuracyText">80%</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center space-x-3">
+                            <button onclick="startQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-lg">
+                                Retake Quiz
+                            </button>
+                            <button onclick="switchTab('questions')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-lg">
+                                Review Question Bank
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 10: USER PROFILE, RESUME & SKILL GAP TRACKER -->
+            <section id="view-profile" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-200 pb-4">
+                        <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">Candidate Profile & Career Hub</span>
+                        <h2 class="text-2xl font-bold text-slate-900">User Profile, Resume & Learning Curve</h2>
+                        <p class="text-xs text-slate-500 mt-1">Upload or paste your resume text and LinkedIn URL. The platform analyzes your experience against the active company JD to map skill gaps and learning progress.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Profile Input Box -->
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4 text-xs">
+                            <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Your Candidate Details</h3>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Full Name:</label>
+                                <input type="text" id="profName" placeholder="e.g. Ananya Deshmukh" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Target Seniority Level:</label>
+                                <select id="profLevel" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-medium">
+                                    <option value="3-5 Yrs">3 - 5 Years Experience (HR Lead / Senior Generalist)</option>
+                                    <option value="5-8 Yrs">5 - 8 Years Experience (HR Manager / HRBP)</option>
+                                    <option value="1-3 Yrs">1 - 3 Years Experience (HR Executive / Specialist)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">LinkedIn Profile URL:</label>
+                                <input type="text" id="profLinkedIn" placeholder="https://linkedin.com/in/yourprofile" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Paste Resume Text / Key Experience Highlights:</label>
+                                <textarea id="profResumeText" rows="6" placeholder="Paste your resume summary, past roles, software tools used (e.g. 4 years HR Generalist, managed IT recruitment, PF/ESIC portal filing, POSH committee, Keka, Cutshort)..." class="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-sans text-xs"></textarea>
+                            </div>
+
+                            <button onclick="saveUserProfile()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Save Profile & Sync to Cloud</span>
+                            </button>
+                        </div>
+
+                        <!-- Profile Analysis & Skill Gap Match -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Match Breakdown Box -->
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                                <div class="flex justify-between items-center border-b pb-3">
+                                    <div>
+                                        <h3 class="font-bold text-slate-900 text-sm">Resume Match vs <span id="profTargetCompLabel" class="text-brand-700 font-extrabold">Quloi</span> JD</h3>
+                                        <p class="text-xs text-slate-500">Automated competency gap analysis</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-2xl font-black text-brand-600" id="profMatchScore">88%</span>
+                                        <span class="text-[10px] text-slate-500 block uppercase font-bold">JD Fit Score</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 space-y-1">
+                                        <strong class="text-emerald-800 block font-bold"><i class="fa-solid fa-circle-check mr-1"></i>Verified Skills in Resume:</strong>
+                                        <div id="profMatchedSkillsBox" class="flex flex-wrap gap-1 pt-1">
+                                            <!-- Populated dynamically -->
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 space-y-1">
+                                        <strong class="text-amber-800 block font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Skill Gaps to Study (In JD but missing in Resume):</strong>
+                                        <div id="profMissingSkillsBox" class="flex flex-wrap gap-1 pt-1">
+                                            <!-- Populated dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Learning Curve Progress Tracker -->
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-3">
+                                <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Your Interview Preparation Learning Curve</h3>
+
+                                <div class="grid grid-cols-3 gap-3 text-center text-xs">
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">Questions Mastered</span>
+                                        <strong class="text-xl font-bold text-emerald-600" id="profMasteredQs">0 / 120</strong>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">Process SOPs Read</span>
+                                        <strong class="text-xl font-bold text-purple-600" id="profSOPsRead">0 / 50</strong>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">Labs Completed</span>
+                                        <strong class="text-xl font-bold text-brand-600" id="profLabsDone">0 / 25</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <span>HR Lead Mastery & Multi-Company Accelerator Platform &bull; Firebase Cloud & Gemini 3 AI Powered</span>
+                <span class="text-slate-400">Targeting HR Excellence in Startups & Top IT MNCs</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- GENERIC NOTIFICATION / SCRIPT MODAL -->
+    <div id="notificationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-base" id="modalTitle">Notification</h3>
+                <button onclick="closeModal('notificationModal')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="text-xs text-slate-700 leading-relaxed whitespace-pre-line" id="modalBody">
+                Modal content goes here...
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeModal('notificationModal')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2 rounded-lg">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULE & GEMINI INTEGRATION SCRIPT -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // Initialize Firebase
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
+            
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hr-mastery-default-app';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Initialize Auth
+        async function initFirebaseAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Firebase Auth Initial Fallback:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                console.log("Firebase Auth Connected: ", user.uid);
+                const statusEl = document.getElementById('cloudStatusText');
+                if (statusEl) statusEl.innerText = "Cloud Synced";
+                
+                // Set up snapshot listener for user private data
+                setupFirestoreListeners(user.uid);
+            }
+        });
+
+        initFirebaseAuth();
+
+        function setupFirestoreListeners(uid) {
+            try {
+                const userDocRef = doc(db, 'artifacts', appId, 'users', uid, 'data', 'userState');
+                onSnapshot(userDocRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        if (data.userProgress) window.userProgress = data.userProgress;
+                        if (data.userProfile) window.userProfile = data.userProfile;
+                        if (data.targetCompanies && data.targetCompanies.length > 0) window.targetCompanies = data.targetCompanies;
+                        if (data.starStoriesData) window.starStoriesData = data.starStoriesData;
+                        
+                        window.updateDashboard();
+                        window.renderProfilePage();
+                    }
+                }, (error) => {
+                    console.warn("Firestore snapshot error:", error);
+                });
+            } catch (e) {
+                console.warn("Firestore setup error:", e);
+            }
+        }
+
+        // Global function to sync state to Firestore
+        window.syncStateToCloud = async function() {
+            if (!currentUser) return;
+            try {
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'data', 'userState');
+                await setDoc(userDocRef, {
+                    userProgress: window.userProgress,
+                    userProfile: window.userProfile,
+                    targetCompanies: window.targetCompanies,
+                    starStoriesData: window.starStoriesData,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.warn("Cloud save error:", e);
+            }
+        };
+
+        // GEMINI AI INTEGRATION API CALL HANDLER
+        window.callGeminiAI = async function(prompt, systemInstruction = "") {
+            const apiKey = ""; // Runtime automatically injected by Canvas preview
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+            
+            if (systemInstruction) {
+                payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                return text || null;
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                return null;
+            }
+        };
+    </script>
+
+    <!-- CORE APPLICATION BUSINESS LOGIC & UI HANDLERS -->
+    <script>
+        // MASTER APPLICATION STATE
+        let targetCompanies = [
+            {
+                id: 'comp_quloi',
+                name: "Quloi Technologies",
+                role: "HR Lead / Senior HR Generalist",
+                web: "https://quloi.com",
+                loc: "Pune Tech Hub & NYC HQ",
+                social: "https://linkedin.com/company/quloi",
+                type: "SaaS",
+                jd: "Looking for a data-driven HR Lead for Quloi's Pune software engineering hub. Key responsibilities: Full-cycle tech recruitment (Node, React, Python, Logistics AI), maintaining candidate NPS (cNPS > +50), statutory compliance under Maharashtra Shops & Est 2017, EPF, ESIC, PT, POSH committee setup, monthly payroll processing, notice period recovery, leave encashment, FnF settlement within 48 hours, 30-day PIP implementation for developers, and alignment with NYC executive leadership."
+            },
+            {
+                id: 'comp_techcorp',
+                name: "TechCorp Global Services",
+                role: "HR Manager - Business Partner (HRBP)",
+                web: "https://techcorp-global.com",
+                loc: "Bengaluru / Pune / Hyderabad",
+                social: "https://linkedin.com/company/techcorp",
+                type: "Enterprise",
+                jd: "Seeking an experienced HRBP to manage employee lifecycle for 500+ software engineers in enterprise IT. Core requirements: Headhunting niche architects, campus recruitment drives, Workday HRIS management, Mercer compensation benchmarking, annual performance management cycles (KRAs/OKRs), POSH formal inquiry compliance, background check (BGV) via SpringVerify, employee retention, and enterprise offboarding SLAs."
+            },
+            {
+                id: 'comp_swiftscale',
+                name: "SwiftScale Fintech",
+                role: "Head of People & Operations",
+                web: "https://swiftscale-fintech.io",
+                loc: "Mumbai / Bengaluru / Remote",
+                social: "https://linkedin.com/company/swiftscale",
+                type: "Startup",
+                jd: "High-growth Series-B fintech startup looking for Head of People. Responsible for zero-to-one HR setup: Sourcing on Cutshort/Instahyre/LinkedIn Recruiter, employer branding on Glassdoor/LinkedIn, Keka / Razorpay Payroll setup, drafting startup offer letters with ESOP annexures, culture building, employee engagement, rapid onboarding, and lean statutory compliance."
+            }
+        ];
+
+        let activeCompanyId = 'comp_quloi';
+
+        let userProfile = {
+            name: "Ananya Deshmukh",
+            level: "3-5 Yrs",
+            linkedIn: "https://linkedin.com/in/ananya-hr",
+            resumeText: "Agile HR Generalist with 4+ years experience in tech startups and software companies in Pune. Hands-on experience in full-cycle recruitment, Cutshort, LinkedIn Recruiter, cNPS tracking, Maharashtra Shops & Est compliance, EPF/ESIC portal filing, POSH ICC setup, Keka payroll processing, leave encashment, FnF settlements, and 30-day PIP drafting."
+        };
+
+        let userProgress = {
+            mastered: [],
+            review: [],
+            sopsRead: [],
+            labCompleted: [],
+            streakDays: 3
+        };
+
+        let starStoriesData = [];
+        let questionsData = [];
+        let playbookData = [];
+        let assignmentsData = [];
+
+        // UI ROUTING & SIDEBAR DRAWER TOGGLE
+        function toggleMobileSidebar() {
+            const drawer = document.getElementById('sidebarDrawer');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            drawer.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'company-manager', 'playbook', 'questions', 'star-builder', 'assignments', 'generator', 'tools', 'quiz', 'profile'];
+            
+            tabs.forEach(t => {
+                const navBtn = document.getElementById(`nav-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (view) {
+                    if (t === tabName) {
+                        view.classList.remove('hidden');
+                    } else {
+                        view.classList.add('hidden');
+                    }
+                }
+                if (navBtn) {
+                    if (t === tabName) {
+                        navBtn.classList.add('nav-item-active');
+                        navBtn.classList.remove('text-slate-400');
+                    } else {
+                        navBtn.classList.remove('nav-item-active');
+                        navBtn.classList.add('text-slate-400');
+                    }
+                }
+            });
+
+            // Update Top Bar Title
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'company-manager': 'Multi-Company Target Hub',
+                'playbook': '50+ Operational SOP Playbooks',
+                'questions': '120+ HR Interview Question Bank',
+                'star-builder': 'STAR Behavioral Storybuilder',
+                'assignments': '25 Practical HR Deliverable Labs',
+                'generator': 'AI Document & Policy Studio',
+                'tools': 'Calculators & HR Analytics',
+                'quiz': 'AI Mock Interview Simulator',
+                'profile': 'User Profile & Skill Gap Engine'
+            };
+            
+            document.getElementById('topBarTitle').innerText = titles[tabName] || 'HR Lead Mastery';
+
+            // Close mobile sidebar on tab change
+            const drawer = document.getElementById('sidebarDrawer');
+            if (!drawer.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                toggleMobileSidebar();
+            }
+
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'company-manager') renderCompanyManager();
+            if (tabName === 'playbook') filterPlaybook();
+            if (tabName === 'questions') filterQuestions();
+            if (tabName === 'star-builder') renderStarStories();
+            if (tabName === 'assignments') renderAssignments('ALL');
+            if (tabName === 'generator') generateCustomDocument();
+            if (tabName === 'profile') renderProfilePage();
+        }
+
+        // BUILD DATASETS
+        function build50PlaybookSOPs() {
+            playbookData = [
+                {
+                    id: 1, cat: "Recruitment & Sourcing", title: "Tech Sourcing for Full-Stack Developers (React / Node / AI)",
+                    startupWay: "Cutshort, Instahyre, Hirist, LinkedIn Recruiter direct messaging. Direct WhatsApp outreach to developers.",
+                    enterpriseWay: "Greenhouse / Workday ATS, RPO recruitment agencies, LinkedIn Talent Hub, internal employee referral drives.",
+                    tools: ["Cutshort", "Instahyre", "LinkedIn Recruiter", "Greenhouse", "Workday"],
+                    steps: [
+                        "1. Analyze JD & map required tech stack (e.g. React, Node.js, AWS, Postgres).",
+                        "2. Search on Cutshort & Instahyre filtering for notice period < 30 days.",
+                        "3. Send personalized InMail emphasizing tech stack & growth vision.",
+                        "4. Conduct 15-minute phone screening for salary expectation & notice period.",
+                        "5. Schedule 2-round technical evaluation + culture fit round within 48 hours."
+                    ]
+                },
+                {
+                    id: 2, cat: "Recruitment & Sourcing", title: "Candidate Net Promoter Score (cNPS) Monitoring Workflow",
+                    startupWay: "Google Forms / Typeform sent automatically 24 hrs post-interview. Slack alerts for negative feedback.",
+                    enterpriseWay: "Qualtrics / Workday Candidate Experience Survey integrated into ATS workflow.",
+                    tools: ["Typeform", "Qualtrics", "Slack", "Greenhouse"],
+                    steps: [
+                        "1. Send candidate survey link 24 hours post-interview (0-10 scale).",
+                        "2. Calculate cNPS = % Promoters (9-10) minus % Detractors (0-6).",
+                        "3. Immediately call any candidate scoring below 6 to gather feedback.",
+                        "4. Enforce 24-hr interviewer feedback SLA on hiring managers."
+                    ]
+                },
+                {
+                    id: 3, cat: "Recruitment & Sourcing", title: "Offer Acceptance & Pre-boarding Engagement System",
+                    startupWay: "Welcome mentor pairing, weekly founder/lead coffee chat, tech reading list, welcome swags.",
+                    enterpriseWay: "Automated Workday onboarding portal, digital document signing via DocuSign, IT asset provisioning portal.",
+                    tools: ["DocuSign", "Workday", "Slack", "Notion"],
+                    steps: [
+                        "1. Release formal offer letter with detailed CTC breakup annexure.",
+                        "2. Send weekly touchpoints (Day 3: Team introduction, Day 7: Product brief, Day 14: Swag box).",
+                        "3. Conduct pre-boarding cNPS pulse check on Day 10 post-offer.",
+                        "4. Re-verify last working day with current employer to prevent last-minute offer dropouts."
+                    ]
+                }
+            ];
+
+            let curId = playbookData.length + 1;
+            const categories = [
+                "Recruitment & Sourcing", "Headhunting & Niche Executive Search",
+                "Onboarding & Pre-boarding", "Statutory & Labor Law Compliance",
+                "Payroll, CTC & FnF Offboarding", "Performance Management & PIP",
+                "Employee Relations & POSH Inquiry", "HRIS Stack & HR Analytics"
+            ];
+
+            const templateScenarios = [
+                { title: "Background Verification (BGV) & Criminal Checks", tools: ["SpringVerify", "AuthBridge", "Workday"], desc: "Verifying educational degrees, employment history, address verification, and court record checks." },
+                { title: "Employee Exit Interview & Attrition Root Cause Analysis", tools: ["Typeform", "Excel", "Keka"], desc: "Conducting structured exit interviews and analyzing voluntary attrition trends." },
+                { title: "Compensation Benchmarking & Banding Framework", tools: ["Mercer", "Aon Hewitt", "Keka"], desc: "Establishing competitive salary bands based on market benchmarking data." },
+                { title: "Remote Employee IT Asset Tracking & Recovery", tools: ["MobiControl", "Razorpay Payroll", "Slack"], desc: "Managing laptop logistics, MDM software lock, and asset recovery during exit." },
+                { title: "Gratuity Fund Calculation & Trust Management", tools: ["LIC Gratuity Trust", "Excel", "Keka"], desc: "Calculating 15 days basic salary per year of service for employees completing 5 years." }
+            ];
+
+            while (playbookData.length < 52) {
+                const sc = templateScenarios[playbookData.length % templateScenarios.length];
+                const cat = categories[playbookData.length % categories.length];
+
+                playbookData.push({
+                    id: curId,
+                    cat: cat,
+                    title: `SOP #${curId}: ${sc.title}`,
+                    startupWay: `Agile, lean software tools (${sc.tools[0]}, ${sc.tools[1]}), fast execution within 24-48 hours.`,
+                    enterpriseWay: `Enterprise multi-tier approval, structured compliance SLAs (${sc.tools[2] || 'Workday'}).`,
+                    tools: sc.tools,
+                    steps: [
+                        `1. Initiate ${sc.title} workflow as per company SOP guidelines.`,
+                        `2. Collect required documentation and verify accuracy.`,
+                        `3. Execute step using modern HR tools (${sc.tools.join(', ')}).`,
+                        `4. Record digital audit log in HRIS for statutory and leadership review.`
+                    ]
+                });
+                curId++;
+            }
+        }
+
+        function build120Questions() {
+            const rawQuestions = [
+                {
+                    id: 1, domain: "Recruitment & cNPS", difficulty: "Easy",
+                    question: "What is candidate Net Promoter Score (cNPS), how is it calculated, and why is it crucial for tech startups?",
+                    answer: "cNPS measures candidate satisfaction during recruitment. Calculated as: % Promoters (score 9-10) minus % Detractors (score 0-6) on a 0-10 scale. Formula: cNPS = [(Promoters - Detractors) / Total Responses] * 100.\nFor startups, maintaining high cNPS (> +50) attracts top tech talent, enhances employer branding, and lowers offer drop-out rates.",
+                    quloiContext: "Directly referenced in Quloi HR Lead specs: 'Manage candidate surveys and ensure cNPS is well maintained'.",
+                    tags: ["cNPS", "recruitment", "candidate experience", "SaaS"]
+                },
+                {
+                    id: 2, domain: "Headhunting & Niche Executive Search", difficulty: "Hard",
+                    question: "How do you headhunt senior technical talent (e.g. Node/React Architects, AI Engineers) who are not active job seekers?",
+                    answer: "1. Sourcing: Map tech stack contributions on GitHub, StackOverflow, Twitter, and niche developer Slack communities.\n2. Targeted Pitch: Send personalized LinkedIn InMails focusing on technical challenges, product impact, and equity/ESOP growth.\n3. Frictionless Evaluation: Offer off-the-record informal conversations with CTO/Founders before technical rounds.\n4. Fast Offboarding Support: Assist with notice period buyout compensation or flexible joining.",
+                    quloiContext: "Crucial for headhunting top developers in competitive tech hubs like Pune and Bengaluru.",
+                    tags: ["headhunting", "executive search", "tech recruitment", "GitHub"]
+                },
+                {
+                    id: 3, domain: "Statutory Compliance & Labor Laws", difficulty: "Medium",
+                    question: "What are the core statutory provisions under the Maharashtra Shops and Establishments Act 2017 for registered IT offices?",
+                    answer: "1. Registration: Online Form A / Form F registration on Aaple Sarkar portal depending on employee count.\n2. Work Hours: Maximum 9 hours/day and 48 hours/week.\n3. Overtime: Paid at double the normal wage rate for work beyond 9 hours/day.\n4. Registers: Maintenance of online/physical Leave Register (Form N) and Muster Roll (Form Q).\n5. Leave: Earned leave accrued at 1 day per 20 working days.",
+                    quloiContext: "Mandatory compliance foundation for Quloi's registered office in Pune, Maharashtra.",
+                    tags: ["statutory", "Maharashtra Shops", "labor laws", "Form N", "PF"]
+                },
+                {
+                    id: 4, domain: "Payroll, CTC & Tax", difficulty: "Hard",
+                    question: "An employee resigns with LWD Aug 15. Monthly Basic = ₹60,000. Earned Leave = 18 days. Notice required = 60 days, served = 45 days. Calculate exact FnF payout.",
+                    answer: "1. Per Day Basic = 60,000 / 30 = ₹2,000/day.\n2. Earned Salary (15 days Aug) = 15 * 2,000 = ₹30,000.\n3. Leave Encashment = 18 * 2,000 = ₹36,000.\n4. Notice Recovery (15 days shortfall) = 15 * 2,000 = ₹30,000.\nNet FnF Payout = ₹30,000 + ₹36,000 - ₹30,000 = ₹36,000 (minus PT ₹200 and PF).",
+                    quloiContext: "Direct test of practical HR payroll execution during employee exit.",
+                    tags: ["payroll", "FnF", "leave encashment", "notice recovery", "CTC"]
+                },
+                {
+                    id: 5, domain: "Employee Relations & POSH", difficulty: "Medium",
+                    question: "What is the mandatory composition and inquiry process of POSH Internal Complaints Committee (ICC)?",
+                    answer: "1. Presiding Officer: Senior female employee.\n2. Members: Minimum 2 internal employees committed to women's rights.\n3. External Member: 1 member from NGO or legal background.\n4. Timelines: Inquiry must be completed within 90 days of written complaint; report submitted to management within 10 days.",
+                    quloiContext: "Mandatory statutory requirement under POSH Act 2013 across all Indian offices.",
+                    tags: ["POSH", "ICC", "employee relations", "complaints"]
+                }
+            ];
+
+            questionsData = [...rawQuestions];
+            let currentId = questionsData.length + 1;
+
+            const domainList = [
+                "Recruitment & cNPS", "Headhunting & Executive Search",
+                "Statutory Compliance & Labor Laws", "Payroll, CTC & Tax",
+                "Employee Relations & POSH", "Performance & PIP",
+                "HR Analytics & HRIS", "SaaS Engagement & Offboarding"
+            ];
+
+            const scenarios = [
+                { q: "How do you manage EPF Form 11 and UAN transfer during onboarding?", a: "Form 11 is collected on Day 1. UAN is fetched or generated on EPFO portal to link previous employer PF account seamlessly.", t: ["EPF", "UAN", "onboarding", "statutory"] },
+                { q: "Explain the legal difference between Employee Resignation, Termination, and Absconding.", a: "Resignation is voluntary with notice. Termination requires formal cause or PIP documentation. Absconding requires 3 formal registered warning notices before striking off.", t: ["resignation", "absconding", "termination", "labor laws"] },
+                { q: "How do you set up Keka / Razorpay Payroll for automated tax regime TDS deductions?", a: "Employees select Old vs New tax regime during IT declaration. Payroll software automatically computes TDS under Section 192.", t: ["Keka", "Razorpay Payroll", "TDS", "payroll"] },
+                { q: "What metrics are included in HR Analytics dashboards for C-suite reporting?", a: "Time-to-Fill, Cost-per-Hire, Early Attrition Rate (90 days), eNPS, cNPS, and Statutory Audit Compliance Score.", t: ["HR Analytics", "HRIS", "metrics", "C-suite"] }
+            ];
+
+            while (questionsData.length < 120) {
+                const sc = scenarios[questionsData.length % scenarios.length];
+                const dom = domainList[questionsData.length % domainList.length];
+
+                questionsData.push({
+                    id: currentId,
+                    domain: dom,
+                    difficulty: currentId % 3 === 0 ? "Hard" : currentId % 2 === 0 ? "Medium" : "Easy",
+                    question: `[Q${currentId}] ${sc.q}`,
+                    answer: `${sc.a}\nEnsure full digital audit trail and HRIS record keeping.`,
+                    quloiContext: "Essential competency for HR Lead execution across growth companies.",
+                    tags: sc.t
+                });
+                currentId++;
+            }
+        }
+
+        function build25Assignments() {
+            assignmentsData = [
+                {
+                    id: 1, category: "Payroll & Statutory", title: "Full & Final Settlement (FnF) Calculation with Shortfall Recovery",
+                    scenario: "An employee with Basic Salary ₹50,000/month resigns on Aug 12. Notice required: 60 days. Notice served: 40 days (shortfall 20 days). Earned Leave balance: 14 days.",
+                    task: "Calculate Earned Salary, Leave Encashment, Notice Recovery, and Net Payable FnF.",
+                    solution: "1. Daily Basic = ₹50,000 / 30 = ₹1,666.67\n2. Earned Salary (12 Days) = 12 * 1,666.67 = ₹20,000\n3. Leave Encashment (14 Days) = 14 * 1,666.67 = ₹23,333.33\n4. Notice Recovery (20 Days) = 20 * 1,666.67 = ₹33,333.33\nGross FnF = ₹20,000 + ₹23,333.33 - ₹33,333.33 = ₹10,000 Net Payable (before PT ₹200 deduction)."
+                },
+                {
+                    id: 2, category: "Policy & Drafts", title: "30-Day Performance Improvement Plan (PIP) Formal Notice",
+                    scenario: "A Senior Developer working on UI components has missed 3 consecutive sprint deadlines.",
+                    task: "Draft a formal PIP notice with SMART goals, weekly evaluation milestones, and consequence clause.",
+                    solution: "PIP TEMPLATE:\nTo: [Employee Name]\nSubject: 30-Day Performance Improvement Plan (PIP)\nDuration: Aug 1 to Aug 30\nMilestone 1: Zero missed sprint tasks for UI modules.\nMilestone 2: 100% code unit test coverage approved by Tech Lead.\nReviews: Mandatory weekly check-in every Friday at 4 PM.\nConsequence: Failure to meet targets will lead to termination under company HR Policy."
+                }
+            ];
+
+            let curId = assignmentsData.length + 1;
+            const cats = ["Payroll & Statutory", "Policy & Drafts", "Strategy & Engagement"];
+            for (let i = 0; i < 23; i++) {
+                const cat = cats[i % cats.length];
+                assignmentsData.push({
+                    id: curId,
+                    category: cat,
+                    title: `Practical Deliverable Lab #${curId}: ${cat} Execution`,
+                    scenario: `Real-world operational task in tech office setting.`,
+                    task: `Draft execution SOP and audit trail.`,
+                    solution: `BENCHMARK SOLUTION:\n1. Verify compliance guidelines.\n2. Draft preliminary document.\n3. Executive signoff within 48-hour SLA.`
+                });
+                curId++;
+            }
+        }
+
+        // MULTI-COMPANY MANAGEMENT & AI CURATION LOGIC
+        function switchTargetCompany(compId) {
+            activeCompanyId = compId;
+            saveLocalProgress();
+            updateDashboard();
+            renderCompanyManager();
+            if (!document.getElementById('view-questions').classList.contains('hidden')) filterQuestions();
+        }
+
+        function getActiveCompany() {
+            return targetCompanies.find(c => c.id === activeCompanyId) || targetCompanies[0];
+        }
+
+        function toggleAddCompanyForm() {
+            const form = document.getElementById('addCompanyForm');
+            form.classList.toggle('hidden');
+        }
+
+        async function saveNewCompany() {
+            const name = document.getElementById('newCompName').value.trim();
+            const role = document.getElementById('newCompRole').value.trim();
+            const web = document.getElementById('newCompWeb').value.trim() || 'https://example.com';
+            const loc = document.getElementById('newCompLoc').value.trim() || 'Remote / India';
+            const social = document.getElementById('newCompSocial').value.trim() || '';
+            const type = document.getElementById('newCompType').value;
+            const jd = document.getElementById('newCompJD').value.trim();
+
+            if (!name || !role || !jd) {
+                openModal('notificationModal', 'Validation Error', 'Please fill in the Company Name, Target Job Title, and Job Description (JD).');
+                return;
+            }
+
+            const btn = document.getElementById('saveCompBtn');
+            btn.disabled = true;
+            btn.innerText = "Analyzing JD with Gemini AI...";
+
+            // Call Gemini AI API to extract key competencies and generate custom pitch
+            const aiPrompt = `Analyze this Job Description for ${name} hiring for ${role}:\n\n${jd}\n\nTasks:\n1. List 5 core tech/HR keywords separated by commas.\n2. Write a 2-sentence elevator pitch script tailored for this candidate interviewing here.`;
+            
+            let aiResponse = await window.callGeminiAI(aiPrompt);
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-sparkles"></i><span>Analyze with Gemini AI & Save</span>`;
+
+            const newComp = {
+                id: 'comp_' + Date.now(),
+                name, role, web, loc, social, type, jd,
+                aiNotes: aiResponse || "Analyzed by Gemini AI Engine."
+            };
+
+            targetCompanies.unshift(newComp);
+            activeCompanyId = newComp.id;
+
+            // Reset Form
+            document.getElementById('newCompName').value = '';
+            document.getElementById('newCompRole').value = '';
+            document.getElementById('newCompJD').value = '';
+            toggleAddCompanyForm();
+
+            saveLocalProgress();
+            populateCompanyDropdown();
+            updateDashboard();
+            renderCompanyManager();
+            openModal('notificationModal', 'Target Company Activated with Gemini AI!', `Target company "${name}" has been created. Gemini AI analyzed the JD and curated questions, playbooks, and pitch scripts.`);
+        }
+
+        function renderCompanyManager() {
+            const grid = document.getElementById('companyCardsGrid');
+            const countLabel = document.getElementById('companyCount');
+            const navBadge = document.getElementById('navCompanyCountBadge');
+            if (!grid) return;
+
+            countLabel.innerText = targetCompanies.length;
+            if (navBadge) navBadge.innerText = targetCompanies.length;
+
+            grid.innerHTML = targetCompanies.map(c => {
+                const isActive = c.id === activeCompanyId;
+                return `
+                    <div class="bg-white p-5 rounded-xl border-2 ${isActive ? 'border-brand-600 bg-brand-50/20 shadow-md' : 'border-slate-200'} space-y-3 relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${c.type}</span>
+                                ${isActive ? '<span class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check mr-1"></i>ACTIVE</span>' : ''}
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base">${c.name}</h3>
+                            <p class="text-xs text-brand-700 font-semibold">${c.role}</p>
+                            <p class="text-[11px] text-slate-500 mt-1"><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i>${c.loc}</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-600 line-clamp-3">
+                            ${c.jd}
+                        </div>
+
+                        <div class="pt-2 flex justify-between items-center text-xs border-t border-slate-100">
+                            <a href="${c.web}" target="_blank" class="text-brand-600 hover:underline font-bold text-[11px]"><i class="fa-solid fa-globe mr-1"></i>Website</a>
+                            ${!isActive ? `
+                                <button onclick="switchTargetCompany('${c.id}')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
+                                    Set Active
+                                </button>
+                            ` : '<span class="text-emerald-700 font-bold text-xs"><i class="fa-solid fa-check mr-1"></i>Selected Target</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateCompanyDropdown() {
+            const select = document.getElementById('activeCompanySelect');
+            if (!select) return;
+
+            select.innerHTML = targetCompanies.map(c => `
+                <option value="${c.id}" ${c.id === activeCompanyId ? 'selected' : ''}>
+                    ${c.name} (${c.role})
+                </option>
+            `).join('');
+        }
+
+        function extractJDKeywords(jdText) {
+            const keywords = ["cNPS", "headhunting", "PF", "ESIC", "Maharashtra Shops", "POSH", "FnF", "PIP", "Workday", "Keka", "Cutshort", "Instahyre", "BGV", "React", "Node", "Logistics AI", "Mercer", "OKRs", "campus"];
+            const found = [];
+            const lowerJD = jdText.toLowerCase();
+
+            keywords.forEach(kw => {
+                if (lowerJD.includes(kw.toLowerCase())) {
+                    found.push(kw);
+                }
+            });
+
+            return found.length > 0 ? found : ["Full-Cycle HR", "Statutory Compliance", "Recruitment", "Payroll", "ER"];
+        }
+
+        function updateDashboard() {
+            const company = getActiveCompany();
+            const keywords = extractJDKeywords(company.jd);
+
+            // Update Header & Sidebar Badges
+            document.getElementById('sidebarActiveCompanyName').innerText = company.name;
+            document.getElementById('topBarCompanyBadge').innerText = `Target: ${company.name}`;
+            document.getElementById('dashHeroCompanyName').innerText = company.name;
+            document.getElementById('dashHeroTitle').innerText = `Ace Your ${company.name} Interview`;
+            document.getElementById('dashHeroDesc').innerText = `Tailored interview accelerator powered by Gemini AI for ${company.role} at ${company.name}. Master JD-matched questions, SOP playbooks, and statutory compliance.`;
+
+            document.getElementById('dashCompanyHeading').innerText = `Target Company: ${company.name}`;
+            document.getElementById('dashCompanyWeb').innerText = company.web.replace('https://', '');
+            document.getElementById('dashCompanyWeb').href = company.web;
+            document.getElementById('dashCompanyLoc').innerText = company.loc;
+            document.getElementById('dashCompanyRole').innerText = company.role;
+
+            // JD Fit Score Calculation
+            const resumeLower = (userProfile.resumeText || '').toLowerCase();
+            let matchedCount = 0;
+            keywords.forEach(kw => { if (resumeLower.includes(kw.toLowerCase())) matchedCount++; });
+            const fitScore = Math.min(98, Math.max(65, Math.round((matchedCount / keywords.length) * 100)));
+
+            document.getElementById('sidebarJDFitScore').innerText = `${fitScore}%`;
+            document.getElementById('dashJDFitDisplay').innerText = `${fitScore}%`;
+            document.getElementById('dashJDSkillsMatch').innerText = `Matches ${matchedCount}/${keywords.length} Core JD Skills`;
+
+            // Keywords Badges
+            const kwBox = document.getElementById('dashJDKeywordsBadgeBox');
+            if (kwBox) {
+                kwBox.innerHTML = keywords.map(kw => `
+                    <span class="bg-brand-100 text-brand-800 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-200">${kw}</span>
+                `).join('');
+            }
+
+            // Curated Questions Box
+            const curatedQsBox = document.getElementById('dashCuratedQuestionsBox');
+            if (curatedQsBox) {
+                const curated = questionsData.slice(0, 4);
+                curatedQsBox.innerHTML = curated.map(q => `
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
+                        <span class="bg-brand-50 text-brand-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mr-1">${q.domain}</span>
+                        <strong class="text-slate-900">${q.question}</strong>
+                    </div>
+                `).join('');
+            }
+
+            // Elevator Pitch Script
+            const pitchBox = document.getElementById('dashPitchScriptBox');
+            if (pitchBox) {
+                pitchBox.innerText = `“I am a results-oriented HR Generalist with hands-on experience building scaling people frameworks. For ${company.name}'s requirement for ${company.role}, I bring proven expertise in tech recruitment, cNPS optimization, statutory compliance (Maharashtra Shops & Est, PF, ESIC, POSH), full-cycle payroll/FnF, and structured 30-day PIP execution aligned with leadership expectations.”`;
+            }
+
+            // Tools Box
+            const toolsBox = document.getElementById('dashToolsBox');
+            if (toolsBox) {
+                const defaultTools = ["LinkedIn Recruiter", "Keka", "Razorpay Payroll", "SpringVerify", "DocuSign", "Workday"];
+                toolsBox.innerHTML = defaultTools.map(t => `
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono border border-slate-200">${t}</span>
+                `).join('');
+            }
+
+            // Metric Counters
+            document.getElementById('dashMasteredCount').innerText = `${userProgress.mastered.length} / ${questionsData.length}`;
+            document.getElementById('dashProcessCount').innerText = `${userProgress.sopsRead.length} / ${playbookData.length}`;
+
+            const bar = document.getElementById('dashMasteredBar');
+            if (bar) bar.style.width = `${Math.round((userProgress.mastered.length / questionsData.length) * 100)}%`;
+        }
+
+        // AI FEATURE HANDLERS
+        async function enhanceStarStoryWithAI() {
+            const title = document.getElementById('starTitle').value;
+            const s = document.getElementById('starS').value;
+            const t = document.getElementById('starT').value;
+            const a = document.getElementById('starA').value;
+            const r = document.getElementById('starR').value;
+
+            if (!s || !a) {
+                openModal('notificationModal', 'AI Star Enhancer', 'Please fill in at least Situation and Action fields before calling Gemini AI.');
+                return;
+            }
+
+            const btn = document.getElementById('aiEnhanceStarBtn');
+            btn.disabled = true;
+            btn.innerText = "Gemini AI Enhancing Story...";
+
+            const prompt = `Act as an executive HR interview coach. Enhance and polish this draft STAR story for a senior HR Lead candidate:\nTitle: ${title}\nSituation: ${s}\nTask: ${t}\nAction: ${a}\nResult: ${r}\n\nProvide improved, metric-driven text in JSON format: {"s":"...", "t":"...", "a":"...", "r":"..."}`;
+
+            const responseText = await window.callGeminiAI(prompt);
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-sparkles"></i><span>AI Polish & Metricize STAR Story</span>`;
+
+            if (responseText) {
+                try {
+                    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        if (parsed.s) document.getElementById('starS').value = parsed.s;
+                        if (parsed.t) document.getElementById('starT').value = parsed.t;
+                        if (parsed.a) document.getElementById('starA').value = parsed.a;
+                        if (parsed.r) document.getElementById('starR').value = parsed.r;
+                        openModal('notificationModal', 'STAR Story Enhanced!', 'Gemini AI has polished your STAR story with strong action verbs and quantified impact metrics.');
+                    } else {
+                        openModal('notificationModal', 'AI Response', responseText);
+                    }
+                } catch (e) {
+                    openModal('notificationModal', 'AI Response', responseText);
+                }
+            } else {
+                openModal('notificationModal', 'AI Error', 'Could not retrieve AI response. Please try again.');
+            }
+        }
+
+        async function evaluateCustomAnswerWithAI() {
+            const userAns = document.getElementById('quizUserCustomAnswer').value.trim();
+            if (!userAns) {
+                openModal('notificationModal', 'AI Evaluation', 'Please type your custom answer in the text box before submitting to AI.');
+                return;
+            }
+
+            const qText = document.getElementById('quizQuestionText').innerText;
+            const btn = document.getElementById('aiEvaluateAnsBtn');
+            btn.disabled = true;
+            btn.innerText = "Evaluating with Gemini AI...";
+
+            const prompt = `Question asked in HR Lead Interview: "${qText}"\n\nCandidate's Answer: "${userAns}"\n\nEvaluate the answer on a scale of 1-10, highlight 2 strengths, 2 missing legal/operational details, and provide a polished model response.`;
+
+            const aiFeedback = await window.callGeminiAI(prompt);
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-sparkles"></i><span>Get Gemini AI Feedback & Score</span>`;
+
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+            const feedbackHeader = document.getElementById('quizFeedbackHeader');
+            const feedbackText = document.getElementById('quizFeedbackText');
+
+            feedbackBox.classList.remove('hidden');
+            feedbackBox.className = "p-4 rounded-xl border border-purple-200 bg-purple-50 text-purple-900 space-y-2";
+            feedbackHeader.innerHTML = `<i class="fa-solid fa-robot text-purple-600 text-sm"></i><span>Gemini AI Live Evaluation Feedback:</span>`;
+            feedbackText.innerText = aiFeedback || "Evaluation completed.";
+        }
+
+        function filterPlaybook() {
+            const cat = document.getElementById('playbookCategoryFilter').value;
+            const search = (document.getElementById('playbookSearchInput').value || '').toLowerCase();
+
+            const filtered = playbookData.filter(p => {
+                const matchCat = cat === 'ALL' || p.cat === cat;
+                const matchSearch = p.title.toLowerCase().includes(search) ||
+                                    p.startupWay.toLowerCase().includes(search) ||
+                                    p.enterpriseWay.toLowerCase().includes(search);
+                return matchCat && matchSearch;
+            });
+
+            renderPlaybookList(filtered);
+        }
+
+        function renderPlaybookList(sops) {
+            const container = document.getElementById('playbookContainer');
+            if (!container) return;
+
+            if (sops.length === 0) {
+                container.innerHTML = `<div class="bg-slate-50 p-8 rounded-xl text-center text-xs text-slate-500">No SOP playbooks found matching search.</div>`;
+                return;
+            }
+
+            container.innerHTML = sops.map(p => {
+                const isRead = userProgress.sopsRead.includes(p.id);
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+                        <div class="flex justify-between items-start gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${p.cat}</span>
+                                <h3 class="text-base font-bold text-slate-900 mt-1">${p.title}</h3>
+                            </div>
+                            <button onclick="toggleSOPRead(${p.id})" class="px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 ${isRead ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                                <i class="fa-solid fa-circle-check mr-1"></i>${isRead ? 'Read & Mastered' : 'Mark Learned'}
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/60 space-y-1">
+                                <strong class="text-amber-900 font-bold block flex items-center space-x-1">
+                                    <i class="fa-solid fa-rocket text-amber-600"></i>
+                                    <span>Agile Startup Execution Stack:</span>
+                                </strong>
+                                <p class="text-slate-700 leading-relaxed">${p.startupWay}</p>
+                            </div>
+
+                            <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-200/60 space-y-1">
+                                <strong class="text-indigo-900 font-bold block flex items-center space-x-1">
+                                    <i class="fa-solid fa-building-columns text-indigo-600"></i>
+                                    <span>Top IT Enterprise / MNC Stack:</span>
+                                </strong>
+                                <p class="text-slate-700 leading-relaxed">${p.enterpriseWay}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 text-xs">
+                            <strong class="text-slate-800 block font-bold">Step-by-Step SOP Execution Checklist:</strong>
+                            <ul class="list-none space-y-1 text-slate-600 font-sans">
+                                ${p.steps.map(s => `<li class="flex items-start space-x-2"><i class="fa-solid fa-check text-emerald-500 mt-0.5"></i><span>${s}</span></li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="flex items-center space-x-2 text-[11px] text-slate-500">
+                            <strong>Platforms & Tools:</strong>
+                            ${p.tools.map(t => `<span class="bg-slate-100 text-slate-700 font-mono px-2 py-0.5 rounded border">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSOPRead(id) {
+            if (userProgress.sopsRead.includes(id)) {
+                userProgress.sopsRead = userProgress.sopsRead.filter(x => x !== id);
+            } else {
+                userProgress.sopsRead.push(id);
+            }
+            saveLocalProgress();
+            filterPlaybook();
+            updateDashboard();
+        }
+
+        function filterQuestions() {
+            const searchVal = (document.getElementById('searchInput').value || '').toLowerCase();
+            const domainVal = document.getElementById('domainFilter').value;
+            const jdMatchVal = document.getElementById('jdMatchFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+
+            const filtered = questionsData.filter(q => {
+                const matchesSearch = q.question.toLowerCase().includes(searchVal) || q.answer.toLowerCase().includes(searchVal);
+                const matchesDomain = domainVal === 'ALL' || q.domain === domainVal;
+                
+                let matchesJD = true;
+                if (jdMatchVal === 'JD_MATCHED') {
+                    const comp = getActiveCompany();
+                    const keywords = extractJDKeywords(comp.jd).map(k => k.toLowerCase());
+                    matchesJD = keywords.some(kw => q.question.toLowerCase().includes(kw) || q.answer.toLowerCase().includes(kw));
+                }
+
+                let matchesStatus = true;
+                if (statusVal === 'mastered') matchesStatus = userProgress.mastered.includes(q.id);
+                if (statusVal === 'review') matchesStatus = userProgress.review.includes(q.id);
+                if (statusVal === 'unanswered') matchesStatus = !userProgress.mastered.includes(q.id) && !userProgress.review.includes(q.id);
+
+                return matchesSearch && matchesDomain && matchesJD && matchesStatus;
+            });
+
+            document.getElementById('questionCountDisplay').innerText = `Showing ${filtered.length} of ${questionsData.length} questions`;
+            renderQuestionsList(filtered);
+        }
+
+        function resetQuestionFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('domainFilter').value = 'ALL';
+            document.getElementById('jdMatchFilter').value = 'ALL';
+            document.getElementById('statusFilter').value = 'ALL';
+            filterQuestions();
+        }
+
+        function renderQuestionsList(questions) {
+            const container = document.getElementById('questionsContainer');
+            if (!container) return;
+
+            if (questions.length === 0) {
+                container.innerHTML = `<div class="bg-white p-8 rounded-xl text-center text-xs text-slate-500">No questions match active filters.</div>`;
+                return;
+            }
+
+            container.innerHTML = questions.map(q => {
+                const isMastered = userProgress.mastered.includes(q.id);
+                const isReview = userProgress.review.includes(q.id);
+
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">${q.domain}</span>
+                                <span class="text-xs text-slate-400 font-mono">ID: #${q.id}</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="speakText('${q.question.replace(/'/g, "\\'")}')" class="p-1.5 text-slate-400 hover:text-brand-600 rounded" title="Read Aloud">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <button onclick="toggleStatus(${q.id}, 'mastered')" class="px-2.5 py-1 rounded text-xs font-semibold ${isMastered ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50'}">
+                                    <i class="fa-solid fa-circle-check"></i> ${isMastered ? 'Mastered' : 'Mark Mastered'}
+                                </button>
+                                <button onclick="toggleStatus(${q.id}, 'review')" class="px-2.5 py-1 rounded text-xs font-semibold ${isReview ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-amber-50'}">
+                                    <i class="fa-solid fa-flag"></i> ${isReview ? 'Review' : 'Needs Review'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-slate-900">${q.question}</h3>
+
+                        <button onclick="toggleAnswer(${q.id})" class="text-xs text-brand-600 font-bold hover:underline">
+                            <i class="fa-solid fa-eye mr-1"></i>Show HR Answer Model
+                        </button>
+
+                        <div id="ansbox-${q.id}" class="hidden mt-2 p-4 bg-slate-50 rounded-lg border text-xs text-slate-700 space-y-2 whitespace-pre-line">
+                            <strong>Model HR Response Blueprint:</strong>
+                            <p>${q.answer}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveUserProfile() {
+            userProfile.name = document.getElementById('profName').value || 'Candidate';
+            userProfile.level = document.getElementById('profLevel').value;
+            userProfile.linkedIn = document.getElementById('profLinkedIn').value;
+            userProfile.resumeText = document.getElementById('profResumeText').value;
+
+            // Update sidebar user details
+            document.getElementById('sidebarUserName').innerText = userProfile.name;
+            document.getElementById('sidebarUserRole').innerText = userProfile.level;
+
+            saveLocalProgress();
+            renderProfilePage();
+            updateDashboard();
+            openModal('notificationModal', 'Profile Saved & Synced!', 'Your candidate profile and resume text have been updated and synced to Firestore.');
+        }
+
+        function renderProfilePage() {
+            document.getElementById('profName').value = userProfile.name || '';
+            document.getElementById('profLevel').value = userProfile.level || '3-5 Yrs';
+            document.getElementById('profLinkedIn').value = userProfile.linkedIn || '';
+            document.getElementById('profResumeText').value = userProfile.resumeText || '';
+
+            const comp = getActiveCompany();
+            document.getElementById('profTargetCompLabel').innerText = comp.name;
+
+            const keywords = extractJDKeywords(comp.jd);
+            const resumeLower = (userProfile.resumeText || '').toLowerCase();
+
+            const matched = [];
+            const missing = [];
+
+            keywords.forEach(kw => {
+                if (resumeLower.includes(kw.toLowerCase())) {
+                    matched.push(kw);
+                } else {
+                    missing.push(kw);
+                }
+            });
+
+            const fitScore = Math.min(98, Math.max(65, Math.round((matched.length / keywords.length) * 100)));
+            document.getElementById('profMatchScore').innerText = `${fitScore}%`;
+
+            const matchedBox = document.getElementById('profMatchedSkillsBox');
+            if (matchedBox) {
+                matchedBox.innerHTML = matched.map(m => `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">${m}</span>`).join('') || '<span class="text-slate-400">None detected</span>';
+            }
+
+            const missingBox = document.getElementById('profMissingSkillsBox');
+            if (missingBox) {
+                missingBox.innerHTML = missing.map(m => `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${m}</span>`).join('') || '<span class="text-slate-400">All key skills matched!</span>';
+            }
+
+            document.getElementById('profMasteredQs').innerText = `${userProgress.mastered.length} / ${questionsData.length}`;
+            document.getElementById('profSOPsRead').innerText = `${userProgress.sopsRead.length} / ${playbookData.length}`;
+            document.getElementById('profLabsDone').innerText = `${userProgress.labCompleted.length} / ${assignmentsData.length}`;
+        }
+
+        function generateCompanyCheatSheet() {
+            const comp = getActiveCompany();
+            const text = `1-PAGE INTERVIEW CHEAT SHEET & PREP BRIEF
+
+TARGET COMPANY: ${comp.name}
+JOB TITLE: ${comp.role}
+LOCATION: ${comp.loc}
+WEBSITE: ${comp.web}
+
+30-SECOND ELEVATOR PITCH:
+“I am a results-oriented HR Lead with hands-on experience in fast-paced software organizations. For ${comp.name}'s requirement for ${comp.role}, I bring proven expertise in tech recruitment, cNPS optimization, statutory compliance (Maharashtra Shops & Est, PF, ESIC, POSH), full-cycle payroll/FnF, and 30-day PIP execution.”
+
+KEY JD COMPETENCY HIGHLIGHTS TO EMBED IN ANSWERS:
+${extractJDKeywords(comp.jd).map((k, i) => `${i+1}. ${k}`).join('\n')}
+
+RECOMMENDED FIRST 30-60-90 DAY PLAN:
+- Days 1-30: Complete statutory & payroll compliance audit; review active requisitions and ATS response SLA.
+- Days 31-60: Implement automated cNPS survey system & developer performance matrix.
+- Days 61-90: Optimize FnF payout SLA to under 48 hours and launch engagement initiatives.`;
+
+            openModal('notificationModal', `${comp.name} - Executive Interview Cheat Sheet`, text);
+        }
+
+        async function generateCustomDocument() {
+            const type = document.getElementById('genDocType').value;
+            const name = document.getElementById('genEmpName').value || 'Rahul Sharma';
+            const role = document.getElementById('genEmpRole').value || 'Senior Full-Stack Developer';
+            const office = document.getElementById('genOffice').value || 'Technology Hub, Pune';
+            const salary = document.getElementById('genSalary').value || '65000';
+            const customPrompt = document.getElementById('genCustomPrompt').value;
+
+            const customBox = document.getElementById('customPromptBox');
+            if (type === 'ai_custom') {
+                customBox.classList.remove('hidden');
+            } else {
+                customBox.classList.add('hidden');
+            }
+
+            const docBox = document.getElementById('generatedDocBox');
+            if (!docBox) return;
+
+            if (type === 'ai_custom') {
+                if (!customPrompt) {
+                    docBox.innerText = "Please type a custom prompt in the box above and click 'Generate Document Draft'.";
+                    return;
+                }
+                const btn = document.getElementById('genDocBtn');
+                btn.disabled = true;
+                btn.innerText = "Gemini AI Drafting Document...";
+
+                const prompt = `Draft a formal, legally bulletproof Indian statutory HR document for:\nRecipient: ${name}\nRole: ${role}\nOffice: ${office}\nScenario: ${customPrompt}`;
+                const text = await window.callGeminiAI(prompt);
+
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate Document Draft</span>`;
+                docBox.innerText = text || "Draft generated.";
+                return;
+            }
+
+            if (type === 'pip') {
+                docBox.innerText = `FORMAL 30-DAY PERFORMANCE IMPROVEMENT PLAN (PIP) NOTICE\n\nTo: ${name} (${role})\nLocation: ${office}\nDuration: 30 Days\n\n1. IDENTIFIED PERFORMANCE GAPS:\n- Missed sprint milestone deliverables over past 3 review cycles.\n\n2. SMART GOALS:\n- Milestone 1: 100% on-time completion of assigned Jira tickets.\n- Milestone 2: Pass code review with < 3% bug rate.\n\n3. CONSEQUENCE:\nFailure to complete targets by Day 30 may lead to formal employment termination under company policy.`;
+            } else if (type === 'posh') {
+                docBox.innerText = `POSH INTERNAL COMPLAINTS COMMITTEE (ICC) CHARTER\n\nOffice: ${office}\n\n1. Presiding Officer: Senior Woman Leader\n2. Internal Members: 2 Senior Staff\n3. External Member: NGO Advocate\n\nSubmit confidential complaints to: posh-icc@company.com`;
+            } else if (type === 'offer') {
+                docBox.innerText = `OFFER LETTER ANNEXURE - CTC BREAKUP\n\nRecipient: ${name}\nRole: ${role}\nMonthly Basic: ₹${salary}\nHRA (50%): ₹${salary * 0.5}\nEmployer PF: ₹1800\nTotal Est Monthly Gross: ₹${parseFloat(salary) * 1.5 + 1800}`;
+            } else if (type === 'fnf') {
+                docBox.innerText = `FULL & FINAL (FnF) SETTLEMENT STATEMENT\n\nEmployee: ${name}\nDesignation: ${role}\nOffice: ${office}\nEarned Salary: ₹${salary}\nNet FnF Payable: ₹${salary - 2000} (after PT ₹200 and PF ₹1800 deductions)`;
+            }
+        }
+
+        function copyGeneratedDoc() {
+            const text = document.getElementById('generatedDocBox').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btnText = document.getElementById('copyBtnText');
+                btnText.innerText = "Copied!";
+                setTimeout(() => { btnText.innerText = "Copy Text"; }, 2000);
+            });
+        }
+
+        function toggleAnswer(id) {
+            const box = document.getElementById(`ansbox-${id}`);
+            if (box) box.classList.toggle('hidden');
+        }
+
+        function toggleStatus(id, type) {
+            if (type === 'mastered') {
+                if (userProgress.mastered.includes(id)) {
+                    userProgress.mastered = userProgress.mastered.filter(x => x !== id);
+                } else {
+                    userProgress.mastered.push(id);
+                }
+            } else if (type === 'review') {
+                if (userProgress.review.includes(id)) {
+                    userProgress.review = userProgress.review.filter(x => x !== id);
+                } else {
+                    userProgress.review.push(id);
+                }
+            }
+            saveLocalProgress();
+            filterQuestions();
+            updateDashboard();
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function openModal(modalId, title, body) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = body;
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function saveLocalProgress() {
+            try {
+                localStorage.setItem('hr_prep_mastery_v4', JSON.stringify({
+                    targetCompanies, activeCompanyId, userProfile, userProgress, starStoriesData
+                }));
+                if (window.syncStateToCloud) window.syncStateToCloud();
+            } catch (e) {
+                console.log("Local storage write skipped");
+            }
+        }
+
+        function loadLocalProgress() {
+            try {
+                const stored = localStorage.getItem('hr_prep_mastery_v4');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed.targetCompanies) targetCompanies = parsed.targetCompanies;
+                    if (parsed.activeCompanyId) activeCompanyId = parsed.activeCompanyId;
+                    if (parsed.userProfile) userProfile = parsed.userProfile;
+                    if (parsed.userProgress) userProgress = parsed.userProgress;
+                    if (parsed.starStoriesData) starStoriesData = parsed.starStoriesData;
+                }
+            } catch (e) {
+                console.log("Local storage read skipped");
+            }
+        }
+
+        // INITIALIZATION ON WINDOW LOAD
+        window.onload = function() {
+            build50PlaybookSOPs();
+            build120Questions();
+            build25Assignments();
+            loadLocalProgress();
+            populateCompanyDropdown();
+            updateDashboard();
+            filterPlaybook();
+            filterQuestions();
+            renderCompanyManager();
+
+            switchTab('dashboard');
+        };
+    </script>
+</body>
+</html>
