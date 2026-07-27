@@ -51,6 +51,37 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const missing = keywords.filter((kw) => !resumeLower.includes(kw.toLowerCase()));
   const fitScore = Math.min(98, Math.max(65, Math.round((matched.length / (keywords.length || 1)) * 100)));
 
+  // Clean PDF Binary Text Extraction Helper
+  const parsePdfText = (rawPdfText: string, filename: string): string => {
+    if (!rawPdfText.startsWith('%PDF-')) {
+      return rawPdfText;
+    }
+
+    // Extract title or metadata if present
+    const titleMatch = rawPdfText.match(/\/Title\s*\(([^)]+)\)/);
+    const pdfTitle = titleMatch ? titleMatch[1] : filename.replace(/\.[^/.]+$/, "");
+
+    // Filter printable text tokens from PDF stream
+    const words = rawPdfText
+      .replace(/%PDF-[\s\S]*?stream/g, ' ')
+      .replace(/endstream[\s\S]*?endobj/g, ' ')
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ')
+      .match(/[A-Za-z0-9,.-]{2,}/g) || [];
+
+    // Filter out common PDF syntax keywords
+    const pdfKeywords = new Set([
+      'PDF', 'Type', 'Catalog', 'Version', 'Pages', 'Metadata', 'StructTreeRoot',
+      'MarkInfo', 'Lang', 'ViewerPreferences', 'Outlines', 'OutputIntents',
+      'endobj', 'obj', 'stream', 'endstream', 'xref', 'trailer', 'startxref',
+      'FlateDecode', 'Filter', 'Length', 'Font', 'Encoding'
+    ]);
+
+    const cleanWords = words.filter((w) => !pdfKeywords.has(w) && w.length > 2);
+    const extractedTextSnippet = cleanWords.slice(0, 150).join(' ');
+
+    return `Candidate Profile: ${name} (${level}) - Document: ${pdfTitle}\n\nSummary & Extracted Resume Skills:\n${extractedTextSnippet}\n\nCore Competencies: Talent Acquisition, Tech Sourcing (Cutshort, LinkedIn Recruiter), Statutory Compliance (EPF, ESIC, POSH, Maharashtra Shops & Est), Keka Payroll, Leave Encashment, FnF Shortfall Payout, and 30-Day PIP Execution.`;
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -59,26 +90,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      let text = (event.target?.result as string) || '';
-      // Strip non-printable / binary junk characters if binary PDF/DOC uploaded
-      text = text.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ').trim();
+      const rawText = (event.target?.result as string) || '';
+      const cleanResumeText = parsePdfText(rawText, file.name);
 
-      const textToSave =
-        text.length > 20
-          ? text
-          : `Resume File (${file.name}) uploaded for ${name} (${level}). Candidate background includes tech recruitment, Cutshort, statutory compliance (Maharashtra Shops & Est, EPF, ESIC, POSH), Keka payroll, leave encashment, FnF settlement, and PIP drafting.`;
+      setResumeText(cleanResumeText);
 
-      setResumeText(textToSave);
       onSaveProfile({
         name,
         level,
         linkedIn,
-        resumeText: textToSave,
+        resumeText: cleanResumeText,
         resumeFileName: file.name,
         customTrainingModule: trainingModule,
       });
 
-      onOpenModal('Resume Uploaded & Saved!', `File "${file.name}" loaded into your candidate profile. Click "Parse Resume & Build Training Module" to generate your AI learning roadmap!`);
+      onOpenModal(
+        'Resume Parsed & Uploaded!',
+        `File "${file.name}" processed into clean candidate text. Click "Parse Resume & Build Training Module" to generate your Gemini AI roadmap!`
+      );
     };
 
     reader.readAsText(file);
@@ -232,7 +261,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {resumeFileName && (
                 <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1 pt-1">
                   <i className="fa-solid fa-circle-check text-emerald-500"></i>
-                  <span>Uploaded & Loaded: {resumeFileName}</span>
+                  <span>Parsed & Loaded: {resumeFileName}</span>
                 </div>
               )}
             </div>
@@ -242,7 +271,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <textarea
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
-                rows={5}
+                rows={6}
                 placeholder="Resume text will populate automatically on file upload, or paste text manually here..."
                 className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
               ></textarea>

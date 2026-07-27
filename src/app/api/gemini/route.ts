@@ -4,14 +4,12 @@ export async function POST(req: Request) {
   try {
     const { prompt, systemInstruction } = await req.json();
 
-    // Fallback key constructed safely to work seamlessly on Netlify deployments
-    const defaultKeyParts = ['AQ.Ab8RN6IB9r8qP', 'cpffW4I8Ns2fGHfmS5nBbLRvF80Z9mXFTSVxg'];
-    const apiKey = process.env.GEMINI_API_KEY || defaultKeyParts.join('');
+    const apiKey = process.env.GEMINI_API_KEY || '';
 
     if (!apiKey) {
       return NextResponse.json({
         success: false,
-        error: 'GEMINI_API_KEY is missing.'
+        error: 'GEMINI_API_KEY is not configured in Netlify Environment Variables. Please add GEMINI_API_KEY under Site Configuration > Environment Variables.'
       }, { status: 400 });
     }
 

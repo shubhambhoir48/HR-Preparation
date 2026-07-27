@@ -21,6 +21,7 @@ import { CalculatorsView } from '@/components/tools/CalculatorsView';
 import { MockInterviewView } from '@/components/mock-interview/MockInterviewView';
 import { ProfileView } from '@/components/profile/ProfileView';
 import { NotificationModal } from '@/components/common/NotificationModal';
+import { GeminiWidget } from '@/components/common/GeminiWidget';
 
 export default function MainPage() {
   const router = useRouter();
@@ -377,6 +378,9 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
           </div>
         </footer>
       </div>
+
+      {/* Global Bottom-Right Gemini AI Working Animation Widget */}
+      <GeminiWidget />
 
       {/* Global Notification Modal */}
       <NotificationModal

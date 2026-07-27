@@ -1,4 +1,7 @@
 export async function callGeminiAI(prompt: string, systemInstruction: string = ''): Promise<string | null> {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('gemini_start'));
+  }
   try {
     const res = await fetch('/api/gemini', {
       method: 'POST',
@@ -15,5 +18,9 @@ export async function callGeminiAI(prompt: string, systemInstruction: string = '
   } catch (err) {
     console.error('Failed calling Gemini API endpoint:', err);
     return null;
+  } finally {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('gemini_end'));
+    }
   }
 }
