@@ -4,13 +4,13 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    const expectedEmail = process.env.ADMIN_EMAIL || 'admin@hrmastery.com';
-    const expectedPassword = process.env.ADMIN_PASSWORD || 'hrlead2026';
+    const expectedEmail = process.env.ADMIN_EMAIL || 'priyankavartak17@gmail.com';
+    const expectedPassword = process.env.ADMIN_PASSWORD || '123456789';
 
     if (email.toLowerCase().trim() === expectedEmail.toLowerCase() && password === expectedPassword) {
       return NextResponse.json({
         success: true,
-        user: { email: expectedEmail, name: 'HR Lead Admin' }
+        user: { email: expectedEmail, name: 'Priyanka Vartak' }
       });
     }
 

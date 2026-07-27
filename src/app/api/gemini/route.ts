@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     if (!apiKey) {
       return NextResponse.json({
         success: false,
-        error: 'GEMINI_API_KEY environment variable is not configured.'
+        error: 'GEMINI_API_KEY environment variable is not configured. Please set GEMINI_API_KEY in your .env.local or Netlify Environment Variables.'
       }, { status: 400 });
     }
 

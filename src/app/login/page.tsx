@@ -45,7 +45,7 @@ export default function LoginPage() {
             HR
           </div>
           <h1 className="text-xl font-bold">HR Lead Mastery Pro</h1>
-          <p className="text-xs text-slate-400">Single-User Single Sign-On Access</p>
+          <p className="text-xs text-slate-400">Single-User Account Access</p>
         </div>
 
         {error && (
@@ -56,33 +56,33 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
           <div>
-            <label className="block font-semibold text-slate-300 mb-1">Predefined Email Address:</label>
+            <label className="block font-semibold text-slate-300 mb-1">Email Address:</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@hrmastery.com"
+              placeholder="priyankavartak17@gmail.com"
               required
               className="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-300 mb-1">Predefined Password:</label>
+            <label className="block font-semibold text-slate-300 mb-1">Password:</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="hrlead2026"
+              placeholder="123456789"
               required
               className="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
           <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-700/50 text-[11px] text-slate-400 space-y-1">
-            <div className="font-bold text-slate-300">Default Single-User Credentials:</div>
-            <div>Email: <code className="text-blue-400">admin@hrmastery.com</code></div>
-            <div>Password: <code className="text-blue-400">hrlead2026</code></div>
+            <div className="font-bold text-slate-300">Account Credentials:</div>
+            <div>Email: <code className="text-blue-400">priyankavartak17@gmail.com</code></div>
+            <div>Password: <code className="text-blue-400">123456789</code></div>
           </div>
 
           <button
