@@ -5,8 +5,8 @@ import { callGeminiAI } from '@/lib/gemini';
 
 export const DocStudioView: React.FC = () => {
   const [docType, setDocType] = useState('pip');
-  const [name, setName] = useState('Rahul Sharma');
-  const [role, setRole] = useState('Senior Full-Stack Developer');
+  const [name, setName] = useState('Priyanka Vartak');
+  const [role, setRole] = useState('HR Lead / Senior HR Generalist');
   const [office, setOffice] = useState('Technology Hub, Pune');
   const [salary, setSalary] = useState('65000');
   const [customPrompt, setCustomPrompt] = useState('');
@@ -25,6 +25,15 @@ export const DocStudioView: React.FC = () => {
       const text = await callGeminiAI(prompt);
       setIsGenerating(false);
       setGeneratedDoc(text || 'Draft generated.');
+      return;
+    }
+
+    if (docType === 'plan306090') {
+      setIsGenerating(true);
+      const prompt = `Act as an executive HR VP. Generate a 30-60-90 Day Executive HR Strategic Plan for ${name} entering as ${role} at ${office}:\n- Days 1-30: Audit statutory compliance (PF, ESIC, POSH), ATS SLA, and cNPS pulse.\n- Days 31-60: Optimize developer performance matrix, 30-day PIP cadence, and recruitment funnel.\n- Days 61-90: Scale employer branding and maintain FnF SLA < 48 hours.`;
+      const text = await callGeminiAI(prompt);
+      setIsGenerating(false);
+      setGeneratedDoc(text || 'Strategic Plan generated.');
       return;
     }
 
@@ -55,7 +64,7 @@ export const DocStudioView: React.FC = () => {
           <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">AI Powered Document Studio</span>
           <h2 className="text-2xl font-bold text-slate-900">Statutory & Operational HR Document Generator</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Instantly generate bulletproof PIP notices, POSH charters, Offer CTC breakups, and FnF statements using Gemini AI.
+            Instantly generate bulletproof PIP notices, POSH charters, Offer CTC breakups, 30-60-90 Day Executive Plans, and FnF statements using Gemini AI.
           </p>
         </div>
 
@@ -68,6 +77,7 @@ export const DocStudioView: React.FC = () => {
                 onChange={(e) => setDocType(e.target.value)}
                 className="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-medium"
               >
+                <option value="plan306090">✨ Executive 30-60-90 Day Strategic Plan</option>
                 <option value="pip">30-Day PIP Notice</option>
                 <option value="posh">POSH ICC Committee Charter</option>
                 <option value="offer">Offer CTC Breakup Annexure</option>
@@ -77,7 +87,7 @@ export const DocStudioView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Employee / Recipient Name:</label>
+              <label className="block font-semibold text-slate-700 mb-1">Employee / Candidate Name:</label>
               <input
                 type="text"
                 value={name}
