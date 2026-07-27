@@ -34,8 +34,8 @@ export const initialTargetCompanies: TargetCompany[] = [
 ];
 
 export const initialUserProfile: UserProfile = {
-  name: "Ananya Deshmukh",
-  level: "3-5 Yrs",
-  linkedIn: "https://linkedin.com/in/ananya-hr",
-  resumeText: "Agile HR Generalist with 4+ years experience in tech startups and software companies in Pune. Hands-on experience in full-cycle recruitment, Cutshort, LinkedIn Recruiter, cNPS tracking, Maharashtra Shops & Est compliance, EPF/ESIC portal filing, POSH ICC setup, Keka payroll processing, leave encashment, FnF settlements, and 30-day PIP drafting."
+  name: "Priyanka Vartak",
+  level: "Senior HR Lead / HRBP (6+ Yrs Exp)",
+  linkedIn: "https://linkedin.com/in/priyanka-vartak-hr",
+  resumeText: "Senior HR Lead & HRBP with 6+ years experience in tech software companies and startups in Pune. Proven expertise in full-cycle tech recruitment (Node, React, Python, AI), Cutshort, Instahyre, candidate NPS (cNPS > +50), statutory compliance under Maharashtra Shops & Est 2017, EPF, ESIC, PT, POSH committee setup, monthly payroll processing, notice period recovery, leave encashment, FnF settlement within 48 hours, and 30-day PIP implementation."
 };

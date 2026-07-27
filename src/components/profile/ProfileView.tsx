@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TargetCompany, UserProfile, UserProgress, CustomTrainingModule } from '@/types';
 import { callGeminiAI } from '@/lib/gemini';
 
@@ -35,6 +35,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   );
   const [isParsing, setIsParsing] = useState(false);
 
+  // Sync state whenever prop updates
+  useEffect(() => {
+    setName(userProfile.name);
+    setLevel(userProfile.level);
+    setLinkedIn(userProfile.linkedIn);
+    setResumeText(userProfile.resumeText);
+    setResumeFileName(userProfile.resumeFileName || '');
+    setTrainingModule(userProfile.customTrainingModule);
+  }, [userProfile]);
+
   const extractJDKeywords = (jd: string) => {
     const keywords = [
       "cNPS", "headhunting", "PF", "ESIC", "Maharashtra Shops", "POSH", "FnF",
@@ -53,12 +63,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   // Clean PDF Binary Text Extraction Helper
   const parsePdfText = (rawPdfText: string, filename: string): string => {
+    const cleanBasename = filename.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").trim();
+
     if (!rawPdfText.startsWith('%PDF-')) {
       return rawPdfText;
     }
-
-    const titleMatch = rawPdfText.match(/\/Title\s*\(([^)]+)\)/);
-    const pdfTitle = titleMatch ? titleMatch[1] : filename.replace(/\.[^/.]+$/, "");
 
     const words = rawPdfText
       .replace(/%PDF-[\s\S]*?stream/g, ' ')
@@ -76,7 +85,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     const cleanWords = words.filter((w) => !pdfKeywords.has(w) && w.length > 2);
     const extractedTextSnippet = cleanWords.slice(0, 150).join(' ');
 
-    return `Candidate Profile: ${name} (${level}) - Document: ${pdfTitle}\n\nSummary & Extracted Resume Skills:\n${extractedTextSnippet}\n\nCore Competencies: Talent Acquisition, Tech Sourcing (Cutshort, LinkedIn Recruiter), Statutory Compliance (EPF, ESIC, POSH, Maharashtra Shops & Est), Keka Payroll, Leave Encashment, FnF Shortfall Payout, and 30-Day PIP Execution.`;
+    return `Candidate Name: ${cleanBasename}\nTarget Role: Senior HR Lead / HRBP (6+ Yrs Exp)\nDocument: ${filename}\n\nExtracted Resume Content:\n${extractedTextSnippet}\n\nCore Competencies: Talent Acquisition, Tech Sourcing (Cutshort, Instahyre), Statutory Compliance (EPF, ESIC, POSH, Maharashtra Shops & Est), Keka Payroll, Leave Encashment, FnF Shortfall Payout, and 30-Day PIP Execution.`;
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,25 +94,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     setResumeFileName(file.name);
 
+    // Extract name from file name if matches format e.g. Priyanka Vartak.pdf
+    const fileBasename = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").trim();
+    const inferredName = fileBasename.length > 3 ? fileBasename : name;
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const rawText = (event.target?.result as string) || '';
       const cleanResumeText = parsePdfText(rawText, file.name);
 
+      setName(inferredName);
       setResumeText(cleanResumeText);
 
-      onSaveProfile({
-        name,
-        level,
-        linkedIn,
+      const updated = {
+        name: inferredName,
+        level: level || "Senior HR Lead / HRBP (6+ Yrs Exp)",
+        linkedIn: linkedIn || `https://linkedin.com/in/${inferredName.toLowerCase().replace(/\s+/g, '-')}`,
         resumeText: cleanResumeText,
         resumeFileName: file.name,
         customTrainingModule: trainingModule,
-      });
+      };
+
+      onSaveProfile(updated);
 
       onOpenModal(
-        'Resume Uploaded!',
-        `File "${file.name}" loaded into candidate profile. Click "Parse Resume & Build Training Module" to extract profile fields and build your AI roadmap!`
+        'Resume Uploaded & Profile Mapped!',
+        `File "${file.name}" loaded for ${inferredName}! Candidate profile details updated. Click "Parse Resume & Build Training Module" to generate your AI learning roadmap.`
       );
     };
 
@@ -118,10 +134,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     setIsParsing(true);
 
-    const prompt = `Act as an executive HR coach and talent development lead. Analyze candidate's resume and target job description:\n\nCandidate Resume Text:\n"${textToAnalyze}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Extract candidate profile data AND generate custom training module in JSON format:\n{\n  "candidateName": "Extracted Candidate Full Name (e.g. Priyanka Vartak)",\n  "candidateRole": "Extracted Designation / Target Role (e.g. HR Lead / Senior HRBP)",\n  "candidateLinkedIn": "Extracted LinkedIn URL if present, or leave unchanged",\n  "title": "Personalized HR Lead Acceleration Module",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Strength 1", "Strength 2", "Strength 3"],\n  "gaps": ["Gap 1", "Gap 2"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
+    const prompt = `Act as an executive HR coach. Analyze candidate resume and target job description:\n\nCandidate Resume:\n"${textToAnalyze}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Extract candidate profile data AND generate custom training module in JSON format:\n{\n  "candidateName": "${name}",\n  "candidateRole": "${level}",\n  "candidateLinkedIn": "${linkedIn}",\n  "title": "Personalized HR Lead Acceleration Module for ${name}",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Tech Sourcing (Cutshort)", "Candidate NPS (cNPS)", "Employee Relations"],\n  "gaps": ["Statutory Compliance Audits", "FnF Shortfall Payout"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
 
     const text = await callGeminiAI(prompt);
     setIsParsing(false);
+
+    let extractedName = name;
+    let extractedRole = level;
+    let extractedLinkedIn = linkedIn;
+    let moduleData: CustomTrainingModule | undefined = undefined;
 
     if (text) {
       try {
@@ -129,11 +150,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
 
-          const extractedName = parsed.candidateName || name;
-          const extractedRole = parsed.candidateRole || level;
-          const extractedLinkedIn = parsed.candidateLinkedIn || linkedIn;
+          extractedName = parsed.candidateName || name;
+          extractedRole = parsed.candidateRole || level;
+          extractedLinkedIn = parsed.candidateLinkedIn || linkedIn;
 
-          const moduleData: CustomTrainingModule = {
+          moduleData = {
             title: parsed.title || `Personalized HR Acceleration Module for ${extractedName}`,
             summary: parsed.summary || 'Custom roadmap tailored to candidate skill gaps.',
             strengths: parsed.strengths || ['Tech Sourcing', 'Employee Relations'],
@@ -142,55 +163,44 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             recommendedTopics: parsed.recommendedTopics || ['cNPS Optimization', 'Payroll Math'],
             priorityAction: parsed.priorityAction || 'Focus on Statutory Compliance and FnF Shortfall calculations.',
           };
-
-          // Update React State immediately
-          setName(extractedName);
-          setLevel(extractedRole);
-          setLinkedIn(extractedLinkedIn);
-          setTrainingModule(moduleData);
-
-          const updatedProfile: UserProfile = {
-            name: extractedName,
-            level: extractedRole,
-            linkedIn: extractedLinkedIn,
-            resumeText: textToAnalyze,
-            resumeFileName,
-            customTrainingModule: moduleData,
-          };
-
-          onSaveProfile(updatedProfile);
-          onOpenModal(
-            'Candidate Profile & Training Module Updated!',
-            `Gemini AI parsed resume details for ${extractedName}! Profile name, role (${extractedRole}), skill fit, and training roadmap updated across the entire platform!`
-          );
-          return;
         }
       } catch (e) {
         console.warn('JSON parse error:', e);
       }
+    }
 
-      // Fallback update if raw text returned
-      const fallback: CustomTrainingModule = {
-        title: `Custom HR Lead Training Module for ${name}`,
-        summary: text,
+    if (!moduleData) {
+      moduleData = {
+        title: `Custom HR Lead Training Module for ${extractedName}`,
+        summary: text || 'Personalized AI training roadmap generated for candidate.',
         strengths: matched.length > 0 ? matched : ['Full-Cycle Tech Recruitment', 'Candidate Experience (cNPS)', 'Employee Relations'],
         gaps: missing.length > 0 ? missing : ['Statutory Compliance Audits', 'FnF Notice Recovery Shortfalls'],
         recommendedSOPs: ['Tech Sourcing SOP', 'Statutory Compliance SOP', 'PIP Drafting SOP'],
         recommendedTopics: ['cNPS Optimization', 'Payroll Calculations'],
         priorityAction: 'Focus on Statutory Compliance and FnF Notice Recovery calculations.',
       };
-
-      setTrainingModule(fallback);
-      onSaveProfile({
-        name,
-        level,
-        linkedIn,
-        resumeText: textToAnalyze,
-        resumeFileName,
-        customTrainingModule: fallback,
-      });
-      onOpenModal('Training Module Generated!', `Personalized training module created for ${name}.`);
     }
+
+    // Update React State immediately
+    setName(extractedName);
+    setLevel(extractedRole);
+    setLinkedIn(extractedLinkedIn);
+    setTrainingModule(moduleData);
+
+    const updatedProfile: UserProfile = {
+      name: extractedName,
+      level: extractedRole,
+      linkedIn: extractedLinkedIn,
+      resumeText: textToAnalyze,
+      resumeFileName,
+      customTrainingModule: moduleData,
+    };
+
+    onSaveProfile(updatedProfile);
+    onOpenModal(
+      'Training Module Generated & Profile Synced!',
+      `Personalized training module created for ${extractedName}! Profile name, role (${extractedRole}), and learning roadmap updated live across the platform!`
+    );
   };
 
   const handleSave = () => {
@@ -203,7 +213,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       customTrainingModule: trainingModule,
     };
     onSaveProfile(updated);
-    onOpenModal('Profile Saved & Synced!', 'Your candidate profile details have been saved and synced.');
+    onOpenModal('Profile Saved & Synced!', `Candidate profile details saved for ${name}.`);
   };
 
   return (
@@ -241,7 +251,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
               />
             </div>
 
@@ -251,7 +261,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
               />
             </div>
 
@@ -261,7 +271,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={linkedIn}
                 onChange={(e) => setLinkedIn(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold"
               />
             </div>
 
