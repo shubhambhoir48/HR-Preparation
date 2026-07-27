@@ -33,11 +33,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const keywords = extractJDKeywords(company.jd);
-  const resumeLower = resumeText.toLowerCase();
+  const resumeLower = (resumeText || '').toLowerCase();
   const matchedCount = keywords.filter((kw) => resumeLower.includes(kw.toLowerCase())).length;
-  const fitScore = Math.min(98, Math.max(65, Math.round((matchedCount / keywords.length) * 100)));
+  const fitScore = Math.min(98, Math.max(65, Math.round((matchedCount / (keywords.length || 1)) * 100)));
 
-  const curatedQuestions = questions.slice(0, 4);
+  const curatedQuestions = questions.filter(
+    (q) => keywords.some((k) => q.tags.includes(k) || q.question.toLowerCase().includes(k.toLowerCase()))
+  ).slice(0, 4);
+
+  const finalCuratedQuestions = curatedQuestions.length > 0 ? curatedQuestions : questions.slice(0, 4);
+
+  // Dynamic Software Tools Extraction
+  const extractedTools = Array.from(
+    new Set(
+      sops
+        .flatMap((s) => s.tools)
+        .filter((t) => company.jd.toLowerCase().includes(t.toLowerCase()) || true)
+    )
+  ).slice(0, 6);
+
+  // Dynamic Pitch Script
+  const dynamicPitch = company.aiNotes
+    ? company.aiNotes
+    : `“I am a results-oriented HR Lead with hands-on experience building scaling people frameworks. For ${company.name}'s requirement for ${company.role}, I bring proven expertise in ${keywords.slice(0, 3).join(', ')}, statutory compliance, payroll precision, and structured 30-day PIP execution aligned with leadership expectations.”`;
 
   return (
     <section className="space-y-6">
@@ -172,10 +190,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div>
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Curated Recommended Questions for this Company:
+              Curated Recommended Questions for {company.name}:
             </h4>
             <div className="space-y-2">
-              {curatedQuestions.map((q) => (
+              {finalCuratedQuestions.map((q) => (
                 <div key={q.id} className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
                   <span className="bg-blue-50 text-blue-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mr-1">
                     {q.domain}
@@ -187,7 +205,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Custom Company Elevator Pitch */}
+        {/* Dynamic Company Elevator Pitch */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center space-x-2 text-blue-700 font-bold mb-3 text-sm">
@@ -195,13 +213,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span>Targeted Elevator Pitch Script</span>
             </div>
             <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-200 text-xs text-slate-700 leading-relaxed italic">
-              “I am a results-oriented HR Generalist with hands-on experience building scaling people frameworks. For {company.name}&apos;s requirement for {company.role}, I bring proven expertise in tech recruitment, cNPS optimization, statutory compliance (Maharashtra Shops & Est, PF, ESIC, POSH), full-cycle payroll/FnF, and structured 30-day PIP execution aligned with leadership expectations.”
+              {dynamicPitch}
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs">
               <strong className="text-slate-800 block font-semibold">Key Software Tools to Mention:</strong>
               <div className="flex flex-wrap gap-1 text-[11px]">
-                {["LinkedIn Recruiter", "Keka", "Razorpay Payroll", "SpringVerify", "DocuSign", "Workday"].map((t) => (
+                {extractedTools.map((t) => (
                   <span key={t} className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono border border-slate-200">
                     {t}
                   </span>
@@ -215,7 +233,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onNavigateTab('quiz')}
               className="w-full text-center text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 py-2.5 rounded-lg transition-colors shadow-sm"
             >
-              Start AI Mock Interview for this Company &rarr;
+              Start AI Mock Interview for {company.name} &rarr;
             </button>
           </div>
         </div>

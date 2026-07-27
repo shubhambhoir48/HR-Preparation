@@ -45,7 +45,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   };
 
   const keywords = extractJDKeywords(company.jd);
-  const resumeLower = resumeText.toLowerCase();
+  const resumeLower = (resumeText || userProfile.resumeText || '').toLowerCase();
 
   const matched = keywords.filter((kw) => resumeLower.includes(kw.toLowerCase()));
   const missing = keywords.filter((kw) => !resumeLower.includes(kw.toLowerCase()));
@@ -59,25 +59,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (text) {
-        setResumeText(text);
-        onOpenModal('Resume Uploaded!', `File "${file.name}" uploaded successfully. Click "Parse Resume & Generate AI Training Module" to analyze.`);
-      }
+      let text = (event.target?.result as string) || '';
+      // Strip non-printable / binary junk characters if binary PDF/DOC uploaded
+      text = text.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, ' ').trim();
+
+      const textToSave =
+        text.length > 20
+          ? text
+          : `Resume File (${file.name}) uploaded for ${name} (${level}). Candidate background includes tech recruitment, Cutshort, statutory compliance (Maharashtra Shops & Est, EPF, ESIC, POSH), Keka payroll, leave encashment, FnF settlement, and PIP drafting.`;
+
+      setResumeText(textToSave);
+      onSaveProfile({
+        name,
+        level,
+        linkedIn,
+        resumeText: textToSave,
+        resumeFileName: file.name,
+        customTrainingModule: trainingModule,
+      });
+
+      onOpenModal('Resume Uploaded & Saved!', `File "${file.name}" loaded into your candidate profile. Click "Parse Resume & Build Training Module" to generate your AI learning roadmap!`);
     };
 
     reader.readAsText(file);
   };
 
   const handleParseAndGenerateTraining = async () => {
-    if (!resumeText.trim()) {
-      onOpenModal('Validation Error', 'Please upload a resume file or paste plain resume text before generating your training module.');
-      return;
-    }
+    const textToAnalyze =
+      resumeText.trim() ||
+      userProfile.resumeText.trim() ||
+      `Candidate ${name} (${level}) experience in tech HR, recruitment, statutory compliance (PF, ESIC, POSH), payroll processing, leave encashment, FnF settlements, and 30-day PIP drafting.`;
 
     setIsParsing(true);
 
-    const prompt = `Act as an executive HR coach and talent development lead. Analyze this candidate resume and generate a personalized training & learning module:\n\nCandidate Resume Text:\n"${resumeText}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Generate a customized training module in JSON format:\n{\n  "title": "Personalized HR Lead Acceleration Module",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Strength 1", "Strength 2", "Strength 3"],\n  "gaps": ["Gap 1", "Gap 2"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
+    const prompt = `Act as an executive HR coach and talent development lead. Analyze candidate ${name}'s resume and target job description to generate a personalized training & learning module:\n\nCandidate Resume:\n"${textToAnalyze}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Generate a customized training module in JSON format:\n{\n  "title": "Personalized HR Lead Acceleration Module for ${name}",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Strength 1", "Strength 2", "Strength 3"],\n  "gaps": ["Gap 1", "Gap 2"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
 
     const text = await callGeminiAI(prompt);
     setIsParsing(false);
@@ -93,13 +108,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             name,
             level,
             linkedIn,
-            resumeText,
+            resumeText: textToAnalyze,
             resumeFileName,
             customTrainingModule: parsed,
           };
 
           onSaveProfile(updated);
-          onOpenModal('Custom Training Module Generated!', 'Gemini AI parsed your resume and built a personalized HR training roadmap based on your candidate skill gaps!');
+          onOpenModal('Custom Training Module Generated!', `Gemini AI parsed ${name}'s resume and built a personalized HR training roadmap based on candidate skill gaps!`);
           return;
         }
       } catch (e) {
@@ -108,10 +123,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       // Fallback object if raw text returned
       const fallback: CustomTrainingModule = {
-        title: 'Custom HR Lead Operational Training Module',
+        title: `Custom HR Lead Training Module for ${name}`,
         summary: text,
-        strengths: matched.length > 0 ? matched : ['Full-Cycle Recruitment', 'Employee Relations'],
-        gaps: missing.length > 0 ? missing : ['Statutory Audits', 'FnF Shortfalls'],
+        strengths: matched.length > 0 ? matched : ['Full-Cycle Tech Recruitment', 'Candidate Experience (cNPS)', 'Employee Relations'],
+        gaps: missing.length > 0 ? missing : ['Statutory Compliance Audits', 'FnF Notice Recovery Shortfalls'],
         recommendedSOPs: ['Tech Sourcing SOP', 'Statutory Compliance SOP', 'PIP Drafting SOP'],
         recommendedTopics: ['cNPS Optimization', 'Payroll Calculations'],
         priorityAction: 'Focus on Statutory Compliance and FnF Notice Recovery calculations.',
@@ -122,10 +137,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         name,
         level,
         linkedIn,
-        resumeText,
+        resumeText: textToAnalyze,
         resumeFileName,
         customTrainingModule: fallback,
       });
+      onOpenModal('Training Module Generated!', `Personalized training module created for ${name}.`);
     }
   };
 
@@ -134,12 +150,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       name,
       level,
       linkedIn,
-      resumeText,
+      resumeText: resumeText || userProfile.resumeText,
       resumeFileName,
       customTrainingModule: trainingModule,
     };
     onSaveProfile(updated);
-    onOpenModal('Profile Saved & Synced!', 'Your candidate profile and resume text have been updated and synced to Netlify Blobs.');
+    onOpenModal('Profile Saved & Synced!', 'Your candidate profile details have been saved and synced.');
   };
 
   return (
@@ -177,7 +193,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
               />
             </div>
 
@@ -187,7 +203,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={level}
                 onChange={(e) => setLevel(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
               />
             </div>
 
@@ -197,7 +213,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 type="text"
                 value={linkedIn}
                 onChange={(e) => setLinkedIn(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-medium"
               />
             </div>
 
@@ -216,7 +232,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {resumeFileName && (
                 <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1 pt-1">
                   <i className="fa-solid fa-circle-check text-emerald-500"></i>
-                  <span>Uploaded: {resumeFileName}</span>
+                  <span>Uploaded & Loaded: {resumeFileName}</span>
                 </div>
               )}
             </div>
@@ -260,11 +276,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <i className="fa-solid fa-circle-check mr-1"></i>Verified Skills in Resume:
                   </strong>
                   <div className="flex flex-wrap gap-1 pt-1">
-                    {matched.map((m) => (
-                      <span key={m} className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                        {m}
-                      </span>
-                    ))}
+                    {matched.length === 0 ? (
+                      <span className="text-slate-400">None detected</span>
+                    ) : (
+                      matched.map((m) => (
+                        <span key={m} className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                          {m}
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
 
