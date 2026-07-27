@@ -57,18 +57,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       return rawPdfText;
     }
 
-    // Extract title or metadata if present
     const titleMatch = rawPdfText.match(/\/Title\s*\(([^)]+)\)/);
     const pdfTitle = titleMatch ? titleMatch[1] : filename.replace(/\.[^/.]+$/, "");
 
-    // Filter printable text tokens from PDF stream
     const words = rawPdfText
       .replace(/%PDF-[\s\S]*?stream/g, ' ')
       .replace(/endstream[\s\S]*?endobj/g, ' ')
       .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ')
       .match(/[A-Za-z0-9,.-]{2,}/g) || [];
 
-    // Filter out common PDF syntax keywords
     const pdfKeywords = new Set([
       'PDF', 'Type', 'Catalog', 'Version', 'Pages', 'Metadata', 'StructTreeRoot',
       'MarkInfo', 'Lang', 'ViewerPreferences', 'Outlines', 'OutputIntents',
@@ -105,8 +102,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       });
 
       onOpenModal(
-        'Resume Parsed & Uploaded!',
-        `File "${file.name}" processed into clean candidate text. Click "Parse Resume & Build Training Module" to generate your Gemini AI roadmap!`
+        'Resume Uploaded!',
+        `File "${file.name}" loaded into candidate profile. Click "Parse Resume & Build Training Module" to extract profile fields and build your AI roadmap!`
       );
     };
 
@@ -121,7 +118,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
     setIsParsing(true);
 
-    const prompt = `Act as an executive HR coach and talent development lead. Analyze candidate ${name}'s resume and target job description to generate a personalized training & learning module:\n\nCandidate Resume:\n"${textToAnalyze}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Generate a customized training module in JSON format:\n{\n  "title": "Personalized HR Lead Acceleration Module for ${name}",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Strength 1", "Strength 2", "Strength 3"],\n  "gaps": ["Gap 1", "Gap 2"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
+    const prompt = `Act as an executive HR coach and talent development lead. Analyze candidate's resume and target job description:\n\nCandidate Resume Text:\n"${textToAnalyze}"\n\nTarget Company (${company.name}) JD:\n"${company.jd}"\n\nTask: Extract candidate profile data AND generate custom training module in JSON format:\n{\n  "candidateName": "Extracted Candidate Full Name (e.g. Priyanka Vartak)",\n  "candidateRole": "Extracted Designation / Target Role (e.g. HR Lead / Senior HRBP)",\n  "candidateLinkedIn": "Extracted LinkedIn URL if present, or leave unchanged",\n  "title": "Personalized HR Lead Acceleration Module",\n  "summary": "2-sentence custom learning roadmap summary tailored to candidate skill gaps.",\n  "strengths": ["Strength 1", "Strength 2", "Strength 3"],\n  "gaps": ["Gap 1", "Gap 2"],\n  "recommendedSOPs": ["Tech Headhunting & Sourcing", "Maharashtra Shops & Est Statutory Compliance", "30-Day PIP Execution"],\n  "recommendedTopics": ["Candidate NPS (cNPS) Optimization", "Full & Final Settlement Shortfall Payout"],\n  "priorityAction": "High priority 30-day training focus area for candidate."\n}`;
 
     const text = await callGeminiAI(prompt);
     setIsParsing(false);
@@ -130,27 +127,49 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const parsed: CustomTrainingModule = JSON.parse(jsonMatch[0]);
-          setTrainingModule(parsed);
+          const parsed = JSON.parse(jsonMatch[0]);
 
-          const updated: UserProfile = {
-            name,
-            level,
-            linkedIn,
-            resumeText: textToAnalyze,
-            resumeFileName,
-            customTrainingModule: parsed,
+          const extractedName = parsed.candidateName || name;
+          const extractedRole = parsed.candidateRole || level;
+          const extractedLinkedIn = parsed.candidateLinkedIn || linkedIn;
+
+          const moduleData: CustomTrainingModule = {
+            title: parsed.title || `Personalized HR Acceleration Module for ${extractedName}`,
+            summary: parsed.summary || 'Custom roadmap tailored to candidate skill gaps.',
+            strengths: parsed.strengths || ['Tech Sourcing', 'Employee Relations'],
+            gaps: parsed.gaps || ['Statutory Compliance', 'FnF Shortfalls'],
+            recommendedSOPs: parsed.recommendedSOPs || ['Tech Sourcing SOP', 'Statutory SOP'],
+            recommendedTopics: parsed.recommendedTopics || ['cNPS Optimization', 'Payroll Math'],
+            priorityAction: parsed.priorityAction || 'Focus on Statutory Compliance and FnF Shortfall calculations.',
           };
 
-          onSaveProfile(updated);
-          onOpenModal('Custom Training Module Generated!', `Gemini AI parsed ${name}'s resume and built a personalized HR training roadmap based on candidate skill gaps!`);
+          // Update React State immediately
+          setName(extractedName);
+          setLevel(extractedRole);
+          setLinkedIn(extractedLinkedIn);
+          setTrainingModule(moduleData);
+
+          const updatedProfile: UserProfile = {
+            name: extractedName,
+            level: extractedRole,
+            linkedIn: extractedLinkedIn,
+            resumeText: textToAnalyze,
+            resumeFileName,
+            customTrainingModule: moduleData,
+          };
+
+          onSaveProfile(updatedProfile);
+          onOpenModal(
+            'Candidate Profile & Training Module Updated!',
+            `Gemini AI parsed resume details for ${extractedName}! Profile name, role (${extractedRole}), skill fit, and training roadmap updated across the entire platform!`
+          );
           return;
         }
       } catch (e) {
         console.warn('JSON parse error:', e);
       }
 
-      // Fallback object if raw text returned
+      // Fallback update if raw text returned
       const fallback: CustomTrainingModule = {
         title: `Custom HR Lead Training Module for ${name}`,
         summary: text,
@@ -195,7 +214,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">Candidate Settings & AI Training Engine</span>
             <h2 className="text-2xl font-bold text-slate-900">User Profile & Resume Parser Studio</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Upload your resume to parse candidate data, analyze JD match gaps, and dynamically generate your personal training module.
+              Upload your resume to parse candidate data, extract profile fields, analyze JD match gaps, and dynamically generate your personal training module.
             </p>
           </div>
           <button
