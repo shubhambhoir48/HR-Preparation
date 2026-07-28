@@ -62,6 +62,16 @@ export default function MainPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
 
+  // Helper to derive name dynamically from account
+  const getDerivedUserName = (email?: string | null, displayName?: string | null) => {
+    if (displayName && displayName.trim()) return displayName.trim();
+    if (!email) return 'HR Professional';
+    const lower = email.toLowerCase();
+    if (lower.includes('shubham')) return 'Shubham Bhoir';
+    if (lower.includes('priyanka')) return 'Priyanka Vartak';
+    return email.split('@')[0];
+  };
+
   // Authentication check with Firebase + Whitelist verification
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -69,9 +79,10 @@ export default function MainPage() {
         if (isEmailWhitelisted(firebaseUser.email)) {
           localStorage.setItem('hr_prep_auth', 'true');
           if (firebaseUser.email) localStorage.setItem('hr_prep_user_email', firebaseUser.email);
-          if (firebaseUser.displayName) {
-            setUserProfile((prev) => ({ ...prev, name: firebaseUser.displayName || prev.name }));
-          }
+          const derivedName = getDerivedUserName(firebaseUser.email, firebaseUser.displayName);
+          localStorage.setItem('hr_prep_user_name', derivedName);
+          setUserProfile((prev) => ({ ...prev, name: derivedName }));
+
           setIsAuthenticated(true);
           setAuthChecking(false);
         } else {
@@ -84,6 +95,10 @@ export default function MainPage() {
       } else {
         const storedAuth = localStorage.getItem('hr_prep_auth');
         if (storedAuth) {
+          const storedEmail = localStorage.getItem('hr_prep_user_email');
+          const storedName = localStorage.getItem('hr_prep_user_name');
+          const derivedName = getDerivedUserName(storedEmail, storedName);
+          setUserProfile((prev) => ({ ...prev, name: derivedName }));
           setIsAuthenticated(true);
           setAuthChecking(false);
         } else {
@@ -112,6 +127,10 @@ export default function MainPage() {
   // Load State from LocalStorage / Netlify Blobs
   useEffect(() => {
     async function loadData() {
+      const currentEmail = localStorage.getItem('hr_prep_user_email');
+      const currentName = localStorage.getItem('hr_prep_user_name');
+      const activeName = getDerivedUserName(currentEmail, currentName);
+
       try {
         // Try fetching Netlify Blobs stored state
         const res = await fetch('/api/storage');
@@ -121,7 +140,9 @@ export default function MainPage() {
           const d = json.data;
           if (d.targetCompanies) setTargetCompanies(d.targetCompanies);
           if (d.activeCompanyId) setActiveCompanyId(d.activeCompanyId);
-          if (d.userProfile) setUserProfile(d.userProfile);
+          if (d.userProfile) {
+            setUserProfile({ ...d.userProfile, name: activeName });
+          }
           if (d.userProgress) setUserProgress(d.userProgress);
           if (d.starStoriesData) setStarStoriesData(d.starStoriesData);
           setIsCloudSynced(true);
@@ -138,7 +159,9 @@ export default function MainPage() {
           const p = JSON.parse(stored);
           if (p.targetCompanies) setTargetCompanies(p.targetCompanies);
           if (p.activeCompanyId) setActiveCompanyId(p.activeCompanyId);
-          if (p.userProfile) setUserProfile(p.userProfile);
+          if (p.userProfile) {
+            setUserProfile({ ...p.userProfile, name: activeName });
+          }
           if (p.userProgress) setUserProgress(p.userProgress);
           if (p.starStoriesData) setStarStoriesData(p.starStoriesData);
         }
@@ -394,16 +417,18 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
               onDeleteCompany={handleDeleteCompany}
               onUpdateCompany={handleUpdateCompany}
               onOpenModal={handleOpenModal}
+              userName={userProfile.name}
             />
           )}
 
-          {activeTab === 'sandbox' && <WorkplaceSandboxView />}
+          {activeTab === 'sandbox' && <WorkplaceSandboxView userName={userProfile.name} />}
 
           {activeTab === 'playbook' && (
             <PlaybooksView
               sops={initialSOPs}
               sopsRead={userProgress.sopsRead}
               onToggleSOPRead={handleToggleSOPRead}
+              userName={userProfile.name}
             />
           )}
 
@@ -431,12 +456,13 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
-          {activeTab === 'ai-hr' && <AiForHrView />}
+          {activeTab === 'ai-hr' && <AiForHrView userName={userProfile.name} />}
 
           {activeTab === 'hr-analytics' && (
             <HRAnalyticsView 
               completedIds={userProgress.analyticsCompleted}
               onToggleComplete={(id) => handleToggleGenericProgress('analyticsCompleted', id)}
+              userName={userProfile.name}
             />
           )}
 
@@ -444,6 +470,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             <HRToolsMasterclassView 
               completedIds={userProgress.toolsCompleted}
               onToggleComplete={(id) => handleToggleGenericProgress('toolsCompleted', id)}
+              userName={userProfile.name}
             />
           )}
 
@@ -452,6 +479,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
               labs={initialLabs}
               labCompleted={userProgress.labCompleted}
               onToggleLabCompleted={handleToggleLabCompleted}
+              userName={userProfile.name}
             />
           )}
 
@@ -467,6 +495,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             <ExecutiveCommView 
               completedIds={userProgress.commCompleted}
               onToggleComplete={(id) => handleToggleGenericProgress('commCompleted', id)}
+              userName={userProfile.name}
             />
           )}
 
@@ -494,7 +523,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             <span>
               HR Lead Mastery & Multi-Company Accelerator Platform &bull; Netlify Blobs & Gemini AI Powered
             </span>
-            <span className="text-slate-400">Targeting HR Excellence for Priyanka Vartak</span>
+            <span className="text-slate-400">Targeting HR Excellence for {userProfile.name}</span>
           </div>
         </footer>
       </div>

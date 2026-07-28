@@ -188,7 +188,11 @@ export const workplaceCompaniesData: WorkplaceCompany[] = [
   }
 })();
 
-export const WorkplaceSandboxView: React.FC = () => {
+export interface WorkplaceSandboxViewProps {
+  userName?: string;
+}
+
+export const WorkplaceSandboxView: React.FC<WorkplaceSandboxViewProps> = ({ userName = 'HR Professional' }) => {
   const [selectedComp, setSelectedComp] = useState<WorkplaceCompany>(workplaceCompaniesData[0]);
   const [selectedScen, setSelectedScen] = useState(workplaceCompaniesData[0].scenarios[0]);
   const [search, setSearch] = useState('');
@@ -222,7 +226,7 @@ export const WorkplaceSandboxView: React.FC = () => {
 
     setIsEvaluating(true);
 
-    const prompt = `Act as the Chief Human Resources Officer (CHRO) at ${selectedComp.name}. Evaluate candidate Priyanka Vartak's workplace action plan for the following scenario:\n\nCompany: ${selectedComp.name}\nCulture DNA:\n"${selectedComp.hrCultureDna}"\n\nScenario Title: ${selectedScen.title}\nScenario Description:\n"${selectedScen.description}"\n\nAssigned Task:\n"${selectedScen.practiceTask}"\n\nCandidate Action Plan:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Company Culture Fit Score (1-10)\n2. Operational Feasibility & Speed of Execution\n3. Statutory & Labor Compliance Audit\n4. Recommended A-Grade Model HR Action Plan tailored to ${selectedComp.name}'s standards.`;
+    const prompt = `Act as the Chief Human Resources Officer (CHRO) at ${selectedComp.name}. Evaluate candidate ${userName}'s workplace action plan for the following scenario:\n\nCompany: ${selectedComp.name}\nCulture DNA:\n"${selectedComp.hrCultureDna}"\n\nScenario Title: ${selectedScen.title}\nScenario Description:\n"${selectedScen.description}"\n\nAssigned Task:\n"${selectedScen.practiceTask}"\n\nCandidate Action Plan:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Company Culture Fit Score (1-10)\n2. Operational Feasibility & Speed of Execution\n3. Statutory & Labor Compliance Audit\n4. Recommended A-Grade Model HR Action Plan tailored to ${selectedComp.name}'s standards.`;
 
     const result = await callGeminiAI(prompt);
     setIsEvaluating(false);

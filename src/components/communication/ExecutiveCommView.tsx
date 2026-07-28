@@ -6,6 +6,7 @@ import { callGeminiAI } from '@/lib/gemini';
 export interface ExecutiveCommViewProps {
   completedIds?: string[];
   onToggleComplete?: (id: string) => void;
+  userName?: string;
 }
 
 export interface CommPillar {
@@ -400,7 +401,7 @@ export const commPillarsData: CommPillar[] = [
   }
 ];
 
-export const ExecutiveCommView: React.FC<ExecutiveCommViewProps> = ({ completedIds = [], onToggleComplete }) => {
+export const ExecutiveCommView: React.FC<ExecutiveCommViewProps> = ({ completedIds = [], onToggleComplete, userName = 'HR Professional' }) => {
   const [selectedPillar, setSelectedPillar] = useState<CommPillar>(commPillarsData[0]);
   const [activeTab, setActiveTab] = useState<'masterclass' | 'practice'>('masterclass');
   const [userInput, setUserInput] = useState(commPillarsData[0].defaultInput);
@@ -418,7 +419,7 @@ export const ExecutiveCommView: React.FC<ExecutiveCommViewProps> = ({ completedI
     if (!userInput.trim()) return;
     setIsAuditing(true);
 
-    const prompt = `Act as an Executive Leadership Coach & Corporate Communication Specialist. Audit candidate Priyanka Vartak's response for "${selectedPillar.title}":\n\nPillar Category: ${selectedPillar.category}\nCore Rules:\n${selectedPillar.coreRules.join('; ')}\n\nPractical Task Assigned:\n"${selectedPillar.sampleTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Feedback Report:\n1. Executive Presence & Professionalism Score (1-10)\n2. Grammar, Vocabulary & Tone Precision\n3. What was executed well\n4. Missing executive nuances & A-Grade Model Polish.`;
+    const prompt = `Act as an Executive Leadership Coach & Corporate Communication Specialist. Audit candidate ${userName}'s response for "${selectedPillar.title}":\n\nPillar Category: ${selectedPillar.category}\nCore Rules:\n${selectedPillar.coreRules.join('; ')}\n\nPractical Task Assigned:\n"${selectedPillar.sampleTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Feedback Report:\n1. Executive Presence & Professionalism Score (1-10)\n2. Grammar, Vocabulary & Tone Precision\n3. What was executed well\n4. Missing executive nuances & A-Grade Model Polish.`;
 
     const result = await callGeminiAI(prompt);
     setIsAuditing(false);

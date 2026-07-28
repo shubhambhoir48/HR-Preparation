@@ -31,7 +31,7 @@ export default function LoginPage() {
         await signOut(auth);
         localStorage.removeItem('hr_prep_auth');
         setLoading(false);
-        setError(`Access Denied: The account "${user?.email || 'Unknown'}" is not authorized. Only whitelisted HR platform accounts can log in.`);
+        setError('Access Denied: Your Google account is not pre-authorized to access this platform.');
       }
     } catch (err: any) {
       setLoading(false);
@@ -95,22 +95,14 @@ export default function LoginPage() {
             </span>
           </button>
 
-          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 space-y-2 text-[11px] text-slate-400">
-            <div className="font-bold text-slate-300 flex items-center gap-1.5">
-              <i className="fa-solid fa-[#0F9D58] fa-shield-halved text-emerald-400"></i>
-              Authorized Accounts Whitelist:
+          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex items-start space-x-3 text-[11px] text-slate-400">
+            <i className="fa-solid fa-shield-halved text-emerald-400 text-base shrink-0 mt-0.5"></i>
+            <div>
+              <div className="font-bold text-slate-300 mb-0.5">Private HR Platform Access</div>
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                Public signups are disabled. Access is strictly restricted to pre-authorized Google accounts.
+              </p>
             </div>
-            <ul className="space-y-1 font-mono text-[11px] text-slate-300 pl-1">
-              {WHITELISTED_EMAILS.map((email) => (
-                <li key={email} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <code>{email}</code>
-                </li>
-              ))}
-            </ul>
-            <p className="text-[10px] text-slate-500 pt-1 border-t border-slate-800">
-              Note: Unregistered or public signups are disabled. Only whitelisted Google accounts are permitted access.
-            </p>
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ interface CompanyHubViewProps {
   onDeleteCompany: (id: string) => void;
   onUpdateCompany: (company: TargetCompany) => void;
   onOpenModal: (title: string, body: string) => void;
+  userName?: string;
 }
 
 export const CompanyHubView: React.FC<CompanyHubViewProps> = ({
@@ -22,6 +23,7 @@ export const CompanyHubView: React.FC<CompanyHubViewProps> = ({
   onDeleteCompany,
   onUpdateCompany,
   onOpenModal,
+  userName = 'HR Professional',
 }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [name, setName] = useState('');
@@ -95,7 +97,7 @@ export const CompanyHubView: React.FC<CompanyHubViewProps> = ({
 
     setIsAnalyzingFeedback(true);
 
-    const prompt = `Analyze this interview experience feedback for candidate Priyanka interviewing at ${activeFeedbackComp.name} (${activeFeedbackComp.role}):\n\nOutcome: ${outcome}\nQuestions Asked by Interviewer:\n"${askedQuestions}"\nWhere Candidate Struggled/Failed:\n"${failureAnalysis}"\n\nTask: Provide an adaptive learning path improvement plan in JSON format:\n{\n  "adaptiveSummary": "2-sentence summary analyzing why candidate struggled and how to adapt learning path.",\n  "recommendedFocus": ["Focus Topic 1", "Focus Topic 2", "Focus Topic 3"],\n  "actionPlan": "Clear 30-day action step for Priyanka to master these gaps."\n}`;
+    const prompt = `Analyze this interview experience feedback for candidate ${userName} interviewing at ${activeFeedbackComp.name} (${activeFeedbackComp.role}):\n\nOutcome: ${outcome}\nQuestions Asked by Interviewer:\n"${askedQuestions}"\nWhere Candidate Struggled/Failed:\n"${failureAnalysis}"\n\nTask: Provide an adaptive learning path improvement plan in JSON format:\n{\n  "adaptiveSummary": "2-sentence summary analyzing why candidate struggled and how to adapt learning path.",\n  "recommendedFocus": ["Focus Topic 1", "Focus Topic 2", "Focus Topic 3"],\n  "actionPlan": "Clear 30-day action step for ${userName} to master these gaps."\n}`;
 
     const text = await callGeminiAI(prompt);
     setIsAnalyzingFeedback(false);
@@ -127,7 +129,7 @@ export const CompanyHubView: React.FC<CompanyHubViewProps> = ({
 
     onUpdateCompany(updated);
     setActiveFeedbackComp(null);
-    onOpenModal('Interview Outcome & Failure Analysis Recorded!', `Feedback saved for ${updated.name}. System adapted Priyanka's learning path based on interview insights!`);
+    onOpenModal('Interview Outcome & Failure Analysis Recorded!', `Feedback saved for ${updated.name}. System adapted ${userName}'s learning path based on interview insights!`);
   };
 
   return (
@@ -138,7 +140,7 @@ export const CompanyHubView: React.FC<CompanyHubViewProps> = ({
             <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Multi-Company Prep Hub</span>
             <h2 className="text-2xl font-bold text-slate-900">Manage Target Companies & JDs</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Add details for target companies, record interview outcomes, log questions asked & failure analysis, and dynamically adapt Priyanka&apos;s learning path using Gemini AI.
+              Add details for target companies, record interview outcomes, log questions asked & failure analysis, and dynamically adapt your learning path using Gemini AI.
             </p>
           </div>
           <button

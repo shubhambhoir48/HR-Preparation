@@ -8,12 +8,14 @@ interface LabsViewProps {
   labs: HRLab[];
   labCompleted: number[];
   onToggleLabCompleted: (id: number) => void;
+  userName?: string;
 }
 
 export const LabsView: React.FC<LabsViewProps> = ({
   labs,
   labCompleted,
   onToggleLabCompleted,
+  userName = 'HR Professional',
 }) => {
   const [catFilter, setCatFilter] = useState('ALL');
   const [difficultyFilter, setDifficultyFilter] = useState('ALL');
@@ -56,7 +58,7 @@ export const LabsView: React.FC<LabsViewProps> = ({
 
     setEvaluatingLabId(lab.id);
 
-    const prompt = `Act as a Senior HR Operations Lead. Evaluate candidate Priyanka Vartak's practical submission for HR Deliverable Project #${lab.id} (${lab.title}):\n\nScenario:\n"${lab.scenario}"\n\nProject Task:\n"${lab.task}"\n\nCandidate Submission:\n"${input}"\n\nBenchmark Solution Reference:\n"${lab.solution}"\n\nProvide Evaluation Report:\n1. Practical Execution Score (1-10)\n2. Correct Steps & Technical Nuances Identified\n3. Missing Statutory / Compliance Steps\n4. Recommended A-Grade Executive Strategy.`;
+    const prompt = `Act as a Senior HR Operations Lead. Evaluate candidate ${userName}'s practical submission for HR Deliverable Project #${lab.id} (${lab.title}):\n\nScenario:\n"${lab.scenario}"\n\nProject Task:\n"${lab.task}"\n\nCandidate Submission:\n"${input}"\n\nBenchmark Solution Reference:\n"${lab.solution}"\n\nProvide Evaluation Report:\n1. Practical Execution Score (1-10)\n2. Correct Steps & Technical Nuances Identified\n3. Missing Statutory / Compliance Steps\n4. Recommended A-Grade Executive Strategy.`;
 
     const result = await callGeminiAI(prompt);
     setEvaluatingLabId(null);

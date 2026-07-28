@@ -8,12 +8,14 @@ interface PlaybooksViewProps {
   sops: SOPPlaybook[];
   sopsRead: number[];
   onToggleSOPRead: (id: number) => void;
+  userName?: string;
 }
 
 export const PlaybooksView: React.FC<PlaybooksViewProps> = ({
   sops,
   sopsRead,
   onToggleSOPRead,
+  userName = 'HR Professional',
 }) => {
   const [catFilter, setCatFilter] = useState('ALL');
   const [search, setSearch] = useState('');
@@ -64,7 +66,7 @@ export const PlaybooksView: React.FC<PlaybooksViewProps> = ({
 
     setIsSimulating(true);
 
-    const prompt = `Act as an executive HR VP / Board Director. Evaluate candidate Priyanka Vartak's operational response in this real-world SOP roleplay scenario:\n\nSOP Category: ${sop.cat}\nSOP Title: "${sop.title}"\nSOP Execution Checklist: ${sop.steps.join('; ')}\n\nCandidate Scenario Response:\n"${userAns}"\n\nProvide Evaluation Report:\n1. HR Leadership & Tactical Decision Score (1-10)\n2. Candidate/Employee Sentiment Impact\n3. Statutory & Organizational Compliance Risk Score\n4. Recommended A-Grade Executive Strategy.`;
+    const prompt = `Act as an executive HR VP / Board Director. Evaluate candidate ${userName}'s operational response in this real-world SOP roleplay scenario:\n\nSOP Category: ${sop.cat}\nSOP Title: "${sop.title}"\nSOP Execution Checklist: ${sop.steps.join('; ')}\n\nCandidate Scenario Response:\n"${userAns}"\n\nProvide Evaluation Report:\n1. HR Leadership & Tactical Decision Score (1-10)\n2. Candidate/Employee Sentiment Impact\n3. Statutory & Organizational Compliance Risk Score\n4. Recommended A-Grade Executive Strategy.`;
 
     const result = await callGeminiAI(prompt);
     setIsSimulating(false);

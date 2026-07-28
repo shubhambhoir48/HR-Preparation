@@ -196,7 +196,11 @@ export const aiHrModulesData: AiHrModule[] = [...initialAiHrModules];
   }
 })();
 
-export const AiForHrView: React.FC = () => {
+export interface AiForHrViewProps {
+  userName?: string;
+}
+
+export const AiForHrView: React.FC<AiForHrViewProps> = ({ userName = 'HR Professional' }) => {
   const [selectedModule, setSelectedModule] = useState<AiHrModule>(aiHrModulesData[0]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
@@ -225,7 +229,7 @@ export const AiForHrView: React.FC = () => {
 
     setIsAuditing(true);
 
-    const prompt = `Act as a Master AI Engineer & HR Transformation Consultant. Evaluate candidate Priyanka Vartak's AI prompt / workplace automation workflow for "${selectedModule.title}":\n\nAI Category: ${selectedModule.category}\nAI Tools Used: ${selectedModule.aiToolsUsed.join(', ')}\n\nAssigned Task:\n"${selectedModule.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Prompt Engineering & AI Mastery Score (1-10)\n2. Clarity of Role, Task, Format, and Context\n3. Missing Nuances & Hallucination Safeguards\n4. Recommended Masterclass A-Grade System Prompt.`;
+    const prompt = `Act as a Master AI Engineer & HR Transformation Consultant. Evaluate candidate ${userName}'s AI prompt / workplace automation workflow for "${selectedModule.title}":\n\nAI Category: ${selectedModule.category}\nAI Tools Used: ${selectedModule.aiToolsUsed.join(', ')}\n\nAssigned Task:\n"${selectedModule.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Prompt Engineering & AI Mastery Score (1-10)\n2. Clarity of Role, Task, Format, and Context\n3. Missing Nuances & Hallucination Safeguards\n4. Recommended Masterclass A-Grade System Prompt.`;
 
     const result = await callGeminiAI(prompt);
     setIsAuditing(false);

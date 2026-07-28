@@ -79,13 +79,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform ${
+        className={`fixed md:sticky top-0 left-0 h-screen z-40 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:static transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-xl md:shadow-none`}
+        } md:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-xl md:shadow-none overflow-hidden`}
       >
-        <div>
+        {/* Top Fixed Header & Target Widget */}
+        <div className="shrink-0">
           {/* Logo & Branding */}
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-black text-lg flex items-center justify-center h-9 w-9 rounded-xl shadow-lg tracking-wider">
                 HR
@@ -110,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Active Company Widget */}
-          <div className="p-3 mx-3 my-3 bg-slate-800/80 border border-slate-700/60 rounded-xl space-y-1.5">
+          <div className="p-3 mx-3 my-3 bg-slate-800/80 border border-slate-700/60 rounded-xl space-y-1.5 shadow-sm">
             <div className="flex justify-between items-center text-[10px] uppercase tracking-wider font-bold text-slate-400">
               <span>Active Target</span>
               <i className="fa-solid fa-bullseye text-blue-400"></i>
@@ -121,67 +122,69 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="font-extrabold text-emerald-400">{fitScore}%</span>
             </div>
           </div>
-
-          {/* Navigation Items List with Zero Visible Scrollbars */}
-          <nav className="px-3 py-2 space-y-4 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {navItems.map((group) => (
-              <div key={group.group} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                  {group.group}
-                </div>
-                {group.items.map((item) => {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setActiveTab(item.id);
-                        setIsOpenMobile(false);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all text-left group ${
-                        isActive
-                          ? 'bg-blue-600 text-white font-semibold shadow-md'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
-                    >
-                      <i className={`fa-solid ${item.icon} w-4 text-center ${isActive ? 'text-white' : item.color} group-hover:text-white`}></i>
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
         </div>
 
-        {/* Sidebar Footer Profile */}
-        <div className="p-3 border-t border-slate-800 m-2 bg-slate-800/40 rounded-xl flex items-center justify-between text-xs">
-          <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              {userName.split(' ').map((n) => n[0]).join('') || 'PV'}
+        {/* Scrollable Navigation Items List */}
+        <nav className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-4 text-xs font-medium custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {navItems.map((group) => (
+            <div key={group.group} className="space-y-1">
+              <div className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                {group.group}
+              </div>
+              {group.items.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setIsOpenMobile(false);
+                    }}
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all text-left group ${
+                      isActive
+                        ? 'bg-blue-600 text-white font-semibold shadow-md'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <i className={`fa-solid ${item.icon} w-4 text-center ${isActive ? 'text-white' : item.color} group-hover:text-white`}></i>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
-            <div className="min-w-0">
-              <div className="font-bold text-white truncate text-xs">{userName}</div>
-              <div className="text-[10px] text-slate-400 truncate">{userRole}</div>
+          ))}
+        </nav>
+
+        {/* Locked Bottom Profile Card */}
+        <div className="p-3 border-t border-slate-800 bg-slate-900 shrink-0 z-20">
+          <div className="bg-slate-800/90 border border-slate-700/70 p-2.5 rounded-xl flex items-center justify-between text-xs shadow-lg">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-md">
+                {userName.split(' ').map((n) => n[0]).join('') || 'PV'}
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-white truncate text-xs">{userName}</div>
+                <div className="text-[10px] text-slate-400 truncate font-medium">{userRole}</div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700/50"
-              title="Profile Settings"
-            >
-              <i className="fa-solid fa-gear"></i>
-            </button>
-            {onSignOut && (
+            <div className="flex items-center space-x-1 shrink-0">
               <button
-                onClick={onSignOut}
-                className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/50"
-                title="Sign Out"
+                onClick={() => setActiveTab('profile')}
+                className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-700/60 transition-colors"
+                title="Profile Settings"
               >
-                <i className="fa-solid fa-right-from-bracket"></i>
+                <i className="fa-solid fa-gear"></i>
               </button>
-            )}
+              {onSignOut && (
+                <button
+                  onClick={onSignOut}
+                  className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-700/60 transition-colors"
+                  title="Sign Out"
+                >
+                  <i className="fa-solid fa-right-from-bracket"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </aside>

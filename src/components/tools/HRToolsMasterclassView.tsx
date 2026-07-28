@@ -6,6 +6,7 @@ import { callGeminiAI } from '@/lib/gemini';
 export interface HRToolsMasterclassViewProps {
   completedIds?: string[];
   onToggleComplete?: (id: string) => void;
+  userName?: string;
 }
 
 export interface HRToolModule {
@@ -167,7 +168,7 @@ export const mnc30HRTools: HRToolModule[] = [
   }
 })();
 
-export const HRToolsMasterclassView: React.FC<HRToolsMasterclassViewProps> = ({ completedIds = [], onToggleComplete }) => {
+export const HRToolsMasterclassView: React.FC<HRToolsMasterclassViewProps> = ({ completedIds = [], onToggleComplete, userName = 'HR Professional' }) => {
   const [selectedTool, setSelectedTool] = useState<HRToolModule>(mnc30HRTools[0]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
@@ -196,7 +197,7 @@ export const HRToolsMasterclassView: React.FC<HRToolsMasterclassViewProps> = ({ 
 
     setIsAuditing(true);
 
-    const prompt = `Act as a Senior HR Systems Architect. Evaluate candidate Priyanka Vartak's practical tool execution for "${selectedTool.name}":\n\nSoftware Category: ${selectedTool.category}\nNavigation Path:\n"${selectedTool.navigationPath}"\n\nAssigned Practical Task:\n"${selectedTool.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Tool Operation Competency Score (1-10)\n2. Correct Steps & Technical Nuances Executed\n3. Missing Operational or Statutory Steps\n4. Recommended On-the-Job Best Practice Strategy.`;
+    const prompt = `Act as a Senior HR Systems Architect. Evaluate candidate ${userName}'s practical tool execution for "${selectedTool.name}":\n\nSoftware Category: ${selectedTool.category}\nNavigation Path:\n"${selectedTool.navigationPath}"\n\nAssigned Practical Task:\n"${selectedTool.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Tool Operation Competency Score (1-10)\n2. Correct Steps & Technical Nuances Executed\n3. Missing Operational or Statutory Steps\n4. Recommended On-the-Job Best Practice Strategy.`;
 
     const result = await callGeminiAI(prompt);
     setIsAuditing(false);

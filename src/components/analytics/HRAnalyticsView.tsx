@@ -6,6 +6,7 @@ import { callGeminiAI } from '@/lib/gemini';
 export interface HRAnalyticsViewProps {
   completedIds?: string[];
   onToggleComplete?: (id: string) => void;
+  userName?: string;
 }
 
 export interface HRAnalyticsModule {
@@ -181,7 +182,7 @@ export const hrAnalyticsModulesData: HRAnalyticsModule[] = [...initialHrAnalytic
   }
 })();
 
-export const HRAnalyticsView: React.FC<HRAnalyticsViewProps> = ({ completedIds = [], onToggleComplete }) => {
+export const HRAnalyticsView: React.FC<HRAnalyticsViewProps> = ({ completedIds = [], onToggleComplete, userName = 'HR Professional' }) => {
   const [selectedModule, setSelectedModule] = useState<HRAnalyticsModule>(hrAnalyticsModulesData[0]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
@@ -290,7 +291,7 @@ export const HRAnalyticsView: React.FC<HRAnalyticsViewProps> = ({ completedIds =
 
     setIsAuditing(true);
 
-    const prompt = `Act as a Chief People Analytics Officer. Evaluate candidate Priyanka Vartak's calculations and business recommendations for "${selectedModule.moduleName}":\n\nAnalytics Category: ${selectedModule.category}\nFormula Blueprint: ${selectedModule.formulaBlueprint}\n\nAssigned Task:\n"${selectedModule.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Analytics Competency Score (1-10)\n2. Correctness of Calculations\n3. Strategic Depth of Business Recommendations\n4. Recommended Model C-suite Executive Summary.`;
+    const prompt = `Act as a Chief People Analytics Officer. Evaluate candidate ${userName}'s calculations and business recommendations for "${selectedModule.moduleName}":\n\nAnalytics Category: ${selectedModule.category}\nFormula Blueprint: ${selectedModule.formulaBlueprint}\n\nAssigned Task:\n"${selectedModule.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Analytics Competency Score (1-10)\n2. Correctness of Calculations\n3. Strategic Depth of Business Recommendations\n4. Recommended Model C-suite Executive Summary.`;
 
     const result = await callGeminiAI(prompt);
     setIsAuditing(false);
