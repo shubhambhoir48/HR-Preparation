@@ -3,73 +3,139 @@
 import React, { useState } from 'react';
 import { callGeminiAI } from '@/lib/gemini';
 
-export interface CareerStage {
-  id: string;
-  stageName: string;
-  yearRange: string;
-  targetRole: string;
+export interface HRFunctionRole {
+  title: string;
+  level: string;
   ctcIndia: string;
   ctcGlobal: string;
-  keyCompetencies: string[];
-  requiredTechStack: string[];
-  actionMilestones: string[];
+  competencies: string[];
+  tools: string[];
+  recommendedSOP: string;
+  recommendedLab: string;
 }
 
-export const careerPathData: CareerStage[] = [
+export interface HRFunctionCategory {
+  id: string;
+  categoryName: string;
+  icon: string;
+  description: string;
+  roles: HRFunctionRole[];
+}
+
+export const hrFunctionMapData: HRFunctionCategory[] = [
   {
-    id: 'stage_1',
-    stageName: 'Stage 1: Operational Mastery',
-    yearRange: 'Years 1 - 2',
-    targetRole: 'HR Lead / Senior TA Lead',
-    ctcIndia: '₹12 LPA - ₹18 LPA',
-    ctcGlobal: '$45,000 - $65,000',
-    keyCompetencies: ['Full-Cycle Tech Sourcing', 'cNPS Candidate Experience', 'Statutory Compliance (PF, ESIC, POSH)', '30-Day PIP Execution'],
-    requiredTechStack: ['Cutshort', 'Instahyre', 'Keka Payroll', 'SpringVerify BGV'],
-    actionMilestones: ['Maintain cNPS > +50 across requisitions', 'Audit 100% statutory compliance under Maharashtra Shops & Est', 'Execute notice recovery & FnF SLA < 48 hrs']
+    id: 'func_ta',
+    categoryName: 'Talent Acquisition & Tech Sourcing',
+    icon: 'fa-bullseye',
+    description: 'Sourcing, technical screening, headhunting, cNPS tracking, and offer negotiation.',
+    roles: [
+      {
+        title: 'Technical Recruiter / TA Specialist',
+        level: '1 - 3 Yrs',
+        ctcIndia: '₹6 LPA - ₹10 LPA',
+        ctcGlobal: '$35,000 - $50,000',
+        competencies: ['Boolean Search Strings', 'Cutshort & Instahyre Sourcing', 'Phone Screening', 'cNPS Tracking'],
+        tools: ['Cutshort', 'Instahyre', 'LinkedIn Recruiter', 'Greenhouse ATS'],
+        recommendedSOP: 'Tech Sourcing for Full-Stack Developers',
+        recommendedLab: 'Cutshort Boolean Search String Construction'
+      },
+      {
+        title: 'Senior TA Lead / Headhunter',
+        level: '3 - 6 Yrs',
+        ctcIndia: '₹14 LPA - ₹22 LPA',
+        ctcGlobal: '$60,000 - $85,000',
+        competencies: ['Passive Architect Headhunting', 'Campus Recruitment Drives', 'Offer Dropout Control', 'ATS Funnel SLA'],
+        tools: ['LinkedIn Talent Hub', 'Workday ATS', 'SpringVerify BGV'],
+        recommendedSOP: 'Executive Headhunting for Niche Architects',
+        recommendedLab: 'Campus Recruitment Screening Matrix'
+      },
+      {
+        title: 'Head of Talent Acquisition',
+        level: '7 - 10 Yrs',
+        ctcIndia: '₹35 LPA - ₹55 LPA + ESOPs',
+        ctcGlobal: '$120,000 - $160,000',
+        competencies: ['Global Workforce Sourcing Strategy', 'RPO Vendor Management', 'Employer Branding', 'Recruitment Budgeting'],
+        tools: ['Visier Analytics', 'Glassdoor Pro', 'Carta ESOPs'],
+        recommendedSOP: 'Employer Branding & Glassdoor Strategy',
+        recommendedLab: 'Global Hiring Hub Expansion Project'
+      }
+    ]
   },
   {
-    id: 'stage_2',
-    stageName: 'Stage 2: Strategic Business Partnering',
-    yearRange: 'Years 3 - 4',
-    targetRole: 'Senior HR Business Partner (HRBP)',
-    ctcIndia: '₹20 LPA - ₹30 LPA',
-    ctcGlobal: '$75,000 - $100,000',
-    keyCompetencies: ['Organizational Design', 'Workforce Planning', 'OKR / KRA Performance Management', 'Executive Leadership Alignment'],
-    requiredTechStack: ['Workday HRIS', 'Mercer Compensation Benchmarking', 'CultureAmp', 'Lattice'],
-    actionMilestones: ['Partner directly with Engineering VPs & CTOs', 'Reduce annual developer turnover from 25% to < 12%', 'Implement OKR framework for 200+ engineers']
+    id: 'func_hrbp',
+    categoryName: 'HR Business Partnering (HRBP)',
+    icon: 'fa-user-tie',
+    description: 'Executive partnering, organizational design, workforce planning, and PIP execution.',
+    roles: [
+      {
+        title: 'Associate HRBP',
+        level: '2 - 4 Yrs',
+        ctcIndia: '₹10 LPA - ₹15 LPA',
+        ctcGlobal: '$50,000 - $70,000',
+        competencies: ['Employee Lifecycle Management', 'Monthly 1-on-1s', '30-Day PIP Execution', 'Performance Reviews'],
+        tools: ['Keka', 'Workday HRIS', 'CultureAmp'],
+        recommendedSOP: '30-Day PIP Execution Framework',
+        recommendedLab: '30-Day Performance Improvement Plan Notice'
+      },
+      {
+        title: 'Senior HR Business Partner (HRBP)',
+        level: '5 - 8 Yrs',
+        ctcIndia: '₹22 LPA - ₹35 LPA',
+        ctcGlobal: '$85,000 - $120,000',
+        competencies: ['Organizational Design', 'Workforce Planning', 'OKR / KRA Cascading', 'Leadership Coaching'],
+        tools: ['Workday', 'Lattice', 'Mercer Compensation'],
+        recommendedSOP: 'OKR & KRA Cascading for Developers',
+        recommendedLab: 'OKR vs KRA Performance Framework'
+      },
+      {
+        title: 'Director of HRBP & Talent Strategy',
+        level: '9 - 12 Yrs',
+        ctcIndia: '₹55 LPA - ₹85 LPA + Equity',
+        ctcGlobal: '$170,000 - $230,000',
+        competencies: ['Executive Leadership Alignment', 'M&A HR Integration', 'Succession Planning', 'Change Management'],
+        tools: ['SAP SuccessFactors', 'Visier Analytics'],
+        recommendedSOP: 'Executive Succession Planning SOP',
+        recommendedLab: 'M&A Workforce Integration Project'
+      }
+    ]
   },
   {
-    id: 'stage_3',
-    stageName: 'Stage 3: Head of People & Operations',
-    yearRange: 'Years 5 - 7',
-    targetRole: 'Head of People / Director of Talent',
-    ctcIndia: '₹35 LPA - ₹55 LPA + ESOPs',
-    ctcGlobal: '$120,000 - $160,000 + Equity',
-    keyCompetencies: ['Zero-to-One HR Scaling', 'Startup Offer Letters & ESOP Pool Management', 'Global Remuneration', 'Employer Branding'],
-    requiredTechStack: ['Carta (ESOP Management)', 'Rippling', 'Greenhouse ATS', 'Glassdoor Pro'],
-    actionMilestones: ['Scale company headcount from 50 to 250+ employees', 'Design ESOP allocation & vesting schedule policy', 'Establish global remote hiring hubs in India & US']
-  },
-  {
-    id: 'stage_4',
-    stageName: 'Stage 4: Executive Leadership',
-    yearRange: 'Years 7 - 10',
-    targetRole: 'VP of Human Resources / VP People',
-    ctcIndia: '₹60 LPA - ₹90 LPA + Equity',
-    ctcGlobal: '$180,000 - $250,000 + Equity',
-    keyCompetencies: ['Board Advisory & Human Capital Strategy', 'M&A HR Integration', 'Global Diversity & ESG', 'Enterprise Labor Relations'],
-    requiredTechStack: ['SAP SuccessFactors', 'Visier People Analytics', 'Workday Executive Dashboard'],
-    actionMilestones: ['Advise Board of Directors on executive succession', 'Lead HR merger integration for acquisition of 100+ team', 'Establish employer brand in top 10 tech companies']
-  },
-  {
-    id: 'stage_5',
-    stageName: 'Stage 5: C-Suite Mastery',
-    yearRange: '10+ Years',
-    targetRole: 'Chief Human Resources Officer (CHRO)',
-    ctcIndia: '₹1.0 Cr - ₹1.8 Cr + Board Equity',
-    ctcGlobal: '$300,000+ + Stock Options',
-    keyCompetencies: ['Global Organizational Architecture', 'Executive Compensation Committee', 'Enterprise Crisis Leadership'],
-    requiredTechStack: ['Enterprise Governance Platforms', 'Boardroom Executive Suite'],
-    actionMilestones: ['Lead IPO readiness for HR & governance compliance', 'Direct global workforce of 5,000+ employees', 'Keynote speaker at Global HR Summits']
+    id: 'func_payroll',
+    categoryName: 'Payroll, Statutory & HR Operations',
+    icon: 'fa-calculator',
+    description: 'Statutory compliance (PF, ESIC, POSH, Maharashtra Shops), monthly payroll, and FnF settlements.',
+    roles: [
+      {
+        title: 'Payroll & Statutory Executive',
+        level: '1 - 3 Yrs',
+        ctcIndia: '₹5 LPA - ₹8 LPA',
+        ctcGlobal: '$30,000 - $45,000',
+        competencies: ['EPF & ESIC Filings', 'Maharashtra PT Slabs', 'Keka Payroll Processing', 'Leave Encashment Math'],
+        tools: ['Keka', 'Razorpay Payroll', 'EPFO Portal'],
+        recommendedSOP: 'Monthly Payroll Processing & PF Filings',
+        recommendedLab: 'EPF Statutory Ceiling & Contribution Math'
+      },
+      {
+        title: 'HR Operations & Statutory Compliance Lead',
+        level: '4 - 7 Yrs',
+        ctcIndia: '₹15 LPA - ₹25 LPA',
+        ctcGlobal: '$65,000 - $95,000',
+        competencies: ['Full & Final (FnF) Shortfall Recovery', 'POSH ICC Inquiry Execution', 'Labor Law Audits', 'Form N Leave Registers'],
+        tools: ['Workday', 'SpringVerify BGV', 'Aaple Sarkar Portal'],
+        recommendedSOP: 'Full & Final (FnF) Offboarding Settlement',
+        recommendedLab: 'Full & Final Settlement (FnF) Shortfall Recovery'
+      },
+      {
+        title: 'Head of HR Operations & Compliance',
+        level: '8 - 12 Yrs',
+        ctcIndia: '₹35 LPA - ₹60 LPA',
+        ctcGlobal: '$130,000 - $180,000',
+        competencies: ['Pan-India Labor Law Governance', 'Enterprise Statutory Audits', 'Shared Services Management', 'Payroll System Migration'],
+        tools: ['SAP HR', 'Workday Governance'],
+        recommendedSOP: 'Pan-India Labor Compliance Audit',
+        recommendedLab: 'Maharashtra Shops & Est Annual Audit'
+      }
+    ]
   }
 ];
 
@@ -77,183 +143,263 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
   userName,
   currentRole,
 }) => {
-  const [role, setRole] = useState(currentRole || 'Senior HR Generalist / Tech HR Lead');
-  const [selectedStage, setSelectedStage] = useState<CareerStage>(careerPathData[0]);
-  const [careerBlueprint, setCareerBlueprint] = useState('');
+  const [activePlannerTab, setActivePlannerTab] = useState<'explorer' | 'roadmap'>('explorer');
+
+  // Explorer Tab State
+  const [selectedFunc, setSelectedFunc] = useState<HRFunctionCategory>(hrFunctionMapData[0]);
+  const [selectedRoleInFunc, setSelectedRoleInFunc] = useState<HRFunctionRole>(hrFunctionMapData[0].roles[0]);
+
+  // Roadmap Tab State
+  const [myCurrentRole, setMyCurrentRole] = useState(currentRole || 'Senior HR Lead / HR Generalist');
+  const [myTarget10YrGoal, setMyTarget10YrGoal] = useState('Chief Human Resources Officer (CHRO)');
+  const [aiBlueprint, setAiBlueprint] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateBlueprint = async () => {
     setIsGenerating(true);
 
-    const prompt = `Act as an executive HR career strategist. Build a 10-year career progression blueprint for candidate ${userName}:\n\nCurrent Role: ${role}\nTarget Milestone Destination: ${selectedStage.targetRole} (${selectedStage.yearRange})\n\nGenerate a detailed year-by-year 10-year strategic career roadmap:\n- Years 1-2: Core skills to master & key accomplishments\n- Years 3-5: Transition steps to Senior HRBP / Head of People\n- Years 6-8: Scaling leadership, compensation targets, & executive responsibilities\n- Years 9-10: C-Suite / VP People positioning & Boardroom readiness.`;
+    const prompt = `Act as an executive HR career strategist. Generate a personalized 10-year career progression blueprint and shortfall analysis for candidate ${userName}:\n\nCurrent Profile:\n- Name: ${userName}\n- Current Designation: ${myCurrentRole}\n- Target 10-Year Destination: ${myTarget10YrGoal}\n- Experience: 6+ Years Exp in Tech HR\n\nGenerate:\n1. Shortfall & Skill Gap Analysis (What is missing in candidate profile to reach target)\n2. Recommended SOP Playbooks & Software Tools to study\n3. Year-by-Year 10-Year Milestones Roadmap (Years 1-2, 3-4, 5-7, 7-10, 10+ Years) with CTC expectations in INR & USD.`;
 
     const result = await callGeminiAI(prompt);
     setIsGenerating(false);
 
-    setCareerBlueprint(result || '10-Year Executive Career Blueprint generated successfully.');
+    setAiBlueprint(result || '10-Year Executive Career Blueprint generated successfully.');
   };
 
   return (
     <section className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+        {/* Header Banner */}
         <div className="border-b border-slate-200 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">10-Year Executive Career Navigator</span>
-            <h2 className="text-2xl font-bold text-slate-900">HR Career Progression & Future Role Planner</h2>
+            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Executive Career Architecture</span>
+            <h2 className="text-2xl font-bold text-slate-900">HR Roles Explorer & 10-Year Career Planner</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Plan candidate Priyanka Vartak&apos;s 10-year growth trajectory from HR Lead to Head of People, VP of HR, and CHRO with Gemini AI roadmap generation.
+              Explore top industry standard HR role maps across functions or build candidate {userName}&apos;s personalized 10-year career roadmap with AI shortfall analysis.
             </p>
           </div>
 
-          <button
-            disabled={isGenerating}
-            onClick={handleGenerateBlueprint}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow flex items-center space-x-2 disabled:opacity-50"
-          >
-            <i className="fa-solid fa-wand-magic-sparkles"></i>
-            <span>{isGenerating ? 'Building 10-Yr Blueprint...' : 'Generate AI 10-Year Career Blueprint'}</span>
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setActivePlannerTab('explorer')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+                activePlannerTab === 'explorer'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <i className="fa-solid fa-sitemap"></i>
+              <span>🧭 HR Roles Explorer Map</span>
+            </button>
+
+            <button
+              onClick={() => setActivePlannerTab('roadmap')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+                activePlannerTab === 'roadmap'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <i className="fa-solid fa-route"></i>
+              <span>🎯 My 10-Year Roadmap & Shortfalls</span>
+            </button>
+          </div>
         </div>
 
-        {/* Current Role Input Banner */}
-        <div className="bg-slate-900 text-white p-5 rounded-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-          <div className="space-y-1">
-            <span className="text-amber-400 font-bold uppercase tracking-wider text-[10px]">Starting Milestone</span>
-            <h3 className="text-lg font-extrabold">{userName}&apos;s Starting Point</h3>
-          </div>
-
-          <div className="w-full md:w-96">
-            <label className="block text-[11px] text-slate-300 font-semibold mb-1">Your Current Designation / Role:</label>
-            <input
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white font-bold text-xs focus:ring-2 focus:ring-emerald-500"
-            />
-          </div>
-        </div>
-
-        {/* 10-Year Milestone Stages Horizontal Pathway */}
-        <div>
-          <h3 className="font-bold text-slate-900 text-sm mb-3">10-Year Career Milestones Pathway</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {careerPathData.map((stage, idx) => {
-              const isSelected = stage.id === selectedStage.id;
-              return (
-                <button
-                  key={stage.id}
-                  onClick={() => setSelectedStage(stage)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all space-y-2 flex flex-col justify-between ${
-                    isSelected ? 'border-emerald-600 bg-emerald-50/30 shadow-md' : 'border-slate-200 hover:border-slate-300 bg-white'
-                  }`}
-                >
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="bg-emerald-100 text-emerald-800 text-[9px] font-extrabold px-2 py-0.5 rounded uppercase">
-                        {stage.yearRange}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-bold">Step {idx + 1}</span>
+        {/* TAB 1: HR ROLES EXPLORER MAP */}
+        {activePlannerTab === 'explorer' && (
+          <div className="space-y-6">
+            {/* HR Functions Selector */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {hrFunctionMapData.map((fn) => {
+                const isSelected = fn.id === selectedFunc.id;
+                return (
+                  <button
+                    key={fn.id}
+                    onClick={() => {
+                      setSelectedFunc(fn);
+                      setSelectedRoleInFunc(fn.roles[0]);
+                    }}
+                    className={`p-4 rounded-xl border-2 text-left transition-all space-y-2 flex flex-col justify-between ${
+                      isSelected ? 'border-emerald-600 bg-emerald-50/30 shadow-md' : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <i className={`fa-solid ${fn.icon} text-lg ${isSelected ? 'text-emerald-600' : 'text-slate-400'}`}></i>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{fn.roles.length} Roles</span>
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm">{fn.categoryName}</h3>
+                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{fn.description}</p>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-xs leading-snug">{stage.targetRole}</h4>
-                    <p className="text-[10px] text-emerald-700 font-bold mt-1">{stage.ctcIndia}</p>
+
+                    <div className="pt-2 border-t border-slate-100 text-[11px] font-bold text-emerald-700 flex items-center justify-between">
+                      <span>{isSelected ? 'Active HR Function' : 'Explore Function'}</span>
+                      <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Role List & Detailed Inspector Split View */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+              {/* Left Sub-Panel: Roles in Function */}
+              <div className="lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h4 className="font-bold text-slate-900 text-xs border-b pb-2 flex items-center justify-between">
+                  <span>Career Hierarchy ({selectedFunc.categoryName})</span>
+                  <i className="fa-solid fa-layer-group text-emerald-600"></i>
+                </h4>
+
+                <div className="space-y-2">
+                  {selectedFunc.roles.map((r, idx) => {
+                    const isRoleSel = r.title === selectedRoleInFunc.title;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedRoleInFunc(r)}
+                        className={`w-full text-left p-3 rounded-xl border transition-all space-y-1 ${
+                          isRoleSel
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded ${isRoleSel ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                            {r.level}
+                          </span>
+                          <span className={`text-[10px] font-bold ${isRoleSel ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                            {r.ctcIndia}
+                          </span>
+                        </div>
+                        <h5 className="font-bold text-xs leading-snug">{r.title}</h5>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Sub-Panel: Detailed Role Inspector Card */}
+              <div className="lg:col-span-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                <div className="flex justify-between items-start border-b pb-4">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-emerald-700 uppercase">{selectedRoleInFunc.level} Experience Level</span>
+                    <h3 className="text-xl font-bold text-slate-900 mt-0.5">{selectedRoleInFunc.title}</h3>
+                    <p className="text-xs text-slate-500">Function: {selectedFunc.categoryName}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold">
-                    <span className={isSelected ? 'text-emerald-700' : 'text-slate-400'}>
-                      {isSelected ? 'Selected Role' : 'Explore Role'}
-                    </span>
-                    <i className="fa-solid fa-chevron-right text-[9px]"></i>
+                  <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-right">
+                    <span className="text-[10px] text-slate-500 block font-semibold">India CTC Benchmark:</span>
+                    <strong className="text-emerald-700 text-sm font-extrabold">{selectedRoleInFunc.ctcIndia}</strong>
+                    <span className="text-[10px] text-blue-600 block font-semibold mt-0.5">Global CTC: {selectedRoleInFunc.ctcGlobal}</span>
                   </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Selected Role Deep-Dive Specifications */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
-          {/* Role Requirements & CTC Benchmarks */}
-          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4 text-xs">
-            <div className="flex justify-between items-center border-b pb-3">
-              <div>
-                <span className="text-[10px] font-extrabold text-emerald-700 uppercase">{selectedStage.yearRange} Milestone</span>
-                <h3 className="font-bold text-slate-900 text-base">{selectedStage.targetRole}</h3>
-              </div>
-              <i className="fa-solid fa-trophy text-amber-500 text-xl"></i>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-slate-200">
-              <div>
-                <span className="text-[10px] text-slate-500 block font-semibold">India CTC Range:</span>
-                <strong className="text-emerald-600 font-bold text-xs">{selectedStage.ctcIndia}</strong>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 block font-semibold">Global / Remote CTC:</span>
-                <strong className="text-blue-600 font-bold text-xs">{selectedStage.ctcGlobal}</strong>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <strong className="text-slate-800 block font-bold">Core Competencies to Master:</strong>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedStage.keyCompetencies.map((comp) => (
-                  <span key={comp} className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
-                    {comp}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <strong className="text-slate-800 block font-bold">Required Software Stack:</strong>
-              <div className="flex flex-wrap gap-1">
-                {selectedStage.requiredTechStack.map((tech) => (
-                  <span key={tech} className="bg-slate-200 text-slate-800 text-[10px] font-mono font-semibold px-2 py-0.5 rounded">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Action Milestones & AI Blueprint */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 text-xs">
-              <h4 className="font-bold text-slate-900 text-sm border-b pb-2 flex items-center justify-between">
-                <span>Key Milestones to Accomplish in this Role</span>
-                <i className="fa-solid fa-flag-checkered text-emerald-600"></i>
-              </h4>
-
-              <div className="space-y-2">
-                {selectedStage.actionMilestones.map((m, idx) => (
-                  <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-start space-x-2">
-                    <i className="fa-solid fa-circle-check text-emerald-500 text-xs mt-0.5"></i>
-                    <span className="text-slate-800 font-medium">{m}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* AI Generated 10-Year Blueprint Output */}
-            {careerBlueprint && (
-              <div className="bg-gradient-to-tr from-slate-900 via-emerald-950 to-slate-900 text-slate-100 p-5 rounded-xl border border-emerald-800/80 shadow-xl space-y-3 text-xs">
-                <div className="flex justify-between items-center border-b border-emerald-800/60 pb-2">
-                  <div className="flex items-center space-x-2">
-                    <i className="fa-solid fa-sparkles text-amber-400"></i>
-                    <h4 className="font-bold text-amber-300">Priyanka Vartak&apos;s 10-Year AI Career Blueprint</h4>
-                  </div>
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-400/30">
-                    Gemini AI Generated
-                  </span>
                 </div>
 
-                <div className="font-mono text-xs leading-relaxed whitespace-pre-line max-h-72 overflow-y-auto pt-1">
-                  {careerBlueprint}
+                {/* Competencies */}
+                <div className="space-y-2 text-xs">
+                  <strong className="text-slate-900 block font-bold">Core Competencies to Master as per Industry Standards:</strong>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedRoleInFunc.competencies.map((c, i) => (
+                      <span key={i} className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-emerald-200">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Software Tools */}
+                <div className="space-y-2 text-xs">
+                  <strong className="text-slate-900 block font-bold">Required HR Software Stack & Platforms:</strong>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedRoleInFunc.tools.map((t, i) => (
+                      <span key={i} className="bg-slate-100 text-slate-800 text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg border border-slate-200">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Platform Recommendations */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                  <div className="bg-purple-50 p-3.5 rounded-xl border border-purple-200 space-y-1">
+                    <strong className="text-purple-900 font-bold block text-[11px] flex items-center space-x-1">
+                      <i className="fa-solid fa-book-bookmark text-purple-600"></i>
+                      <span>Recommended Practice SOP Playbook:</span>
+                    </strong>
+                    <p className="text-purple-950 font-semibold">{selectedRoleInFunc.recommendedSOP}</p>
+                  </div>
+
+                  <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-200 space-y-1">
+                    <strong className="text-blue-900 font-bold block text-[11px] flex items-center space-x-1">
+                      <i className="fa-solid fa-briefcase text-blue-600"></i>
+                      <span>Recommended Hands-On Project Lab:</span>
+                    </strong>
+                    <p className="text-blue-950 font-semibold">{selectedRoleInFunc.recommendedLab}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: MY 10-YEAR ROADMAP & SHORTFALLS */}
+        {activePlannerTab === 'roadmap' && (
+          <div className="space-y-6">
+            {/* Auto-Populated Candidate Profile Banner */}
+            <div className="bg-slate-900 text-white p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="space-y-1">
+                <span className="text-amber-400 font-bold text-xs uppercase tracking-wider">Candidate Profile Sync</span>
+                <h3 className="text-xl font-bold text-white">{userName}&apos;s Executive Profile</h3>
+                <p className="text-xs text-slate-400">Current Role: {myCurrentRole} &bull; Verified 6+ Yrs Experience in Tech HR</p>
+              </div>
+
+              <div className="w-full md:w-80">
+                <label className="block text-[11px] text-slate-300 font-semibold mb-1">Target 10-Year Destination Goal:</label>
+                <select
+                  value={myTarget10YrGoal}
+                  onChange={(e) => setMyTarget10YrGoal(e.target.value)}
+                  className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white font-bold text-xs focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Chief Human Resources Officer (CHRO)">Chief Human Resources Officer (CHRO)</option>
+                  <option value="VP of Human Resources / VP People">VP of Human Resources / VP People</option>
+                  <option value="Head of People & Operations">Head of People & Operations</option>
+                  <option value="Director of HRBP & Talent Strategy">Director of HRBP & Talent Strategy</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex justify-between items-center bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Analyze Shortfalls & Build 10-Year Strategic Roadmap</h4>
+                <p className="text-xs text-slate-600">Gemini AI evaluates candidate resume skills vs target 10-year CHRO destination goal.</p>
+              </div>
+
+              <button
+                disabled={isGenerating}
+                onClick={handleGenerateBlueprint}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow flex items-center space-x-2 disabled:opacity-50 shrink-0"
+              >
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+                <span>{isGenerating ? 'Analyzing Shortfalls...' : 'Generate AI Shortfall & 10-Yr Roadmap'}</span>
+              </button>
+            </div>
+
+            {/* AI Generated Output Display */}
+            {aiBlueprint ? (
+              <div className="bg-slate-900 text-slate-100 p-6 rounded-xl border border-slate-800 text-xs font-mono leading-relaxed whitespace-pre-line max-h-[500px] overflow-y-auto">
+                <strong className="text-amber-300 block text-sm border-b border-slate-800 pb-2 mb-2">
+                  Gemini AI Executive Shortfall Analysis & 10-Year Blueprint ({userName}):
+                </strong>
+                {aiBlueprint}
+              </div>
+            ) : (
+              <div className="bg-slate-50 p-8 rounded-xl border border-slate-200 text-center text-xs text-slate-500">
+                Click &ldquo;Generate AI Shortfall & 10-Yr Roadmap&rdquo; above to run Gemini AI analysis on candidate {userName}&apos;s profile.
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

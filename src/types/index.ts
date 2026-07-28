@@ -31,11 +31,15 @@ export interface SOPPlaybook {
 export interface HRQuestion {
   id: number;
   domain: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Foundational' | 'Intermediate' | 'Executive Lead';
   question: string;
   answer: string;
-  quloiContext: string;
-  tags: string[];
+  quloiContext?: string;
+  tags?: string[];
+  topic?: string;
+  targetRole?: string;
+  isSaved?: boolean;
+  isArchived?: boolean;
 }
 
 export interface HRLab {
@@ -45,6 +49,10 @@ export interface HRLab {
   scenario: string;
   task: string;
   solution: string;
+  difficulty?: 'Foundational' | 'Intermediate' | 'Executive Lead';
+  estimatedTime?: string;
+  toolsRequired?: string[];
+  projectOutcome?: string;
 }
 
 export interface StarStory {
@@ -82,6 +90,8 @@ export interface UserProgress {
   review: number[];
   sopsRead: number[];
   labCompleted: number[];
+  savedQuestions?: number[];
+  archivedQuestions?: number[];
   streakDays: number;
 }
 

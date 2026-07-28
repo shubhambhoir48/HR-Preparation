@@ -22,6 +22,8 @@ import { MockInterviewView } from '@/components/mock-interview/MockInterviewView
 import { ProfileView } from '@/components/profile/ProfileView';
 import { HRToolsMasterclassView } from '@/components/tools/HRToolsMasterclassView';
 import { CareerPlannerView } from '@/components/career/CareerPlannerView';
+import { HRAnalyticsView } from '@/components/analytics/HRAnalyticsView';
+import { ExecutiveCommView } from '@/components/communication/ExecutiveCommView';
 import { NotificationModal } from '@/components/common/NotificationModal';
 import { GeminiWidget } from '@/components/common/GeminiWidget';
 
@@ -340,6 +342,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
+          {activeTab === 'hr-analytics' && <HRAnalyticsView />}
+
           {activeTab === 'hr-tools' && <HRToolsMasterclassView />}
 
           {activeTab === 'assignments' && (
@@ -357,6 +361,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
           {activeTab === 'quiz' && (
             <MockInterviewView company={activeCompany} questions={initialQuestions} />
           )}
+
+          {activeTab === 'exec-comm' && <ExecutiveCommView />}
 
           {activeTab === 'career-planner' && (
             <CareerPlannerView userName={userProfile.name} currentRole={userProfile.level} />

@@ -22,7 +22,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setIsOpenMobile,
   activeCompanyName,
   fitScore,
-  companyCount,
   userName,
   userRole,
   isCloudSynced,
@@ -31,32 +30,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       group: 'Overview',
       items: [
-        { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie', color: 'text-blue-400' },
-        { id: 'company-manager', label: 'Company Hub', icon: 'fa-building', color: 'text-indigo-400', badge: companyCount },
+        { id: 'dashboard', label: 'Executive Dashboard', icon: 'fa-chart-pie', color: 'text-blue-400' },
+        { id: 'company-manager', label: 'Company Target Hub', icon: 'fa-building', color: 'text-indigo-400' },
       ],
     },
     {
-      group: 'Playbooks & Qs',
+      group: 'Process & Knowledge',
       items: [
-        { id: 'playbook', label: '50+ SOP Playbooks', icon: 'fa-book-bookmark', color: 'text-emerald-400' },
-        { id: 'questions', label: '120+ Qs Repository', icon: 'fa-list-check', color: 'text-cyan-400' },
+        { id: 'playbook', label: 'Process Playbooks', icon: 'fa-book-bookmark', color: 'text-emerald-400' },
+        { id: 'questions', label: 'Question Repository', icon: 'fa-list-check', color: 'text-cyan-400' },
         { id: 'star-builder', label: 'STAR Storybuilder', icon: 'fa-star', color: 'text-amber-400' },
       ],
     },
     {
-      group: 'Labs & Software',
+      group: 'Operations & Software',
       items: [
-        { id: 'hr-tools', label: 'HR Platforms Masterclass', icon: 'fa-laptop-code', color: 'text-cyan-400' },
-        { id: 'assignments', label: '25 Practical HR Labs', icon: 'fa-briefcase', color: 'text-purple-400' },
-        { id: 'generator', label: 'AI Doc Studio', icon: 'fa-wand-magic-sparkles', color: 'text-indigo-400' },
+        { id: 'hr-analytics', label: 'HR Analytics Studio', icon: 'fa-chart-line', color: 'text-emerald-400' },
+        { id: 'hr-tools', label: 'HR Tools & Software', icon: 'fa-laptop-code', color: 'text-cyan-400' },
+        { id: 'assignments', label: 'Operational Work Labs', icon: 'fa-briefcase', color: 'text-purple-400' },
+        { id: 'generator', label: 'Document Studio', icon: 'fa-wand-magic-sparkles', color: 'text-indigo-400' },
         { id: 'tools', label: 'HR Calculators', icon: 'fa-calculator', color: 'text-emerald-400' },
-        { id: 'quiz', label: 'AI Mock Interview', icon: 'fa-robot', color: 'text-amber-400' },
+        { id: 'quiz', label: 'Mock Interview Simulator', icon: 'fa-robot', color: 'text-amber-400' },
       ],
     },
     {
-      group: 'Career Growth',
+      group: 'Executive Growth',
       items: [
-        { id: 'career-planner', label: '10-Yr Career Planner', icon: 'fa-route', color: 'text-emerald-400' },
+        { id: 'exec-comm', label: 'Executive Communication', icon: 'fa-comments', color: 'text-amber-400' },
+        { id: 'career-planner', label: 'Career Roadmap', icon: 'fa-route', color: 'text-emerald-400' },
         { id: 'profile', label: 'Profile & Resume Fit', icon: 'fa-user-gear', color: 'text-rose-400' },
       ],
     },
@@ -116,8 +117,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
 
-          {/* Navigation Items List */}
-          <nav className="px-3 py-2 space-y-4 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] custom-scrollbar">
+          {/* Navigation Items List with Zero Visible Scrollbars */}
+          <nav className="px-3 py-2 space-y-4 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {navItems.map((group) => (
               <div key={group.group} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -140,11 +141,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     >
                       <i className={`fa-solid ${item.icon} w-4 text-center ${isActive ? 'text-white' : item.color} group-hover:text-white`}></i>
                       <span>{item.label}</span>
-                      {item.badge !== undefined && (
-                        <span className="ml-auto bg-indigo-500/20 text-indigo-300 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          {item.badge}
-                        </span>
-                      )}
                     </button>
                   );
                 })}
