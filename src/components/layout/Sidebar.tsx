@@ -44,8 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ],
     },
     {
-      group: 'Labs & Studio',
+      group: 'Labs & Software',
       items: [
+        { id: 'hr-tools', label: 'HR Platforms Masterclass', icon: 'fa-laptop-code', color: 'text-cyan-400' },
         { id: 'assignments', label: '25 Practical HR Labs', icon: 'fa-briefcase', color: 'text-purple-400' },
         { id: 'generator', label: 'AI Doc Studio', icon: 'fa-wand-magic-sparkles', color: 'text-indigo-400' },
         { id: 'tools', label: 'HR Calculators', icon: 'fa-calculator', color: 'text-emerald-400' },
@@ -53,8 +54,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ],
     },
     {
-      group: 'Candidate',
+      group: 'Career Growth',
       items: [
+        { id: 'career-planner', label: '10-Yr Career Planner', icon: 'fa-route', color: 'text-emerald-400' },
         { id: 'profile', label: 'Profile & Resume Fit', icon: 'fa-user-gear', color: 'text-rose-400' },
       ],
     },
@@ -115,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Navigation Items List */}
-          <nav className="px-3 py-2 space-y-5 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] custom-scrollbar">
+          <nav className="px-3 py-2 space-y-4 text-xs font-medium overflow-y-auto max-h-[calc(100vh-220px)] custom-scrollbar">
             {navItems.map((group) => (
               <div key={group.group} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -130,7 +132,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         setActiveTab(item.id);
                         setIsOpenMobile(false);
                       }}
-                      className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all text-left group ${
+                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all text-left group ${
                         isActive
                           ? 'bg-blue-600 text-white font-semibold shadow-md'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -155,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-3 border-t border-slate-800 m-2 bg-slate-800/40 rounded-xl flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              {userName.split(' ').map((n) => n[0]).join('') || 'AD'}
+              {userName.split(' ').map((n) => n[0]).join('') || 'PV'}
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white truncate text-xs">{userName}</div>

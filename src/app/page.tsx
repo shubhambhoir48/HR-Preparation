@@ -20,6 +20,8 @@ import { DocStudioView } from '@/components/doc-studio/DocStudioView';
 import { CalculatorsView } from '@/components/tools/CalculatorsView';
 import { MockInterviewView } from '@/components/mock-interview/MockInterviewView';
 import { ProfileView } from '@/components/profile/ProfileView';
+import { HRToolsMasterclassView } from '@/components/tools/HRToolsMasterclassView';
+import { CareerPlannerView } from '@/components/career/CareerPlannerView';
 import { NotificationModal } from '@/components/common/NotificationModal';
 import { GeminiWidget } from '@/components/common/GeminiWidget';
 
@@ -338,6 +340,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
+          {activeTab === 'hr-tools' && <HRToolsMasterclassView />}
+
           {activeTab === 'assignments' && (
             <LabsView
               labs={initialLabs}
@@ -352,6 +356,10 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
 
           {activeTab === 'quiz' && (
             <MockInterviewView company={activeCompany} questions={initialQuestions} />
+          )}
+
+          {activeTab === 'career-planner' && (
+            <CareerPlannerView userName={userProfile.name} currentRole={userProfile.level} />
           )}
 
           {activeTab === 'profile' && (
