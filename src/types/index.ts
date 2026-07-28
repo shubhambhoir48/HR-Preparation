@@ -5,7 +5,7 @@ export interface TargetCompany {
   web: string;
   loc: string;
   social: string;
-  type: 'Startup' | 'SaaS' | 'Enterprise';
+  type: 'Startup' | 'SaaS' | 'Enterprise' | 'Unicorn';
   jd: string;
   aiNotes?: string;
   interviewOutcome?: 'Shortlisted' | 'Rejected' | 'Interview Pending' | 'Offer Received';

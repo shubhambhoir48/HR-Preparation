@@ -221,7 +221,7 @@ export const QuestionsView: React.FC<QuestionsViewProps> = ({
             }`}
           >
             <i className="fa-solid fa-bullseye"></i>
-            <span>🎯 {company.name} Targeted Qs</span>
+            <span>🎯 Company Targeted Questions</span>
           </button>
 
           <button

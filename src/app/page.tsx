@@ -24,6 +24,9 @@ import { HRToolsMasterclassView } from '@/components/tools/HRToolsMasterclassVie
 import { CareerPlannerView } from '@/components/career/CareerPlannerView';
 import { HRAnalyticsView } from '@/components/analytics/HRAnalyticsView';
 import { ExecutiveCommView } from '@/components/communication/ExecutiveCommView';
+import { AiForHrView } from '@/components/ai-hr/AiForHrView';
+import { YouTubeLibraryView } from '@/components/youtube/YouTubeLibraryView';
+import { WorkplaceSandboxView } from '@/components/sandbox/WorkplaceSandboxView';
 import { NotificationModal } from '@/components/common/NotificationModal';
 import { GeminiWidget } from '@/components/common/GeminiWidget';
 
@@ -317,6 +320,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
+          {activeTab === 'sandbox' && <WorkplaceSandboxView />}
+
           {activeTab === 'playbook' && (
             <PlaybooksView
               sops={initialSOPs}
@@ -334,6 +339,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
+          {activeTab === 'youtube-library' && <YouTubeLibraryView />}
+
           {activeTab === 'star-builder' && (
             <StarBuilderView
               stories={starStoriesData}
@@ -341,6 +348,8 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
               onOpenModal={handleOpenModal}
             />
           )}
+
+          {activeTab === 'ai-hr' && <AiForHrView />}
 
           {activeTab === 'hr-analytics' && <HRAnalyticsView />}
 

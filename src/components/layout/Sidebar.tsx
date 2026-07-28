@@ -32,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'dashboard', label: 'Executive Dashboard', icon: 'fa-chart-pie', color: 'text-blue-400' },
         { id: 'company-manager', label: 'Company Target Hub', icon: 'fa-building', color: 'text-indigo-400' },
+        { id: 'sandbox', label: 'Workplace Sandbox', icon: 'fa-sitemap', color: 'text-purple-400' },
       ],
     },
     {
@@ -39,12 +40,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'playbook', label: 'Process Playbooks', icon: 'fa-book-bookmark', color: 'text-emerald-400' },
         { id: 'questions', label: 'Question Repository', icon: 'fa-list-check', color: 'text-cyan-400' },
+        { id: 'youtube-library', label: 'YouTube Learning Library', icon: 'fa-play', color: 'text-red-400' },
         { id: 'star-builder', label: 'STAR Storybuilder', icon: 'fa-star', color: 'text-amber-400' },
       ],
     },
     {
       group: 'Operations & Software',
       items: [
+        { id: 'ai-hr', label: 'AI for HR & Automation', icon: 'fa-brain', color: 'text-purple-400' },
         { id: 'hr-analytics', label: 'HR Analytics Studio', icon: 'fa-chart-line', color: 'text-emerald-400' },
         { id: 'hr-tools', label: 'HR Tools & Software', icon: 'fa-laptop-code', color: 'text-cyan-400' },
         { id: 'assignments', label: 'Operational Work Labs', icon: 'fa-briefcase', color: 'text-purple-400' },

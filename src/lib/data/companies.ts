@@ -30,6 +30,26 @@ export const initialTargetCompanies: TargetCompany[] = [
     social: "https://linkedin.com/company/swiftscale",
     type: "Startup",
     jd: "High-growth Series-B fintech startup looking for Head of People. Responsible for zero-to-one HR setup: Sourcing on Cutshort/Instahyre/LinkedIn Recruiter, employer branding on Glassdoor/LinkedIn, Keka / Razorpay Payroll setup, drafting startup offer letters with ESOP annexures, culture building, employee engagement, rapid onboarding, and lean statutory compliance."
+  },
+  {
+    id: 'comp_razorpay',
+    name: "Razorpay Software",
+    role: "Senior HR Business Partner (HRBP)",
+    web: "https://razorpay.com",
+    loc: "Bengaluru / Remote",
+    social: "https://linkedin.com/company/razorpay",
+    type: "Unicorn",
+    jd: "Unicorn fintech leader hiring Senior HRBP for engineering & product organizations. Responsibilities: Driving organizational design, workforce planning, Carta ESOP pool grants, CultureAmp eNPS pulse surveys, technical leadership headhunting, and 360-degree appraisal cycles."
+  },
+  {
+    id: 'comp_tcs_infy',
+    name: "TCS / Infosys Enterprise",
+    role: "Lead HR Generalist & Compliance Officer",
+    web: "https://tcs.com",
+    loc: "Pune / Mumbai / Hyderabad",
+    social: "https://linkedin.com/company/tcs",
+    type: "Enterprise",
+    jd: "Leading IT services MNC hiring HR Generalist. Responsibilities: Pan-India labor compliance, Form N leave registers, EPF ECR monthly filings, ESIC returns, statutory gratuity accruals, industrial standing orders compliance, and employee relation dispute resolution."
   }
 ];
 
