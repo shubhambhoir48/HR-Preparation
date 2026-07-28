@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { callGeminiAI } from '@/lib/gemini';
 
+export interface HRAnalyticsViewProps {
+  completedIds?: string[];
+  onToggleComplete?: (id: string) => void;
+}
+
 export interface HRAnalyticsModule {
   id: string;
   moduleName: string;
@@ -18,7 +23,7 @@ export interface HRAnalyticsModule {
   defaultUserInput: string;
 }
 
-export const hrAnalytics25Modules: HRAnalyticsModule[] = [
+export const initialHrAnalyticsModules: HRAnalyticsModule[] = [
   {
     id: 'mod_1',
     moduleName: 'Annualized Employee Attrition Rate & Exit Risk Predictor',
@@ -122,7 +127,9 @@ export const hrAnalytics25Modules: HRAnalyticsModule[] = [
   }
 ];
 
-// Expand helper to generate 20 more detailed analytics modules reaching total 25
+export const hrAnalyticsModulesData: HRAnalyticsModule[] = [...initialHrAnalyticsModules];
+
+// Programmatic Generator to reach exactly 100 detailed modules
 (() => {
   const categories: HRAnalyticsModule['category'][] = [
     'Attrition Analytics',
@@ -133,7 +140,7 @@ export const hrAnalytics25Modules: HRAnalyticsModule[] = [
     'Performance & Talent'
   ];
 
-  const titles = [
+  const templates = [
     { name: '9-Box Performance Potential Grid Distribution Analytics', cat: 'Performance & Talent' as const, formula: 'High Potential % = (Grid 1+2+3 Count / Total Employees) * 100' },
     { name: 'Training Return on Investment (ROI) & Skill Gain Metrics', cat: 'Performance & Talent' as const, formula: 'Training ROI (%) = ((Net Productivity Gain - Training Cost) / Training Cost) * 100' },
     { name: 'Sourcing Channel Funnel Yield & Agency ROI Analysis', cat: 'Recruitment SLA' as const, formula: 'Channel Yield (%) = (Offers Accepted from Channel / Applications Received) * 100' },
@@ -146,49 +153,49 @@ export const hrAnalytics25Modules: HRAnalyticsModule[] = [
     { name: 'Gratuity Statutory Financial Accrual Reserve Math', cat: 'Statutory Payroll' as const, formula: 'Gratuity Payable = (15/26) * Last Basic Salary * Years of Service' }
   ];
 
-  let curId = hrAnalytics25Modules.length + 1;
-  while (hrAnalytics25Modules.length < 25) {
-    const t = titles[(curId - 6) % titles.length];
+  let curId = hrAnalyticsModulesData.length + 1;
+  while (hrAnalyticsModulesData.length < 100) {
+    const t = templates[(curId - 6) % templates.length];
     const cat = categories[(curId - 1) % categories.length];
 
-    hrAnalytics25Modules.push({
+    hrAnalyticsModulesData.push({
       id: `mod_${curId}`,
-      moduleName: `Module ${curId}: ${t.name}`,
+      moduleName: `${t.name} (Analytics Module #${curId})`,
       category: cat,
       icon: 'fa-chart-pie',
-      description: `Executive analytics module for calculating ${t.name} and presenting C-suite data insights.`,
-      formulaBlueprint: `${t.formula}\nBenchmark SLA: Target compliance within Indian MNC Standards.`,
+      description: `Audit and compute ${t.name} metrics to drive key executive decisions within MNC structures.`,
+      formulaBlueprint: `${t.formula}\nTarget threshold conforms to standard startup and Indian enterprise SLAs.`,
       sampleDataset: {
-        headers: ['Emp / Cohort ID', 'Department', 'Metric Value 1', 'Metric Value 2', 'Calculated Status'],
+        headers: ['Cohort / Emp ID', 'Department', 'Target Metric 1', 'Target Metric 2', 'Audit Result'],
         rows: [
-          ['COHORT-A1', 'Engineering', 85, 100, 'Compliant'],
-          ['COHORT-A2', 'Product Management', 72, 90, 'Action Required'],
-          ['COHORT-A3', 'Data & AI', 94, 100, 'Exceeds SLA'],
-          ['COHORT-A4', 'HR Operations', 88, 95, 'Compliant']
+          ['COHORT-01', 'Frontend Eng', 85, 100, 'Within SLA'],
+          ['COHORT-02', 'Data Science', 64, 90, 'Action Required'],
+          ['COHORT-03', 'Product Mgmt', 92, 95, 'Exceeds SLA'],
+          ['COHORT-04', 'HR Operations', 80, 100, 'Within SLA']
         ]
       },
-      practiceTask: `Compute the executive metrics for ${t.name} using the dataset and draft your C-suite recommendations.`,
-      defaultUserInput: `Cohort Audit Summary for Module ${curId}:\nCohort A1 = 85%, Cohort A2 = 72%, Cohort A3 = 94%\nAverage Cohort Metric = 83.6%\nExecutive Recommendation: Focus optimization on Product Management cohort to reach > 90% SLA.`
+      practiceTask: `Determine the cohort percentages for ${t.name} and document recommended operational improvements.`,
+      defaultUserInput: `Cohort Audit Summary for Module ${curId}:\nCohort 01 = 85%, Cohort 02 = 64%, Cohort 03 = 92%\nAverage Performance Metric = 80.3%\nRecommendation: Improve SLA metrics in Data Science cohort.`
     });
     curId++;
   }
 })();
 
-export const HRAnalyticsView: React.FC = () => {
-  const [selectedModule, setSelectedModule] = useState<HRAnalyticsModule>(hrAnalytics25Modules[0]);
+export const HRAnalyticsView: React.FC<HRAnalyticsViewProps> = ({ completedIds = [], onToggleComplete }) => {
+  const [selectedModule, setSelectedModule] = useState<HRAnalyticsModule>(hrAnalyticsModulesData[0]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
 
   // Spreadsheet Engine State
-  const [headers, setHeaders] = useState<string[]>(hrAnalytics25Modules[0].sampleDataset.headers);
+  const [headers, setHeaders] = useState<string[]>(hrAnalyticsModulesData[0].sampleDataset.headers);
   const [gridData, setGridData] = useState<string[][]>(
-    hrAnalytics25Modules[0].sampleDataset.rows.map(row => row.map(val => String(val)))
+    hrAnalyticsModulesData[0].sampleDataset.rows.map(row => row.map(val => String(val)))
   );
   
   const [formulaInput, setFormulaInput] = useState('');
   const [formulaResult, setFormulaResult] = useState<string | null>(null);
 
-  const [userInput, setUserInput] = useState(hrAnalytics25Modules[0].defaultUserInput);
+  const [userInput, setUserInput] = useState(hrAnalyticsModulesData[0].defaultUserInput);
   const [aiFeedback, setAiFeedback] = useState('');
   const [isAuditing, setIsAuditing] = useState(false);
 
@@ -202,120 +209,117 @@ export const HRAnalyticsView: React.FC = () => {
     setFormulaResult(null);
   }, [selectedModule]);
 
-  const filteredModules = hrAnalytics25Modules.filter((m) => {
+  const filteredModules = hrAnalyticsModulesData.filter((m) => {
     const matchesCat = catFilter === 'ALL' || m.category === catFilter;
     const matchesSearch =
       m.moduleName.toLowerCase().includes(search.toLowerCase()) ||
-      m.description.toLowerCase().includes(search.toLowerCase()) ||
-      m.formulaBlueprint.toLowerCase().includes(search.toLowerCase());
+      m.description.toLowerCase().includes(search.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
-  const handleCellChange = (rIdx: number, cIdx: number, value: string) => {
-    const nextGrid = gridData.map((row, r) =>
-      r === rIdx ? row.map((cell, c) => (c === cIdx ? value : cell)) : row
-    );
-    setGridData(nextGrid);
-  };
-
-  const handleAddRow = () => {
-    const emptyRow = headers.map((_, i) => (i === 0 ? `NEW-ROW-${gridData.length + 1}` : '0'));
-    setGridData([...gridData, emptyRow]);
-  };
-
-  const handleAddColumn = () => {
-    const newColName = `Col ${headers.length + 1}`;
-    setHeaders([...headers, newColName]);
-    setGridData(gridData.map(row => [...row, '0']));
-  };
-
-  const handleResetDataset = () => {
-    setHeaders(selectedModule.sampleDataset.headers);
-    setGridData(selectedModule.sampleDataset.rows.map(row => row.map(val => String(val))));
-    setFormulaResult(null);
-  };
-
-  // Evaluate Live Formulas like =SUM(10, 20) or compute numeric statistics across grid
-  const handleExecuteFormula = () => {
-    if (!formulaInput.trim()) return;
-
-    try {
-      const nums: number[] = [];
-      gridData.forEach(row => {
-        row.forEach(cell => {
-          const parsed = parseFloat(cell);
-          if (!isNaN(parsed)) nums.push(parsed);
-        });
-      });
-
-      const inp = formulaInput.toUpperCase().trim();
-      if (inp.includes('SUM')) {
-        const sum = nums.reduce((a, b) => a + b, 0);
-        setFormulaResult(`Result =SUM(): ${sum.toLocaleString('en-IN')}`);
-      } else if (inp.includes('AVERAGE') || inp.includes('AVG')) {
-        const avg = nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(2) : '0';
-        setFormulaResult(`Result =AVERAGE(): ${avg}`);
-      } else if (inp.includes('COUNT')) {
-        setFormulaResult(`Result =COUNT(): ${nums.length} numeric entries`);
-      } else if (inp.includes('MAX')) {
-        setFormulaResult(`Result =MAX(): ${Math.max(...nums).toLocaleString('en-IN')}`);
-      } else if (inp.includes('MIN')) {
-        setFormulaResult(`Result =MIN(): ${Math.min(...nums).toLocaleString('en-IN')}`);
-      } else {
-        setFormulaResult(`Executed formula: ${formulaInput} (Evaluated successfully)`);
-      }
-    } catch (e) {
-      setFormulaResult('Formula Syntax Error. Supported: =SUM(), =AVERAGE(), =COUNT(), =MAX(), =MIN()');
-    }
-  };
-
-  // Compute Summary Statistics across Spreadsheet Grid
-  const getNumericStats = () => {
-    const nums: number[] = [];
+  // Native spreadsheet calculations
+  const getStats = () => {
+    let numericValues: number[] = [];
     gridData.forEach(row => {
-      row.forEach(cell => {
-        const parsed = parseFloat(cell.replace(/[^0-9.-]+/g, ''));
-        if (!isNaN(parsed) && parsed > 0) nums.push(parsed);
+      row.forEach(val => {
+        const parsed = parseFloat(val.replace(/[^0-9.-]/g, ''));
+        if (!isNaN(parsed)) {
+          numericValues.push(parsed);
+        }
       });
     });
 
-    const sum = nums.reduce((a, b) => a + b, 0);
-    const avg = nums.length ? (sum / nums.length).toFixed(1) : '0';
-    return { count: nums.length, sum: sum.toLocaleString('en-IN'), avg };
+    const count = numericValues.length;
+    const sum = numericValues.reduce((a, b) => a + b, 0);
+    const avg = count > 0 ? Math.round((sum / count) * 100) / 100 : 0;
+
+    return {
+      count,
+      sum: sum.toLocaleString('en-IN'),
+      avg: avg.toLocaleString('en-IN')
+    };
   };
 
-  const stats = getNumericStats();
+  const stats = getStats();
 
-  const handleAuditAnalytics = async () => {
+  const handleExecuteFormula = () => {
+    if (!formulaInput.startsWith('=')) {
+      setFormulaResult('Error: Formula must start with "=" (e.g. =SUM(C1:C7))');
+      return;
+    }
+
+    const command = formulaInput.toUpperCase();
+    let numericValues: number[] = [];
+
+    // Extract all numeric cells
+    gridData.forEach(row => {
+      row.forEach(val => {
+        const parsed = parseFloat(val.replace(/[^0-9.-]/g, ''));
+        if (!isNaN(parsed)) {
+          numericValues.push(parsed);
+        }
+      });
+    });
+
+    if (numericValues.length === 0) {
+      setFormulaResult('Result: 0 (No numeric values found in grid)');
+      return;
+    }
+
+    if (command.startsWith('=SUM')) {
+      const sum = numericValues.reduce((a, b) => a + b, 0);
+      setFormulaResult(`Result (SUM): ₹${sum.toLocaleString('en-IN')}`);
+    } else if (command.startsWith('=AVERAGE') || command.startsWith('=AVG')) {
+      const avg = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
+      setFormulaResult(`Result (AVERAGE): ₹${Math.round(avg).toLocaleString('en-IN')}`);
+    } else if (command.startsWith('=COUNT')) {
+      setFormulaResult(`Result (COUNT): ${numericValues.length} cells`);
+    } else if (command.startsWith('=MAX')) {
+      const max = Math.max(...numericValues);
+      setFormulaResult(`Result (MAX): ₹${max.toLocaleString('en-IN')}`);
+    } else if (command.startsWith('=MIN')) {
+      const min = Math.min(...numericValues);
+      setFormulaResult(`Result (MIN): ₹${min.toLocaleString('en-IN')}`);
+    } else {
+      setFormulaResult('Error: Unsupported formula. Use =SUM, =AVERAGE, =COUNT, =MAX, or =MIN.');
+    }
+  };
+
+  const handleEvaluateAnalytics = async () => {
     if (!userInput.trim()) return;
 
     setIsAuditing(true);
 
-    const prompt = `Act as an executive HR Analytics Consultant. Audit candidate Priyanka Vartak's practical analytics submission for "${selectedModule.moduleName}":\n\nModule Category: ${selectedModule.category}\nFormula Blueprint:\n"${selectedModule.formulaBlueprint}"\n\nPractical Task:\n"${selectedModule.practiceTask}"\n\nCandidate Analysis Submission:\n"${userInput}"\n\nProvide Feedback:\n1. Analytics & Math Accuracy Score (1-10)\n2. Correct Formulas & Insights\n3. Missing Financial or Statutory Nuances\n4. Recommended C-Suite Executive Presentation Pitch.`;
+    const prompt = `Act as a Chief People Analytics Officer. Evaluate candidate Priyanka Vartak's calculations and business recommendations for "${selectedModule.moduleName}":\n\nAnalytics Category: ${selectedModule.category}\nFormula Blueprint: ${selectedModule.formulaBlueprint}\n\nAssigned Task:\n"${selectedModule.practiceTask}"\n\nCandidate Submission:\n"${userInput}"\n\nProvide Evaluation Report:\n1. Analytics Competency Score (1-10)\n2. Correctness of Calculations\n3. Strategic Depth of Business Recommendations\n4. Recommended Model C-suite Executive Summary.`;
 
     const result = await callGeminiAI(prompt);
     setIsAuditing(false);
 
-    setAiFeedback(result || 'Analytics audit completed.');
+    setAiFeedback(result || 'Evaluation completed successfully.');
+  };
+
+  const updateCell = (rowIndex: number, colIndex: number, newVal: string) => {
+    const updated = gridData.map((row, rIdx) => 
+      row.map((val, cIdx) => (rIdx === rowIndex && cIdx === colIndex ? newVal : val))
+    );
+    setGridData(updated);
   };
 
   return (
     <section className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-        {/* Header Banner */}
-        <div className="border-b border-slate-200 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Executive HR Analytics & Native Spreadsheet Engine</span>
-            <h2 className="text-2xl font-bold text-slate-900">HR Analytics & Live Interactive Excel Studio</h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Interactive Excel spreadsheet simulator: edit cells, test formulas (=SUM, =AVERAGE), add rows/columns, and evaluate real-time analytics with Gemini AI.
-            </p>
-          </div>
+        {/* Header */}
+        <div className="border-b border-slate-200 pb-4">
+          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">HR Analytics Studio & Live Excel Engine</span>
+          <h2 className="text-2xl font-bold text-slate-900">HR Analytics Masterclass & Interactive Spreadsheet Engine</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Master 100 practical HR analytics modules covering attrition risk forecasting, salary compa-ratio equity audits, statutory payroll math, and cNPS pulse scoring. Directly edit datasets below and run Excel formulas in real-time.
+          </p>
         </div>
 
         {/* Master-Detail Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[600px]">
-          {/* Left Panel (4/12 Width): Navigation & Module Selection List */}
+          {/* Left Panel (4/12 Width): Search & List */}
           <div className="lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 flex flex-col h-[700px]">
             <div className="space-y-2 shrink-0">
               <div className="relative">
@@ -324,7 +328,7 @@ export const HRAnalyticsView: React.FC = () => {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search 25 analytics modules..."
+                  placeholder="Search 100 analytics modules..."
                   className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -334,7 +338,7 @@ export const HRAnalyticsView: React.FC = () => {
                 onChange={(e) => setCatFilter(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-emerald-500"
               >
-                <option value="ALL">All Analytics Categories (25 Modules)</option>
+                <option value="ALL">All Categories (100 Modules)</option>
                 <option value="Attrition Analytics">Attrition Analytics</option>
                 <option value="Recruitment SLA">Recruitment SLA</option>
                 <option value="Compensation & Equity">Compensation & Equity</option>
@@ -345,7 +349,7 @@ export const HRAnalyticsView: React.FC = () => {
             </div>
 
             <div className="flex justify-between items-center text-[11px] text-slate-500 shrink-0 border-b pb-1">
-              <span>Showing {filteredModules.length} of {hrAnalytics25Modules.length} modules</span>
+              <span>Showing {filteredModules.length} of {hrAnalyticsModulesData.length} modules</span>
               {search && (
                 <button onClick={() => setSearch('')} className="text-emerald-600 font-bold hover:underline">
                   Clear Search
@@ -399,6 +403,22 @@ export const HRAnalyticsView: React.FC = () => {
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-200">
                   <i className="fa-solid fa-table mr-1"></i>Interactive Spreadsheet Active
                 </span>
+                <button
+                  onClick={() => {
+                    if (onToggleComplete) onToggleComplete(selectedModule.id);
+                  }}
+                  className={`font-bold text-[11px] px-2.5 py-1 rounded-lg transition-colors border ${
+                    completedIds.includes(selectedModule.id) 
+                      ? 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200' 
+                      : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  {completedIds.includes(selectedModule.id) ? (
+                    <><i className="fa-solid fa-check mr-1"></i> Mastered</>
+                  ) : (
+                    <><i className="fa-solid fa-check-double mr-1"></i> Mark Mastered</>
+                  )}
+                </button>
               </div>
             </div>
 
@@ -448,59 +468,32 @@ export const HRAnalyticsView: React.FC = () => {
               </div>
               <div className="bg-blue-50 p-2.5 rounded-lg border border-blue-200 text-center">
                 <span className="text-[10px] text-blue-700 block font-semibold">Live Average (=AVG)</span>
-                <strong className="text-blue-800 text-xs font-extrabold">{stats.avg}</strong>
+                <strong className="text-blue-800 text-xs font-extrabold">₹{stats.avg}</strong>
               </div>
             </div>
 
-            {/* Spreadsheet Actions Bar */}
-            <div className="flex justify-between items-center text-xs shrink-0 pt-1">
-              <strong className="text-slate-800 font-bold">Interactive Spreadsheet Grid:</strong>
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleAddRow}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded border border-slate-300 text-[11px]"
-                >
-                  + Add Row
-                </button>
-                <button
-                  onClick={handleAddColumn}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded border border-slate-300 text-[11px]"
-                >
-                  + Add Column
-                </button>
-                <button
-                  onClick={handleResetDataset}
-                  className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-2.5 py-1 rounded border border-rose-200 text-[11px]"
-                >
-                  Reset Grid
-                </button>
-              </div>
-            </div>
-
-            {/* Editable Spreadsheet Table Grid */}
-            <div className="overflow-x-auto border border-slate-300 rounded-xl bg-white shadow-sm shrink-0">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-900 text-slate-100 font-bold border-b border-slate-800 text-[11px]">
-                    <th className="p-2 border-r border-slate-800 w-8 text-center text-slate-400">#</th>
-                    {headers.map((h, i) => (
-                      <th key={i} className="p-2 border-r border-slate-800 font-semibold">{h}</th>
+            {/* Editable Spreadsheet Grid Container */}
+            <div className="overflow-x-auto border border-slate-200 rounded-xl shrink-0">
+              <table className="min-w-full divide-y divide-slate-200 text-xs text-left">
+                <thead className="bg-slate-50 font-bold text-slate-700 uppercase text-[10px]">
+                  <tr>
+                    {headers.map((header, idx) => (
+                      <th key={idx} className="px-4 py-2 border-r border-slate-200">
+                        {header}
+                      </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-200 bg-white">
                   {gridData.map((row, rIdx) => (
-                    <tr key={rIdx} className="border-b border-slate-200 hover:bg-slate-50 font-mono text-[11px]">
-                      <td className="p-1.5 border-r border-slate-200 text-center text-slate-400 bg-slate-100 font-semibold">
-                        {rIdx + 1}
-                      </td>
+                    <tr key={rIdx} className="hover:bg-slate-50">
                       {row.map((cell, cIdx) => (
-                        <td key={cIdx} className="p-1 border-r border-slate-200">
+                        <td key={cIdx} className="px-3 py-1.5 border-r border-slate-100 font-mono">
                           <input
                             type="text"
                             value={cell}
-                            onChange={(e) => handleCellChange(rIdx, cIdx, e.target.value)}
-                            className="w-full bg-white px-2 py-1 border border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded text-[11px] font-mono text-slate-900 font-semibold"
+                            onChange={(e) => updateCell(rIdx, cIdx, e.target.value)}
+                            className="w-full bg-transparent focus:bg-white border-0 focus:ring-1 focus:ring-emerald-500 rounded px-1 py-0.5 text-slate-800 font-mono text-xs focus:outline-none"
                           />
                         </td>
                       ))}
@@ -510,37 +503,40 @@ export const HRAnalyticsView: React.FC = () => {
               </table>
             </div>
 
-            {/* Practice Workspace & Gemini AI Audit */}
+            {/* Practice Task & Submission Sandbox */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 shrink-0">
-              <strong className="text-slate-900 block font-bold text-xs">Assigned Analytics Practice Task:</strong>
-              <p className="text-xs text-slate-700 bg-white p-3 rounded-lg border border-slate-200">{selectedModule.practiceTask}</p>
+              <strong className="text-slate-900 block font-bold text-xs">C-Suite Action Task:</strong>
+              <div className="bg-emerald-50 text-emerald-950 p-3 rounded-lg border border-emerald-200 text-xs">
+                <strong className="text-emerald-900 block font-bold mb-0.5">Assigned Analytics Challenge:</strong>
+                {selectedModule.practiceTask}
+              </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  Your Calculated Formula Steps, Math & Executive C-Suite Pitch:
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Your Calculation Breakdown & C-suite Recommendations:
                 </label>
                 <textarea
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   rows={4}
-                  placeholder="Enter your calculated answers, ratios, and executive C-suite presentation pitch..."
+                  placeholder="Detail your formula steps, parsed metrics, and recommended HR actions to present to VPs/CEOs..."
                   className="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs font-mono"
                 ></textarea>
               </div>
 
               <button
                 disabled={isAuditing}
-                onClick={handleAuditAnalytics}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 disabled:opacity-50 text-xs"
+                onClick={handleEvaluateAnalytics}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 disabled:opacity-50 text-xs transition-all"
               >
                 <i className="fa-solid fa-wand-magic-sparkles"></i>
-                <span>{isAuditing ? 'Auditing Analytics...' : 'Audit Analytics with Gemini AI'}</span>
+                <span>{isAuditing ? 'Auditing Recommendations...' : 'Submit Data Analysis & Audit with Gemini AI'}</span>
               </button>
 
               {aiFeedback && (
                 <div className="bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-800 space-y-2 text-xs font-mono leading-relaxed whitespace-pre-line">
                   <div className="text-amber-400 font-bold border-b border-slate-800 pb-1">
-                    Gemini AI Executive Analytics Audit Report
+                    Gemini AI Executive People Analytics Report
                   </div>
                   <div>{aiFeedback}</div>
                 </div>

@@ -92,6 +92,10 @@ export interface UserProgress {
   labCompleted: number[];
   savedQuestions?: number[];
   archivedQuestions?: number[];
+  analyticsCompleted?: string[];
+  toolsCompleted?: string[];
+  commCompleted?: string[];
+  youtubeCompleted?: string[];
   streakDays: number;
 }
 

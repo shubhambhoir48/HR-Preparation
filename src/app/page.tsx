@@ -29,6 +29,8 @@ import { YouTubeLibraryView } from '@/components/youtube/YouTubeLibraryView';
 import { WorkplaceSandboxView } from '@/components/sandbox/WorkplaceSandboxView';
 import { NotificationModal } from '@/components/common/NotificationModal';
 import { GeminiWidget } from '@/components/common/GeminiWidget';
+import { auth, signOut, isEmailWhitelisted } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function MainPage() {
   const router = useRouter();
@@ -56,13 +58,56 @@ export default function MainPage() {
   const [modalTitle, setModalTitle] = useState('');
   const [modalBody, setModalBody] = useState('');
 
-  // Authentication check
+  // Zero-Trust Auth Gate State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+
+  // Authentication check with Firebase + Whitelist verification
   useEffect(() => {
-    const auth = localStorage.getItem('hr_prep_auth');
-    if (!auth) {
-      router.push('/login');
-    }
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        if (isEmailWhitelisted(firebaseUser.email)) {
+          localStorage.setItem('hr_prep_auth', 'true');
+          if (firebaseUser.email) localStorage.setItem('hr_prep_user_email', firebaseUser.email);
+          if (firebaseUser.displayName) {
+            setUserProfile((prev) => ({ ...prev, name: firebaseUser.displayName || prev.name }));
+          }
+          setIsAuthenticated(true);
+          setAuthChecking(false);
+        } else {
+          signOut(auth);
+          localStorage.removeItem('hr_prep_auth');
+          setIsAuthenticated(false);
+          setAuthChecking(false);
+          router.push('/login');
+        }
+      } else {
+        const storedAuth = localStorage.getItem('hr_prep_auth');
+        if (storedAuth) {
+          setIsAuthenticated(true);
+          setAuthChecking(false);
+        } else {
+          setIsAuthenticated(false);
+          setAuthChecking(false);
+          router.push('/login');
+        }
+      }
+    });
+
+    return () => unsub();
   }, [router]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn('Firebase signout error:', err);
+    }
+    localStorage.removeItem('hr_prep_auth');
+    localStorage.removeItem('hr_prep_user_email');
+    localStorage.removeItem('hr_prep_user_name');
+    router.push('/login');
+  };
 
   // Load State from LocalStorage / Netlify Blobs
   useEffect(() => {
@@ -249,6 +294,20 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
     saveState(targetCompanies, activeCompanyId, userProfile, updatedProg);
   };
 
+  const handleToggleGenericProgress = (
+    type: 'analyticsCompleted' | 'toolsCompleted' | 'commCompleted' | 'youtubeCompleted',
+    id: string
+  ) => {
+    const currentList = userProgress[type] || [];
+    const updatedList = currentList.includes(id)
+      ? currentList.filter((x) => x !== id)
+      : [...currentList, id];
+
+    const updatedProg = { ...userProgress, [type]: updatedList };
+    setUserProgress(updatedProg);
+    saveState(targetCompanies, activeCompanyId, userProfile, updatedProg);
+  };
+
   const handleAddStarStory = (story: StarStory) => {
     const updated = [story, ...starStoriesData];
     setStarStoriesData(updated);
@@ -259,6 +318,22 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
     setUserProfile(profile);
     saveState(targetCompanies, activeCompanyId, profile);
   };
+
+  if (authChecking || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col justify-center items-center p-4">
+        <div className="space-y-4 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-blue-600/30 border border-blue-500/40 text-blue-400 flex items-center justify-center text-2xl mx-auto shadow-2xl animate-pulse">
+            <i className="fa-solid fa-shield-halved"></i>
+          </div>
+          <div className="space-y-1">
+            <h2 className="font-bold text-sm text-slate-200">Verifying Security Credentials...</h2>
+            <p className="text-xs text-slate-500">Zero-Trust Encrypted Guard Active</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex bg-slate-50 min-h-screen">
@@ -274,6 +349,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
         userName={userProfile.name}
         userRole={userProfile.level}
         isCloudSynced={isCloudSynced}
+        onSignOut={handleSignOut}
       />
 
       {/* Main Content Area */}
@@ -300,6 +376,7 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
               questions={initialQuestions}
               sops={initialSOPs}
               resumeText={userProfile.resumeText}
+              storiesCount={starStoriesData.length}
               onOpenCheatSheet={handleOpenCheatSheet}
               onNavigateTab={(tab) => setActiveTab(tab)}
             />
@@ -339,7 +416,12 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             />
           )}
 
-          {activeTab === 'youtube-library' && <YouTubeLibraryView />}
+          {activeTab === 'youtube-library' && (
+            <YouTubeLibraryView 
+              completedIds={userProgress.youtubeCompleted}
+              onToggleComplete={(id) => handleToggleGenericProgress('youtubeCompleted', id)}
+            />
+          )}
 
           {activeTab === 'star-builder' && (
             <StarBuilderView
@@ -351,9 +433,19 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
 
           {activeTab === 'ai-hr' && <AiForHrView />}
 
-          {activeTab === 'hr-analytics' && <HRAnalyticsView />}
+          {activeTab === 'hr-analytics' && (
+            <HRAnalyticsView 
+              completedIds={userProgress.analyticsCompleted}
+              onToggleComplete={(id) => handleToggleGenericProgress('analyticsCompleted', id)}
+            />
+          )}
 
-          {activeTab === 'hr-tools' && <HRToolsMasterclassView />}
+          {activeTab === 'hr-tools' && (
+            <HRToolsMasterclassView 
+              completedIds={userProgress.toolsCompleted}
+              onToggleComplete={(id) => handleToggleGenericProgress('toolsCompleted', id)}
+            />
+          )}
 
           {activeTab === 'assignments' && (
             <LabsView
@@ -371,7 +463,12 @@ RECOMMENDED FIRST 30-60-90 DAY PLAN:
             <MockInterviewView company={activeCompany} questions={initialQuestions} />
           )}
 
-          {activeTab === 'exec-comm' && <ExecutiveCommView />}
+          {activeTab === 'exec-comm' && (
+            <ExecutiveCommView 
+              completedIds={userProgress.commCompleted}
+              onToggleComplete={(id) => handleToggleGenericProgress('commCompleted', id)}
+            />
+          )}
 
           {activeTab === 'career-planner' && (
             <CareerPlannerView userName={userProfile.name} currentRole={userProfile.level} />

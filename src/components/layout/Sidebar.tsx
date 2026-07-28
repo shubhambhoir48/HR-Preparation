@@ -13,6 +13,7 @@ interface SidebarProps {
   userName: string;
   userRole: string;
   isCloudSynced: boolean;
+  onSignOut?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -25,6 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userName,
   userRole,
   isCloudSynced,
+  onSignOut,
 }) => {
   const navItems = [
     {
@@ -163,13 +165,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="text-[10px] text-slate-400 truncate">{userRole}</div>
             </div>
           </div>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className="text-slate-400 hover:text-white p-1"
-            title="Profile Settings"
-          >
-            <i className="fa-solid fa-gear"></i>
-          </button>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700/50"
+              title="Profile Settings"
+            >
+              <i className="fa-solid fa-gear"></i>
+            </button>
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/50"
+                title="Sign Out"
+              >
+                <i className="fa-solid fa-right-from-bracket"></i>
+              </button>
+            )}
+          </div>
         </div>
       </aside>
     </>

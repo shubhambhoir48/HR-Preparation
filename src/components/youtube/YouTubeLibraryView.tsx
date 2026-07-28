@@ -2,6 +2,11 @@
 
 import React, { useState } from 'react';
 
+export interface YouTubeLibraryViewProps {
+  completedIds?: string[];
+  onToggleComplete?: (id: string) => void;
+}
+
 export interface YouTubeVideo {
   id: string;
   youtubeId: string;
@@ -144,7 +149,7 @@ export const mnc50YouTubeVideos: YouTubeVideo[] = [
   }
 })();
 
-export const YouTubeLibraryView: React.FC = () => {
+export const YouTubeLibraryView: React.FC<YouTubeLibraryViewProps> = ({ completedIds = [], onToggleComplete }) => {
   const [videoList, setVideoList] = useState<YouTubeVideo[]>(mnc50YouTubeVideos);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
@@ -350,14 +355,33 @@ export const YouTubeLibraryView: React.FC = () => {
                   <span>Watch Tutorial</span>
                 </button>
 
-                <a
-                  href={`https://www.youtube.com/watch?v=${vid.youtubeId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-slate-600 font-semibold text-[11px]"
-                >
-                  Open YouTube <i className="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i>
-                </a>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onToggleComplete) onToggleComplete(vid.id);
+                    }}
+                    className={`font-bold text-[11px] px-2 py-1 rounded transition-colors ${
+                      completedIds.includes(vid.id) 
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                    }`}
+                  >
+                    {completedIds.includes(vid.id) ? (
+                      <><i className="fa-solid fa-check mr-1"></i> Completed</>
+                    ) : (
+                      <><i className="fa-solid fa-check-double mr-1"></i> Mark Done</>
+                    )}
+                  </button>
+                  <a
+                    href={`https://www.youtube.com/watch?v=${vid.youtubeId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 hover:text-slate-600 font-semibold text-[11px]"
+                  >
+                    Open YouTube <i className="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i>
+                  </a>
+                </div>
               </div>
             </div>
           ))}

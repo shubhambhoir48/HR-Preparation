@@ -9,6 +9,7 @@ interface DashboardViewProps {
   questions: HRQuestion[];
   sops: SOPPlaybook[];
   resumeText: string;
+  storiesCount: number;
   onOpenCheatSheet: () => void;
   onNavigateTab: (tab: string) => void;
 }
@@ -19,6 +20,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   questions,
   sops,
   resumeText,
+  storiesCount,
   onOpenCheatSheet,
   onNavigateTab,
 }) => {
@@ -36,13 +38,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const matchedCount = keywords.filter((kw) => resumeLower.includes(kw.toLowerCase())).length;
   const fitScore = Math.min(98, Math.max(65, Math.round((matchedCount / (keywords.length || 1)) * 100)));
 
+  // Dynamic Questions filtering
   const curatedQuestions = questions.filter(
     (q) => keywords.some((k) => (q.tags || []).includes(k) || q.question.toLowerCase().includes(k.toLowerCase()))
   ).slice(0, 4);
 
   const finalCuratedQuestions = curatedQuestions.length > 0 ? curatedQuestions : questions.slice(0, 4);
 
-  // Dynamic Software Tools Extraction
+  // Dynamic Software Tools Extraction based on active target company
   const extractedTools = Array.from(
     new Set(
       sops
@@ -52,6 +55,65 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   ).slice(0, 5);
 
   const toolsList = extractedTools.length > 0 ? extractedTools : ["Cutshort", "Keka Payroll", "Workday HRIS", "SpringVerify BGV", "Instahyre"];
+
+  // Dynamic 30-Second Elevator Pitch Generator
+  const generateDynamicPitch = () => {
+    const defaultPitch = `I am a results-driven HR Lead with hands-on expertise in scaling software organizations. For ${company.name}'s requirement for ${company.role}, I bring proven execution capability across full-cycle tech recruitment, candidate Net Promoter Score (cNPS > +50) optimization, statutory compliance under Maharashtra Shops & Establishments Act, EPF, ESIC, POSH committee setup, monthly payroll processing, leave encashment, FnF settlement payouts, and 30-day PIP implementation.`;
+
+    if (company.type === 'SaaS' || company.name.toLowerCase().includes('quloi')) {
+      return `I am a data-driven HR Lead specializing in scaling high-performance SaaS engineering hubs. For ${company.name}'s requirement for ${company.role} in ${company.loc || 'Pune'}, I bring proven expertise in tech recruitment (Node, React, Python, Logistics AI), maintaining cNPS > +50, statutory compliance under Maharashtra Shops & Establishments Act 2017, and fast-turnaround 48-hour FnF settlements alongside executive leadership alignment.`;
+    }
+
+    if (company.type === 'Startup' || company.type === 'Unicorn') {
+      return `I am an agile HR operations leader built for high-growth tech startups and unicorns. For ${company.name}'s requirement for ${company.role}, I bring proven experience in zero-to-one HR setups, rapid developer headhunting via Cutshort and Instahyre, employee branding on Glassdoor, setting up automated payroll in Keka/Razorpay, and structuring equity/ESOP option grants.`;
+    }
+
+    if (company.type === 'Enterprise' || company.name.toLowerCase().includes('tcs') || company.name.toLowerCase().includes('infosys')) {
+      return `I am a process-oriented HR Business Partner with experience managing large-scale employee lifecycles. For ${company.name}'s requirement for ${company.role}, I bring hands-on expertise in pan-India compliance, Workday HRIS management, Mercer compensation benchmarking, annual appraisal cycles (KRAs/OKRs), BGV operations via SpringVerify, and statutory audits.`;
+    }
+
+    return defaultPitch;
+  };
+
+  // Dynamic HR Strategic KPIs & Statutory Briefing Card
+  const getDynamicBriefing = () => {
+    if (company.type === 'SaaS' || company.name.toLowerCase().includes('quloi')) {
+      return {
+        kpis: [
+          { name: 'Target cNPS', val: '> +50 Score' },
+          { name: 'Time-to-Fill (Tech)', val: '< 20 Days' },
+          { name: 'FnF Settlement SLA', val: '< 48 Hours' }
+        ],
+        compliance: 'Requires strict Maharashtra Shops & Est Form N compliance for leaves, EPF basic ceiling cap adjustments at ₹1,800/mo, and local PT slab deductions.',
+        tip: 'Focus on developer notice period recovery strategies and setting up the ICC Committee for POSH 2013 compliance.'
+      };
+    }
+
+    if (company.type === 'Startup' || company.type === 'Unicorn') {
+      return {
+        kpis: [
+          { name: 'Early Turnaround', val: '< 5% (90 days)' },
+          { name: 'Sourcing Conversion', val: '> 15% (Invite->HI)' },
+          { name: 'Offer Acceptance', val: '> 85%' }
+        ],
+        compliance: 'Requires setting up Razorpay/Keka automated statutory deductions, basic allowance breakups under Wage Code, and ESOP vesting schedules.',
+        tip: 'Highlight employer branding campaigns on LinkedIn/Glassdoor to attract premium tech talent at lean startups.'
+      };
+    }
+
+    // Default Enterprise
+    return {
+      kpis: [
+        { name: 'Headcount Attrition', val: '< 12% Annual' },
+        { name: 'Billing Transition', val: '< 14 Days' },
+        { name: 'BGV SLA Clearance', val: '100% within 7 Days' }
+      ],
+      compliance: 'Requires pan-India statutory compliance tracking, Workday process flow gateways, and Mercer compensation percentile audits.',
+      tip: 'Highlight bench optimization models, developer skill re-training strategies, and managing senior employee relations cases.'
+    };
+  };
+
+  const brief = getDynamicBriefing();
 
   return (
     <section className="space-y-6">
@@ -102,6 +164,83 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
+      {/* Universal Progress Tracker */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i className="fa-solid fa-chart-pie text-indigo-600"></i>
+              Universal Mastery Tracker
+            </h2>
+            <p className="text-xs text-slate-500">Track your overall curriculum completion</p>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl font-black text-indigo-600">
+              {Math.round(
+                ((userProgress.mastered.length +
+                  userProgress.sopsRead.length +
+                  userProgress.labCompleted.length +
+                  (userProgress.analyticsCompleted?.length || 0) +
+                  (userProgress.youtubeCompleted?.length || 0) +
+                  (userProgress.toolsCompleted?.length || 0) +
+                  (userProgress.commCompleted?.length || 0)) /
+                  (120 + 24 + 15 + 100 + 50 + 30 + 12)) *
+                  100
+              )}%
+            </span>
+            <span className="text-xs text-slate-500 block font-bold uppercase tracking-widest">Platform Complete</span>
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-slate-100 rounded-full h-3 mb-6 overflow-hidden flex">
+          <div 
+            className="bg-indigo-600 h-3 rounded-full transition-all duration-1000 ease-out" 
+            style={{ width: `${Math.round(((userProgress.mastered.length + userProgress.sopsRead.length + userProgress.labCompleted.length + (userProgress.analyticsCompleted?.length || 0) + (userProgress.youtubeCompleted?.length || 0) + (userProgress.toolsCompleted?.length || 0) + (userProgress.commCompleted?.length || 0)) / (120 + 24 + 15 + 100 + 50 + 30 + 12)) * 100)}%` }}
+          ></div>
+        </div>
+
+        {/* Module Target Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <span>HR Analytics</span>
+              <span>100 Modules</span>
+            </div>
+            <div className="text-sm font-bold text-slate-900">
+              {(userProgress.analyticsCompleted?.length || 0)} / 100 <span className="text-[10px] font-normal text-slate-500 ml-1">Completed</span>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <span>HR Tools</span>
+              <span>30 Platforms</span>
+            </div>
+            <div className="text-sm font-bold text-slate-900">
+              {(userProgress.toolsCompleted?.length || 0)} / 30 <span className="text-[10px] font-normal text-slate-500 ml-1">Mastered</span>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <span>Executive Comm</span>
+              <span>12 Pillars</span>
+            </div>
+            <div className="text-sm font-bold text-slate-900">
+              {(userProgress.commCompleted?.length || 0)} / 12 <span className="text-[10px] font-normal text-slate-500 ml-1">Mastered</span>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <span>YouTube Library</span>
+              <span>50 Videos</span>
+            </div>
+            <div className="text-sm font-bold text-slate-900">
+              {(userProgress.youtubeCompleted?.length || 0)} / 50 <span className="text-[10px] font-normal text-slate-500 ml-1">Watched</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -136,14 +275,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-slate-500 text-xs font-semibold block uppercase tracking-wider">JD Keywords Matched</span>
+            <span className="text-slate-500 text-xs font-semibold block uppercase tracking-wider">STAR Behavioral Stories</span>
             <div className="text-2xl font-extrabold text-slate-900 mt-1">
-              {keywords.length} <span className="text-xs text-slate-400 font-normal">Core Keywords</span>
+              {storiesCount} <span className="text-xs text-slate-400 font-normal">Stories Compiled</span>
             </div>
-            <span className="text-[11px] text-blue-600 font-medium">{keywords.slice(0, 3).join(', ')}</span>
+            <span className="text-[11px] text-blue-600 font-medium">SOP Roleplay ready</span>
           </div>
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
-            <i className="fa-solid fa-key"></i>
+            <i className="fa-solid fa-star"></i>
           </div>
         </div>
 
@@ -174,9 +313,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </span>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs leading-relaxed text-slate-700 font-medium space-y-2">
-            <p>
-              &ldquo;I am a results-driven HR Lead with hands-on expertise in scaling software organizations. For <strong>{company.name}</strong>&apos;s requirement for <strong>{company.role}</strong>, I bring proven execution capability across full-cycle tech recruitment, candidate Net Promoter Score (cNPS &gt; +50) optimization, statutory compliance under Maharashtra Shops & Establishments Act 2017, EPF, ESIC, POSH committee setup, monthly payroll processing, leave encashment, FnF settlement payouts, and 30-day PIP implementation.&rdquo;
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs leading-relaxed text-slate-700 font-medium">
+            <p className="whitespace-pre-line leading-relaxed">
+              &ldquo;{generateDynamicPitch()}&rdquo;
             </p>
           </div>
 
@@ -186,7 +325,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow text-xs flex items-center space-x-1.5"
             >
               <i className="fa-solid fa-list-check"></i>
-              <span>Start 500+ Question Practice</span>
+              <span>Start Question Practice</span>
             </button>
             <button
               onClick={() => onNavigateTab('quiz')}
@@ -198,6 +337,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
+        {/* Dynamic HR Strategic KPIs & Statutory Briefing */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div className="border-b pb-3 flex justify-between items-center">
+            <h2 className="text-base font-bold text-slate-900">Operational Target KPIs</h2>
+            <i className="fa-solid fa-chart-line text-indigo-600"></i>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {brief.kpis.map((kpi, i) => (
+              <div key={i} className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-center">
+                <span className="text-[10px] text-slate-500 block font-semibold leading-tight">{kpi.name}</span>
+                <span className="text-xs font-extrabold text-slate-900 block mt-1">{kpi.val}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2.5 pt-2 border-t">
+            <div className="text-xs">
+              <span className="font-bold text-slate-800 block mb-0.5">Statutory Focus:</span>
+              <p className="text-slate-600 leading-relaxed">{brief.compliance}</p>
+            </div>
+            <div className="text-xs bg-indigo-50 p-2.5 rounded-lg border border-indigo-100 text-indigo-950">
+              <span className="font-bold text-indigo-900 block mb-0.5">Strategic HRBP Action Tip:</span>
+              <p className="font-medium">{brief.tip}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Core Software Tools Stack & Curated Questions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Core Software Tools Stack */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <div className="border-b pb-3 flex justify-between items-center">
@@ -220,45 +390,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Target Curated Questions Section */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <div className="flex justify-between items-center border-b pb-3">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">Curated Interview Questions for {company.name}</h2>
-            <p className="text-xs text-slate-500">Targeted high-probability questions matching company job requirements.</p>
-          </div>
-          <button
-            onClick={() => onNavigateTab('questions')}
-            className="text-xs font-bold text-blue-600 hover:underline flex items-center space-x-1"
-          >
-            <span>View All {questions.length} Questions</span>
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {finalCuratedQuestions.map((q) => (
-            <div key={q.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs flex flex-col justify-between">
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                    {q.domain}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">ID: #{q.id}</span>
-                </div>
-                <h3 className="font-bold text-slate-900 text-xs">{q.question}</h3>
-              </div>
-
-              <button
-                onClick={() => onNavigateTab('questions')}
-                className="text-[11px] font-bold text-blue-600 hover:underline pt-2 border-t border-slate-200 text-left"
-              >
-                Practice Answer Model &rarr;
-              </button>
+        {/* Target Curated Questions Section */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex justify-between items-center border-b pb-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Curated Interview Questions for {company.name}</h2>
+              <p className="text-xs text-slate-500">Targeted high-probability questions matching company job requirements.</p>
             </div>
-          ))}
+            <button
+              onClick={() => onNavigateTab('questions')}
+              className="text-xs font-bold text-blue-600 hover:underline flex items-center space-x-1"
+            >
+              <span>View All {questions.length} Questions</span>
+              <i className="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {finalCuratedQuestions.map((q) => (
+              <div key={q.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs flex flex-col justify-between">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                      {q.domain}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">ID: #{q.id}</span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-xs line-clamp-2">{q.question}</h3>
+                </div>
+
+                <button
+                  onClick={() => onNavigateTab('questions')}
+                  className="text-[11px] font-bold text-blue-600 hover:underline pt-2 border-t border-slate-200 text-left"
+                >
+                  Practice Answer Model &rarr;
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

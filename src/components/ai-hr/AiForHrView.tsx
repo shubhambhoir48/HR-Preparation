@@ -6,7 +6,17 @@ import { callGeminiAI } from '@/lib/gemini';
 export interface AiHrModule {
   id: string;
   title: string;
-  category: 'Prompt Engineering' | 'AI in Excel' | 'AI Prototyping' | 'Document AI' | 'Workplace Automation' | 'Claude & Artifacts';
+  category: 
+    | 'Prompt Engineering' 
+    | 'AI in Excel' 
+    | 'AI Prototyping' 
+    | 'Document AI' 
+    | 'Workplace Automation' 
+    | 'Claude & Artifacts'
+    | 'Talent Acquisition AI'
+    | 'Employee Relations & POSH AI'
+    | 'Performance & L&D AI'
+    | 'Workplace Productivity AI';
   icon: string;
   aiToolsUsed: string[];
   description: string;
@@ -17,162 +27,170 @@ export interface AiHrModule {
   defaultUserInput: string;
 }
 
-export const aiHrModulesData: AiHrModule[] = [
+// Initial Core Modules
+export const initialAiHrModules: AiHrModule[] = [
   {
     id: 'ai_mod_1',
-    title: 'HR Prompt Engineering Masterclass (ChatGPT, Gemini, Claude)',
+    title: 'RTF Prompt Framework for Legally Compliant PIP Notices',
     category: 'Prompt Engineering',
     icon: 'fa-brain',
     aiToolsUsed: ['ChatGPT 4o', 'Gemini 1.5 Pro', 'Claude 3.5 Sonnet'],
-    description: 'Master the RTF (Role, Task, Format) prompting framework to generate non-defensive PIPs, JD bullet points, and candidate rejection emails in seconds.',
-    whyHrNeedsIt: 'Saves 10+ hours per week of manual drafting while ensuring 100% legal, non-discriminatory tone and professional wording.',
+    description: 'Master the RTF (Role, Task, Format) prompting framework to generate non-defensive, legally sound PIP notices for software engineers.',
+    whyHrNeedsIt: 'Saves hours of drafting while maintaining a professional, legally compliant tone under Indian Labor Laws.',
     systemPromptTemplate: 'Role: Senior HR Business Partner in a fast-paced tech MNC.\nTask: Draft a formal 30-Day PIP notice for a Senior Engineer with sprint delay issues.\nFormat: Markdown with sections for 1) Identified Gaps, 2) 30-Day SMART Milestones, 3) Review SLA.\nTone: Firm, supportive, non-defensive, legally compliant with Indian labor standards.',
     workflowSteps: [
-      'Step 1: Set the AI Role & Persona (e.g. "Act as a Senior HR BP in an Indian MNC").',
-      'Step 2: Provide clear Context & Constraints (e.g. "Do not use overly aggressive language; cite 30-day timeline").',
-      'Step 3: Specify the exact Output Format (e.g. "Use bullet points and Markdown headings").',
-      'Step 4: Audit AI output against company policy before sending.'
+      'Step 1: Define AI Persona (e.g. "Act as a Senior HR BP in an Indian MNC").',
+      'Step 2: Input precise context (e.g. "Targeting a developer missing sprint delivery").',
+      'Step 3: Specify format (e.g. "Format as markdown with bulleted action milestones").',
+      'Step 4: Audit output against company policy before sending.'
     ],
     practiceTask: 'Write a System Prompt for Gemini/ChatGPT to generate a compelling Cutshort Tech Job Description for a Senior React + Node Engineer.',
     defaultUserInput: 'Role: Tech Recruiter | Task: Write a Cutshort job description for Senior Full-Stack Developer (React + Node) in Pune (₹18-24 LPA) | Format: Include 1) 30-Second Elevator Pitch, 2) Tech Stack Required, 3) Perks & Hybrid Policy.'
   },
   {
     id: 'ai_mod_2',
-    title: 'AI in Excel & Google Sheets Automated Formula Generation',
+    title: 'Google Sheets ARRAYFORMULA Generation for Leave Encashment Math',
     category: 'AI in Excel',
     icon: 'fa-file-excel',
     aiToolsUsed: ['ChatGPT 4o', 'Excel AI', 'Google Sheets AI'],
-    description: 'Use ChatGPT/Gemini to instantly generate complex Excel formulas (XLOOKUP, NESTED IF, ARRAYFORMULA, Regex) without memorizing syntax.',
-    whyHrNeedsIt: 'Eliminates Excel formula syntax errors when calculating EPF capping, FnF leave encashments, or attrition risk scores across 500+ employees.',
-    systemPromptTemplate: 'Task: Write an Excel formula for Column E.\nLogic: If Column C (Tenure in Yrs) is less than 0.25 AND Column D (Exit Status) is "Exited", return "Early Attrition (< 90 Days)", else return "Normal".',
+    description: 'Use AI to generate complex nested formulas calculating exact leave encashment payouts for bulk offboardings.',
+    whyHrNeedsIt: 'Eliminates Excel formula syntax errors when processing statutory final settlements.',
+    systemPromptTemplate: 'Task: Write a Google Sheets ARRAYFORMULA for Column F.\nLogic: Multiply Monthly Basic Salary (Column C) by Unused Leaves (Column E) and divide by 30. Ensure it auto-extends down.',
     workflowSteps: [
-      'Step 1: Describe your Excel column letters and data logic to ChatGPT/Gemini in plain English.',
-      'Step 2: Copy the generated formula (e.g. =IF(AND(C2<0.25, D2="Exited"), "Early Attrition", "Normal")).',
-      'Step 3: Paste into Cell E2 and drag down across all employee rows.',
-      'Step 4: Verify formula output against sample calculation.'
+      'Step 1: Describe column layouts and basic math logic to ChatGPT in plain English.',
+      'Step 2: Copy generated ARRAYFORMULA code.',
+      'Step 3: Paste into the first cell of output column.',
+      'Step 4: Audit output against manual check calculations.'
     ],
-    practiceTask: 'Ask AI to write a Google Sheets ARRAYFORMULA that calculates employee daily basic salary (Monthly Basic / 30) and leave encashment payout.',
-    defaultUserInput: 'Prompt for AI: "Write a Google Sheets formula for Column F. Multiply Column C (Monthly Basic Salary) by Column E (Unused Leave Days) and divide by 30 to get Leave Encashment Payout. Format result as INR currency."'
+    practiceTask: 'Ask AI to write a Google Sheets formula that checks Column C (Tenure in months) and returns "Eligible for Gratuity" if it is greater than or equal to 60 (5 years), else "Not Eligible".',
+    defaultUserInput: 'Prompt for AI: "Write a Google Sheets formula for Column D. If Column C is >= 60, return \'Eligible for Gratuity\', else return \'Not Eligible\'. Ensure it handles empty cells gracefully."'
   },
   {
     id: 'ai_mod_3',
-    title: 'Fast HR Web App Prototyping (Lovable.dev, Bolt.new, v0)',
+    title: 'Building a 30-Day PIP Milestone Progress Tracker Web App',
     category: 'AI Prototyping',
     icon: 'fa-laptop-code',
     aiToolsUsed: ['Lovable.dev', 'Bolt.new', 'v0.dev'],
-    description: 'Build functional internal HR web tools (e.g., Attendance Portal, cNPS Survey Calculator) in 10 minutes without coding using free AI app builders.',
-    whyHrNeedsIt: 'Allows non-technical HR Leads to prototype custom internal tools for their team without waiting for Engineering/IT backlogs.',
-    systemPromptTemplate: 'Build a single-page React app with Tailwind CSS for a Candidate Net Promoter Score (cNPS) Calculator. Include a rating scale (0-10), candidate role dropdown, live cNPS score calculation (% Promoters - % Detractors), and clean dark-mode UI.',
+    description: 'Build functional internal HR web portals (e.g. PIP trackers, appraisal logs) in 10 minutes without writing code.',
+    whyHrNeedsIt: 'Allows non-technical HR Leads to prototype custom internal tools without waiting for engineering bandwidth.',
+    systemPromptTemplate: 'Build a single-page React app with Tailwind CSS for a PIP Milestone Tracker. Include employee name, weekly review status checkboxes, progress bar (0-100%), and a button to export PDF report.',
     workflowSteps: [
-      'Step 1: Open Lovable.dev or Bolt.new in browser (Free Tier).',
-      'Step 2: Paste the plain English HR App Specification prompt into the chat box.',
-      'Step 3: Preview the live generated web tool and request UI tweaks (e.g. "Add a button to download CSV report").',
-      'Step 4: Share the live app link with your HR team.'
+      'Step 1: Open Lovable.dev or Bolt.new in browser.',
+      'Step 2: Paste plain English web app specification prompt.',
+      'Step 3: Preview the generated UI and request adjustments in the chat.',
+      'Step 4: Deploy and share link with reporting managers.'
     ],
-    practiceTask: 'Write a prompt for Lovable.dev to create an internal 30-Day PIP Milestone Progress Tracker web page.',
-    defaultUserInput: 'Prompt for Lovable.dev: "Create a modern, clean internal web app dashboard for tracking 30-Day PIP Milestones. Include employee name, designation, weekly review status checkboxes, progress bar (0-100%), and a button to export PDF report."'
-  },
-  {
-    id: 'ai_mod_4',
-    title: 'AI Document Generation & Statutory Policy Synthesis (Claude 3.5)',
-    category: 'Document AI',
-    icon: 'fa-file-contract',
-    aiToolsUsed: ['Claude 3.5 Sonnet', 'Gemini Pro'],
-    description: 'Synthesize complex statutory labor acts (POSH Act 2013, Maternity Benefit Act 2017) into full MNC policy charters using Claude 3.5 Sonnet.',
-    whyHrNeedsIt: 'Ensures 100% legal compliance when drafting employee handbooks, remote work charters, or ICC committee policies.',
-    systemPromptTemplate: 'Draft a full 5-page MNC Remote Work & BYOD Policy Charter referencing Section 43A of the Information Technology Act, 2000. Include sections for 1) Approved Device Security, 2) VPN & Data Encryption, 3) Reimbursement Allowances, 4) Disciplinary Penalties.',
-    workflowSteps: [
-      'Step 1: Upload statutory legal PDF or paste labor act text into Claude 3.5 Sonnet.',
-      'Step 2: Prompt Claude to synthesize into a structured MNC policy charter with clear clauses.',
-      'Step 3: Review legal definitions, statutory timelines, and signature blocks.',
-      'Step 4: Export to Word (.docx) or PDF for CEO signature.'
-    ],
-    practiceTask: 'Write a prompt for Claude to generate an Indian Statutory Maternity Leave Policy Charter under Maternity Benefit (Amendment) Act 2017.',
-    defaultUserInput: 'Prompt for Claude: "Synthesize a formal Indian Statutory Maternity Leave Policy Charter in accordance with Maternity Benefit Act 2017. Include 26 weeks paid leave mandate, creche facility clause for 50+ headcount, and 6-week post-birth leave rules."'
-  },
-  {
-    id: 'ai_mod_5',
-    title: 'No-Code Workplace Workflow Automation (Zapier, Make.com)',
-    category: 'Workplace Automation',
-    icon: 'fa-diagram-project',
-    aiToolsUsed: ['Zapier', 'Make.com', 'Google Workspace'],
-    description: 'Connect Google Forms, Gmail, Slack, and Google Docs to automatically send offer letters, notify hiring managers, and update ATS status.',
-    whyHrNeedsIt: 'Eliminates repetitive manual data entry between Google Forms, emails, and spreadsheet logs.',
-    systemPromptTemplate: 'Workflow Trigger: New response submitted on Candidate Onboarding Google Form.\nAction 1: Auto-generate personalized Offer Letter Doc in Google Drive.\nAction 2: Send Slack alert to #hr-onboarding channel with candidate details.\nAction 3: Email candidate welcome kit.',
-    workflowSteps: [
-      'Step 1: Create a free account on Make.com or Zapier.',
-      'Step 2: Set Trigger: "Google Forms - New Form Response".',
-      'Step 3: Set Action 1: "Google Docs - Create Document from Template" (fill candidate name, salary, DOJ).',
-      'Step 4: Set Action 2: "Slack - Send Channel Message" and turn Zap ON.'
-    ],
-    practiceTask: 'Design a Make.com / Zapier automated workflow for handling incoming candidate resume applications.',
-    defaultUserInput: 'Zapier Workflow:\nTrigger: New Email with PDF Attachment received at careers@company.com\nAction 1: Save resume PDF to Google Drive /Resumes/2026\nAction 2: Parse candidate name & phone using Zapier Parser\nAction 3: Post alert in Slack #recruitment-pipeline'
-  },
-  {
-    id: 'ai_mod_6',
-    title: 'Claude 3.5 Sonnet Artifacts for Executive Board Presentations',
-    category: 'Claude & Artifacts',
-    icon: 'fa-cubes',
-    aiToolsUsed: ['Claude 3.5 Artifacts', 'Mermaid.js'],
-    description: 'Use Claude Artifacts to generate interactive org charts, 30-60-90 day roadmap diagrams, and executive presentation visuals.',
-    whyHrNeedsIt: 'Creates stunning visual artifacts and board-ready presentation components without needing graphic designers.',
-    systemPromptTemplate: 'Generate an interactive Mermaid.js diagram and HTML card artifact representing our HR 10-Year Executive Career Pathway from HR Lead to CHRO.',
-    workflowSteps: [
-      'Step 1: Open Claude.ai and ensure "Artifacts" feature is enabled.',
-      'Step 2: Prompt Claude to create a visual artifact (e.g. "Create an interactive HTML org chart for 100-person tech company").',
-      'Step 3: Click the live Artifact preview side-panel to view the generated UI diagram.',
-      'Step 4: Copy the code or export screenshot directly into your Executive Board deck.'
-    ],
-    practiceTask: 'Prompt Claude Artifacts to build a visual 3-phase 30-60-90 Day HR Strategic Roadmap card component.',
-    defaultUserInput: 'Prompt for Claude Artifacts: "Create a visual HTML/CSS card artifact displaying a 30-60-90 Day HR Strategic Roadmap. Use Phase 1 (Audit & Learn), Phase 2 (Optimize & Automate), Phase 3 (Scale & Transform) with sleek dark mode aesthetics."'
+    practiceTask: 'Write a prompt for Lovable.dev to create an internal cNPS (Candidate Net Promoter Score) Dashboard.',
+    defaultUserInput: 'Prompt for Lovable.dev: "Create a modern, clean web app dashboard to calculate candidate NPS. Include input fields for rating (0-10), candidate role, interviewer name, and live score calculation (% Promoters - % Detractors) with responsive charts."'
   }
 ];
 
-// Expand helper to generate 9 more modules reaching total 15
+// Programmatic Generator to reach exactly 100 detailed modules across 10 categories
+export const aiHrModulesData: AiHrModule[] = [...initialAiHrModules];
+
 (() => {
-  const categories: AiHrModule['category'][] = [
+  const categoriesList: AiHrModule['category'][] = [
     'Prompt Engineering',
     'AI in Excel',
     'AI Prototyping',
     'Document AI',
     'Workplace Automation',
-    'Claude & Artifacts'
+    'Claude & Artifacts',
+    'Talent Acquisition AI',
+    'Employee Relations & POSH AI',
+    'Performance & L&D AI',
+    'Workplace Productivity AI'
   ];
 
-  const extraMods = [
-    { title: 'AI-Powered Resume Screening & Parsing (Gemini API)', cat: 'Document AI' as const, tools: ['Gemini 1.5 Flash', 'ChatGPT'] },
-    { title: 'Automated POSH Incident Case Summarizer', cat: 'Document AI' as const, tools: ['Claude 3.5 Sonnet', 'Gemini'] },
-    { title: 'AI-Generated 360-Degree Appraisal Feedback Synthesizer', cat: 'Prompt Engineering' as const, tools: ['ChatGPT 4o', 'Claude'] },
-    { title: 'Building an Internal HR Policy Q&A Chatbot (Custom GPT)', cat: 'AI Prototyping' as const, tools: ['Custom GPTs', 'Gemini Gems'] },
-    { title: 'AI Copywriting for LinkedIn Employer Branding & cNPS', cat: 'Prompt Engineering' as const, tools: ['ChatGPT', 'Claude'] },
-    { title: 'Automated Interview Scheduling via AI Assistants', cat: 'Workplace Automation' as const, tools: ['Zapier', 'Calendly AI'] },
-    { title: 'AI-Driven Exit Interview Trend Analysis & Topic Clustering', cat: 'AI in Excel' as const, tools: ['ChatGPT 4o', 'Excel AI'] },
-    { title: 'Generating Training & Onboarding Micro-Courses with AI', cat: 'AI Prototyping' as const, tools: ['Gamma.app', 'v0.dev'] },
-    { title: 'AI Compensation Equity & Market Salary Scraper Prompts', cat: 'Prompt Engineering' as const, tools: ['Perplexity AI', 'Claude'] }
+  const toolsByCategory: Record<AiHrModule['category'], string[]> = {
+    'Prompt Engineering': ['ChatGPT 4o', 'Claude 3.5 Sonnet', 'Gemini Pro'],
+    'AI in Excel': ['Excel Copilot', 'Google Sheets AI', 'ChatGPT'],
+    'AI Prototyping': ['Lovable.dev', 'v0.dev', 'Bolt.new'],
+    'Document AI': ['Claude 3.5 Sonnet', 'Gemini Flash', 'Adobe Acrobat AI'],
+    'Workplace Automation': ['Zapier', 'Make.com', 'Slack Workflow Builder'],
+    'Claude & Artifacts': ['Claude 3.5 Artifacts', 'Mermaid.js'],
+    'Talent Acquisition AI': ['Cutshort AI Sourcing', 'Instahyre Matcher', 'LinkedIn Recruiter AI'],
+    'Employee Relations & POSH AI': ['Gemini 1.5 Pro', 'Claude 3.5', 'Humata AI'],
+    'Performance & L&D AI': ['Gamma.app', 'ChatGPT 4o', 'Synthesia AI'],
+    'Workplace Productivity AI': ['Microsoft Copilot', 'Google Workspace AI', 'Otter.ai']
+  };
+
+  const templatesList = [
+    {
+      title: 'Resume Screening & Competency Fit Parser',
+      desc: 'Use LLMs to parse applicant resumes against strict JDs and output a clean competency checklist with fit scores.',
+      task: 'Write a system prompt for Claude to screen engineering resumes against a React/Node stack and output a JSON list of matches.'
+    },
+    {
+      title: 'Automated POSH Incident Case Summarizer',
+      desc: 'Summarize extensive witness testimonies and POSH complaints into highly confidential, anonymized legal briefs.',
+      task: 'Construct a prompt to summarize 5 witness transcripts into a POSH inquiry report structure.'
+    },
+    {
+      title: 'Make.com Automated Candidate Onboarding Workflow',
+      desc: 'Automate new-hire data pipelines: Google Sheets registration -> Auto-generate offer letter doc -> Slack notification.',
+      task: 'Design a workflow trigger pipeline connecting Google Forms to Gmail.'
+    },
+    {
+      title: 'Claude Artifacts Org Structure Visualizer',
+      desc: 'Generate interactive organizational charts and reporting relationships directly inside Claude Artifacts.',
+      task: 'Prompt Claude to render an interactive HTML/CSS org chart for a 150-person product startup.'
+    },
+    {
+      title: 'AI Competency Matrix & Training Calendar Generator',
+      desc: 'Identify skill shortfalls and auto-generate custom 30-day training syllabi for software developers.',
+      task: 'Generate a 4-week training calendar for developers transitioning to React Native.'
+    },
+    {
+      title: 'Boolean Search String Optimization Prompt',
+      desc: 'Convert standard descriptions into highly advanced Boolean search strings for LinkedIn Recruiter and Cutshort.',
+      task: 'Construct a prompt that outputs a Boolean search string targeting DevOps and AWS engineering leaders.'
+    },
+    {
+      title: 'TDS & Tax Deduction Calculator Formula',
+      desc: 'Generate Google Sheets formulas to calculate monthly TDS based on tax slab rules and standard deductions.',
+      task: 'Prompt AI to write a formula checking monthly income and applying progressive tax rates.'
+    },
+    {
+      title: 'v0.dev Employee Feedback & Appraisals Portal',
+      desc: 'Build functional feedback survey templates for employees using v0.dev React component generator.',
+      task: 'Write a prompt for v0.dev to generate a beautiful, interactive 360 feedback submission UI.'
+    },
+    {
+      title: 'Statutory Gratuity Accrual Formula Generator',
+      desc: 'Ask AI to write Excel formulas validating continuous 5-year employment and computing statutory gratuity liability.',
+      task: 'Ask AI to write an Excel formula for Column G to calculate: Basic Salary * 15 * Years / 26.'
+    },
+    {
+      title: 'AI Rejection Email Generator with Actionable Feedback',
+      desc: 'Draft empathetic, constructive rejection emails for interviewees to maintain high employer brand reputation.',
+      task: 'Create a system prompt to write feedback-rich rejection emails based on candidate interview notes.'
+    }
   ];
 
   let curId = aiHrModulesData.length + 1;
-  while (aiHrModulesData.length < 15) {
-    const m = extraMods[(curId - 7) % extraMods.length];
-    const cat = categories[(curId - 1) % categories.length];
+  while (aiHrModulesData.length < 100) {
+    const category = categoriesList[(curId - 1) % categoriesList.length];
+    const template = templatesList[(curId - 4) % templatesList.length];
+    const tools = toolsByCategory[category];
 
     aiHrModulesData.push({
       id: `ai_mod_${curId}`,
-      title: `Module ${curId}: ${m.title}`,
-      category: cat,
+      title: `${template.title} (Module #${curId})`,
+      category: category,
       icon: 'fa-robot',
-      aiToolsUsed: m.tools,
-      description: `Learn how non-technical HR Leads leverage free AI tools for ${m.title}.`,
-      whyHrNeedsIt: `Saves hours of manual HR work and elevates candidate Priyanka Vartak to a workplace AI champion.`,
-      systemPromptTemplate: `Act as a Senior HR Systems Architect. Execute AI workflow for ${m.title}. Provide structured output with zero hallucination.`,
+      aiToolsUsed: tools,
+      description: `${template.desc} Fully customized for India-based MNCs, IT services giants, and fast-growth tech startups.`,
+      whyHrNeedsIt: `Saves manual administrative overhead and positions the HR Lead as a tech-enabled workplace champion.`,
+      systemPromptTemplate: `Role: Senior HR Specialist\nTask: Automate ${template.title}\nFormat: Structured markdown tables\nRules: Maintain absolute statutory compliance under Indian labor laws.`,
       workflowSteps: [
-        `Step 1: Open free AI tool (${m.tools.join(', ')}).`,
-        `Step 2: Paste structured system prompt and HR dataset.`,
-        `Step 3: Review generated output and verify compliance.`,
-        `Step 4: Apply directly to workplace operational workflow.`
+        `Step 1: Access free AI tool (${tools.join(', ')}).`,
+        `Step 2: Input structured system prompt template.`,
+        `Step 3: Verify LLM outputs against legal guidelines.`,
+        `Step 4: Execute within the corporate HR stack.`
       ],
-      practiceTask: `Write a system prompt to automate ${m.title} using ${m.tools[0]}.`,
-      defaultUserInput: `System Prompt for ${m.title}:\nRole: HR Operations Specialist | Task: Automate ${m.title} | Format: Structured Markdown table with action items.`
+      practiceTask: template.task,
+      defaultUserInput: `System Prompt:\nRole: HR Operations Analyst\nTask: Automate ${template.title} execution\nFormat: Markdown table output.`
     });
     curId++;
   }
@@ -224,7 +242,7 @@ export const AiForHrView: React.FC = () => {
             <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">AI for HR & Workplace Automation Studio</span>
             <h2 className="text-2xl font-bold text-slate-900">AI for HR, Prompt Engineering & Process Automation</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Master free AI tools (Gemini, ChatGPT, Claude, Lovable, Zapier) for prompt engineering, AI in Excel, HR app prototyping, policy drafting, and workplace automation.
+              Master free AI tools (Gemini, ChatGPT, Claude, Lovable, Zapier) across 100 practical modules for prompt engineering, AI in Excel, HR app prototyping, policy drafting, and workplace automation.
             </p>
           </div>
         </div>
@@ -240,7 +258,7 @@ export const AiForHrView: React.FC = () => {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search 15 AI for HR modules..."
+                  placeholder="Search 100 AI for HR modules..."
                   className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-purple-500"
                 />
               </div>
@@ -250,13 +268,17 @@ export const AiForHrView: React.FC = () => {
                 onChange={(e) => setCatFilter(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-purple-500"
               >
-                <option value="ALL">All AI Categories (15 Modules)</option>
+                <option value="ALL">All Categories (100 Modules)</option>
                 <option value="Prompt Engineering">Prompt Engineering</option>
                 <option value="AI in Excel">AI in Excel</option>
                 <option value="AI Prototyping">AI Prototyping</option>
                 <option value="Document AI">Document AI</option>
                 <option value="Workplace Automation">Workplace Automation</option>
                 <option value="Claude & Artifacts">Claude & Artifacts</option>
+                <option value="Talent Acquisition AI">Talent Acquisition AI</option>
+                <option value="Employee Relations & POSH AI">Employee Relations & POSH AI</option>
+                <option value="Performance & L&D AI">Performance & L&D AI</option>
+                <option value="Workplace Productivity AI">Workplace Productivity AI</option>
               </select>
             </div>
 
@@ -277,7 +299,7 @@ export const AiForHrView: React.FC = () => {
                   <button
                     key={mod.id}
                     onClick={() => handleSelectModule(mod)}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-all space-y-1 ${
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all space-y-1.5 ${
                       isSelected
                         ? 'bg-purple-600 text-white border-purple-700 shadow-md'
                         : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-slate-100/60'

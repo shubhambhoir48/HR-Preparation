@@ -22,6 +22,14 @@ export interface HRFunctionCategory {
   roles: HRFunctionRole[];
 }
 
+export interface Milestone {
+  id: string;
+  year: string;
+  title: string;
+  ctc: string;
+  notes: string;
+}
+
 export const hrFunctionMapData: HRFunctionCategory[] = [
   {
     id: 'func_ta',
@@ -152,65 +160,165 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
   // Roadmap Tab State
   const [myCurrentRole, setMyCurrentRole] = useState(currentRole || 'Senior HR Lead / HR Generalist');
   const [myTarget10YrGoal, setMyTarget10YrGoal] = useState('Chief Human Resources Officer (CHRO)');
-  const [aiBlueprint, setAiBlueprint] = useState('');
+  
+  const [milestones, setMilestones] = useState<Milestone[]>([
+    {
+      id: 'm1',
+      year: '2026',
+      title: 'Senior HR Lead / HR Generalist',
+      ctc: '₹22 LPA',
+      notes: 'Master core operations, handle 200+ employees, and establish performance culture.'
+    }
+  ]);
+  
+  // New Milestone Form State
+  const [newYear, setNewYear] = useState('');
+  const [newTitle, setNewTitle] = useState('');
+  const [newCtc, setNewCtc] = useState('');
+  const [newNotes, setNewNotes] = useState('');
+
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState('');
 
-  const handleGenerateBlueprint = async () => {
+  const handleAddMilestone = () => {
+    if (!newYear || !newTitle) return;
+    const newM: Milestone = {
+      id: Date.now().toString(),
+      year: newYear,
+      title: newTitle,
+      ctc: newCtc,
+      notes: newNotes,
+    };
+    
+    // Sort milestones by year
+    const updated = [...milestones, newM].sort((a, b) => {
+      return a.year.localeCompare(b.year);
+    });
+    setMilestones(updated);
+    
+    setNewYear('');
+    setNewTitle('');
+    setNewCtc('');
+    setNewNotes('');
+  };
+
+  const handleDeleteMilestone = (id: string) => {
+    setMilestones(milestones.filter(m => m.id !== id));
+  };
+
+  const handleSuggestBlueprint = async () => {
     setIsGenerating(true);
+    setAiAnalysis('');
 
-    const prompt = `Act as an executive HR career strategist. Generate a personalized 10-year career progression blueprint and shortfall analysis for candidate ${userName}:\n\nCurrent Profile:\n- Name: ${userName}\n- Current Designation: ${myCurrentRole}\n- Target 10-Year Destination: ${myTarget10YrGoal}\n- Experience: 6+ Years Exp in Tech HR\n\nGenerate:\n1. Shortfall & Skill Gap Analysis (What is missing in candidate profile to reach target)\n2. Recommended SOP Playbooks & Software Tools to study\n3. Year-by-Year 10-Year Milestones Roadmap (Years 1-2, 3-4, 5-7, 7-10, 10+ Years) with CTC expectations in INR & USD.`;
+    const prompt = `Act as an executive HR career strategist. For candidate ${userName}, who is currently "${myCurrentRole}" and has a 10-year goal of "${myTarget10YrGoal}", generate a 5-step milestone roadmap to bridge the gap.
+    
+Output exactly a JSON object in this format (no markdown backticks, no other text):
+{
+  "analysis": "Short 2-3 sentence analysis of their current gap.",
+  "milestones": [
+    {
+      "year": "2027",
+      "title": "Role Title",
+      "ctc": "Expected CTC",
+      "notes": "What to focus on..."
+    }
+  ]
+}`;
 
     const result = await callGeminiAI(prompt);
     setIsGenerating(false);
 
-    setAiBlueprint(result || '10-Year Executive Career Blueprint generated successfully.');
+    if (!result) {
+      setAiAnalysis("Failed to get a response from AI. Please try again.");
+      return;
+    }
+
+    try {
+      // Strip markdown code blocks if present
+      let cleanResult = result.trim();
+      if (cleanResult.startsWith('```json')) {
+        cleanResult = cleanResult.replace(/^```json/, '').replace(/```$/, '');
+      } else if (cleanResult.startsWith('```')) {
+        cleanResult = cleanResult.replace(/^```/, '').replace(/```$/, '');
+      }
+
+      const parsed = JSON.parse(cleanResult);
+      if (parsed.milestones && Array.isArray(parsed.milestones)) {
+        const generatedMilestones = parsed.milestones.map((m: any, idx: number) => ({
+          id: `ai_${Date.now()}_${idx}`,
+          year: String(m.year || ''),
+          title: String(m.title || ''),
+          ctc: String(m.ctc || ''),
+          notes: String(m.notes || ''),
+        }));
+        
+        // Merge AI suggestions with existing milestones, avoiding exact year duplicates, and sort
+        const existingYears = new Set(milestones.map(m => m.year));
+        const filteredAi = generatedMilestones.filter((m: Milestone) => !existingYears.has(m.year));
+        
+        const updated = [...milestones, ...filteredAi].sort((a, b) => a.year.localeCompare(b.year));
+        setMilestones(updated);
+      }
+      
+      if (parsed.analysis) {
+        setAiAnalysis(parsed.analysis);
+      }
+    } catch (e) {
+      console.error("Failed to parse AI response:", e);
+      setAiAnalysis("Failed to parse the AI blueprint. Please try again. Raw response: " + result);
+    }
   };
 
   return (
-    <section className="space-y-6">
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-        {/* Header Banner */}
-        <div className="border-b border-slate-200 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <section className="h-[calc(100vh-120px)] flex flex-col space-y-4">
+      {/* Header Banner */}
+      <div className="bg-slate-900 text-white p-6 rounded-xl border border-slate-800 shadow-xl shrink-0 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <i className="fa-solid fa-map-location-dot text-8xl"></i>
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Executive Career Architecture</span>
-            <h2 className="text-2xl font-bold text-slate-900">HR Roles Explorer & 10-Year Career Planner</h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Explore top industry standard HR role maps across functions or build candidate {userName}&apos;s personalized 10-year career roadmap with AI shortfall analysis.
+            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1 block">Executive Career Architecture</span>
+            <h2 className="text-2xl font-bold text-white">HR Roles Explorer & 10-Year Career Planner</h2>
+            <p className="text-xs text-slate-400 mt-1.5 max-w-2xl">
+              Explore industry standard HR roles, benchmark global CTCs, or manually build your personalized multi-year career roadmap with optional AI advisory.
             </p>
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex bg-slate-800 p-1.5 rounded-xl border border-slate-700">
             <button
               onClick={() => setActivePlannerTab('explorer')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
                 activePlannerTab === 'explorer'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-amber-500 text-slate-900 shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700'
               }`}
             >
               <i className="fa-solid fa-sitemap"></i>
-              <span>🧭 HR Roles Explorer Map</span>
+              <span>Roles Explorer</span>
             </button>
 
             <button
               onClick={() => setActivePlannerTab('roadmap')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center space-x-2 ${
                 activePlannerTab === 'roadmap'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-amber-500 text-slate-900 shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700'
               }`}
             >
               <i className="fa-solid fa-route"></i>
-              <span>🎯 My 10-Year Roadmap & Shortfalls</span>
+              <span>My Custom Roadmap</span>
             </button>
           </div>
         </div>
+      </div>
 
+      <div className="flex-1 overflow-hidden">
         {/* TAB 1: HR ROLES EXPLORER MAP */}
         {activePlannerTab === 'explorer' && (
-          <div className="space-y-6">
+          <div className="h-full flex flex-col space-y-4 animate-in fade-in zoom-in-95 duration-300">
             {/* HR Functions Selector */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
               {hrFunctionMapData.map((fn) => {
                 const isSelected = fn.id === selectedFunc.id;
                 return (
@@ -220,22 +328,21 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
                       setSelectedFunc(fn);
                       setSelectedRoleInFunc(fn.roles[0]);
                     }}
-                    className={`p-4 rounded-xl border-2 text-left transition-all space-y-2 flex flex-col justify-between ${
-                      isSelected ? 'border-emerald-600 bg-emerald-50/30 shadow-md' : 'border-slate-200 hover:border-slate-300 bg-white'
+                    className={`p-4 rounded-xl border-2 text-left transition-all flex flex-col justify-between group ${
+                      isSelected 
+                      ? 'border-amber-500 bg-amber-50/10 shadow-lg scale-[1.02]' 
+                      : 'border-slate-200 hover:border-amber-300 bg-white hover:shadow-md'
                     }`}
                   >
                     <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <i className={`fa-solid ${fn.icon} text-lg ${isSelected ? 'text-emerald-600' : 'text-slate-400'}`}></i>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">{fn.roles.length} Roles</span>
+                      <div className="flex justify-between items-center mb-2">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500 group-hover:bg-amber-50 group-hover:text-amber-500'}`}>
+                          <i className={`fa-solid ${fn.icon} text-lg`}></i>
+                        </div>
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-md">{fn.roles.length} Roles</span>
                       </div>
-                      <h3 className="font-bold text-slate-900 text-sm">{fn.categoryName}</h3>
+                      <h3 className={`font-bold text-sm ${isSelected ? 'text-amber-700' : 'text-slate-900'}`}>{fn.categoryName}</h3>
                       <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{fn.description}</p>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-100 text-[11px] font-bold text-emerald-700 flex items-center justify-between">
-                      <span>{isSelected ? 'Active HR Function' : 'Explore Function'}</span>
-                      <i className="fa-solid fa-chevron-right text-[10px]"></i>
                     </div>
                   </button>
                 );
@@ -243,36 +350,40 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
             </div>
 
             {/* Role List & Detailed Inspector Split View */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden min-h-0">
               {/* Left Sub-Panel: Roles in Function */}
-              <div className="lg:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <h4 className="font-bold text-slate-900 text-xs border-b pb-2 flex items-center justify-between">
-                  <span>Career Hierarchy ({selectedFunc.categoryName})</span>
-                  <i className="fa-solid fa-layer-group text-emerald-600"></i>
-                </h4>
+              <div className="lg:col-span-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col overflow-hidden">
+                <div className="p-4 border-b border-slate-200 bg-white shrink-0">
+                  <h4 className="font-bold text-slate-900 text-sm flex items-center justify-between">
+                    <span>Career Hierarchy</span>
+                    <i className="fa-solid fa-layer-group text-amber-500"></i>
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">{selectedFunc.categoryName}</p>
+                </div>
 
-                <div className="space-y-2">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                   {selectedFunc.roles.map((r, idx) => {
                     const isRoleSel = r.title === selectedRoleInFunc.title;
                     return (
                       <button
-                        key={idx}
-                        onClick={() => setSelectedRoleInFunc(r)}
-                        className={`w-full text-left p-3 rounded-xl border transition-all space-y-1 ${
-                          isRoleSel
-                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md'
-                            : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
-                        }`}
+                         key={idx}
+                         onClick={() => setSelectedRoleInFunc(r)}
+                         className={`w-full text-left p-4 rounded-xl border-2 transition-all space-y-2 relative ${
+                           isRoleSel
+                             ? 'bg-white border-amber-500 shadow-md transform scale-[1.01]'
+                             : 'bg-white border-transparent hover:border-slate-300 shadow-sm'
+                         }`}
                       >
-                        <div className="flex justify-between items-center">
-                          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded ${isRoleSel ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                            {r.level}
-                          </span>
-                          <span className={`text-[10px] font-bold ${isRoleSel ? 'text-emerald-200' : 'text-emerald-700'}`}>
-                            {r.ctcIndia}
-                          </span>
+                        {isRoleSel && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-amber-500 rounded-r-full"></div>}
+                        <div className="flex justify-between items-center pl-2">
+                           <span className={`text-[10px] font-black uppercase tracking-wider ${isRoleSel ? 'text-amber-600' : 'text-slate-500'}`}>
+                             {r.level}
+                           </span>
+                           <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                             {r.ctcIndia}
+                           </span>
                         </div>
-                        <h5 className="font-bold text-xs leading-snug">{r.title}</h5>
+                        <h5 className={`font-bold text-sm leading-snug pl-2 ${isRoleSel ? 'text-slate-900' : 'text-slate-700'}`}>{r.title}</h5>
                       </button>
                     );
                   })}
@@ -280,61 +391,80 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
               </div>
 
               {/* Right Sub-Panel: Detailed Role Inspector Card */}
-              <div className="lg:col-span-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
-                <div className="flex justify-between items-start border-b pb-4">
+              <div className="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+                
+                <div className="p-6 border-b border-slate-100 shrink-0 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                    <span className="text-[10px] font-extrabold text-emerald-700 uppercase">{selectedRoleInFunc.level} Experience Level</span>
-                    <h3 className="text-xl font-bold text-slate-900 mt-0.5">{selectedRoleInFunc.title}</h3>
-                    <p className="text-xs text-slate-500">Function: {selectedFunc.categoryName}</p>
+                    <span className="text-[10px] font-black tracking-widest text-amber-500 uppercase block mb-1">
+                      {selectedRoleInFunc.level} Experience Level
+                    </span>
+                    <h3 className="text-2xl font-bold text-slate-900">{selectedRoleInFunc.title}</h3>
                   </div>
 
-                  <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-right">
-                    <span className="text-[10px] text-slate-500 block font-semibold">India CTC Benchmark:</span>
-                    <strong className="text-emerald-700 text-sm font-extrabold">{selectedRoleInFunc.ctcIndia}</strong>
-                    <span className="text-[10px] text-blue-600 block font-semibold mt-0.5">Global CTC: {selectedRoleInFunc.ctcGlobal}</span>
-                  </div>
-                </div>
-
-                {/* Competencies */}
-                <div className="space-y-2 text-xs">
-                  <strong className="text-slate-900 block font-bold">Core Competencies to Master as per Industry Standards:</strong>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedRoleInFunc.competencies.map((c, i) => (
-                      <span key={i} className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-emerald-200">
-                        {c}
-                      </span>
-                    ))}
+                  <div className="flex gap-2">
+                    <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-center min-w-[100px]">
+                      <span className="text-[9px] text-slate-500 font-bold uppercase block mb-0.5">India CTC</span>
+                      <strong className="text-slate-900 text-sm">{selectedRoleInFunc.ctcIndia}</strong>
+                    </div>
+                    <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-center min-w-[100px]">
+                      <span className="text-[9px] text-slate-500 font-bold uppercase block mb-0.5">Global CTC</span>
+                      <strong className="text-slate-900 text-sm">{selectedRoleInFunc.ctcGlobal}</strong>
+                    </div>
                   </div>
                 </div>
 
-                {/* Software Tools */}
-                <div className="space-y-2 text-xs">
-                  <strong className="text-slate-900 block font-bold">Required HR Software Stack & Platforms:</strong>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedRoleInFunc.tools.map((t, i) => (
-                      <span key={i} className="bg-slate-100 text-slate-800 text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg border border-slate-200">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Platform Recommendations */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                  <div className="bg-purple-50 p-3.5 rounded-xl border border-purple-200 space-y-1">
-                    <strong className="text-purple-900 font-bold block text-[11px] flex items-center space-x-1">
-                      <i className="fa-solid fa-book-bookmark text-purple-600"></i>
-                      <span>Recommended Practice SOP Playbook:</span>
-                    </strong>
-                    <p className="text-purple-950 font-semibold">{selectedRoleInFunc.recommendedSOP}</p>
+                <div className="flex-1 overflow-y-auto p-6 space-y-8 relative z-10 custom-scrollbar">
+                  {/* Competencies */}
+                  <div className="space-y-3">
+                    <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                      <i className="fa-solid fa-award text-amber-500"></i> Core Competencies
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRoleInFunc.competencies.map((c, i) => (
+                        <span key={i} className="bg-amber-50 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-200 shadow-sm">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="bg-blue-50 p-3.5 rounded-xl border border-blue-200 space-y-1">
-                    <strong className="text-blue-900 font-bold block text-[11px] flex items-center space-x-1">
-                      <i className="fa-solid fa-briefcase text-blue-600"></i>
-                      <span>Recommended Hands-On Project Lab:</span>
-                    </strong>
-                    <p className="text-blue-950 font-semibold">{selectedRoleInFunc.recommendedLab}</p>
+                  {/* Software Tools */}
+                  <div className="space-y-3">
+                    <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                      <i className="fa-solid fa-laptop-code text-blue-500"></i> Required Software Stack
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRoleInFunc.tools.map((t, i) => (
+                        <span key={i} className="bg-slate-900 text-white text-xs font-mono font-semibold px-3 py-1.5 rounded-lg shadow-sm">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Platform Recommendations */}
+                  <div className="space-y-3">
+                     <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                      <i className="fa-solid fa-compass text-emerald-500"></i> Recommended Learning Path
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-100/50 shadow-sm">
+                        <strong className="text-indigo-900 font-bold text-xs flex items-center gap-2 mb-2">
+                          <i className="fa-solid fa-book-bookmark text-indigo-500"></i>
+                          SOP Playbook
+                        </strong>
+                        <p className="text-indigo-950/80 font-medium text-sm">{selectedRoleInFunc.recommendedSOP}</p>
+                      </div>
+
+                      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-100/50 shadow-sm">
+                        <strong className="text-emerald-900 font-bold text-xs flex items-center gap-2 mb-2">
+                          <i className="fa-solid fa-flask text-emerald-500"></i>
+                          Hands-On Lab
+                        </strong>
+                        <p className="text-emerald-950/80 font-medium text-sm">{selectedRoleInFunc.recommendedLab}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -344,60 +474,136 @@ export const CareerPlannerView: React.FC<{ userName: string; currentRole: string
 
         {/* TAB 2: MY 10-YEAR ROADMAP & SHORTFALLS */}
         {activePlannerTab === 'roadmap' && (
-          <div className="space-y-6">
+          <div className="h-full flex flex-col space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Auto-Populated Candidate Profile Banner */}
-            <div className="bg-slate-900 text-white p-6 rounded-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="space-y-1">
-                <span className="text-amber-400 font-bold text-xs uppercase tracking-wider">Candidate Profile Sync</span>
-                <h3 className="text-xl font-bold text-white">{userName}&apos;s Executive Profile</h3>
-                <p className="text-xs text-slate-400">Current Role: {myCurrentRole} &bull; Verified 6+ Yrs Experience in Tech HR</p>
-              </div>
-
-              <div className="w-full md:w-80">
-                <label className="block text-[11px] text-slate-300 font-semibold mb-1">Target 10-Year Destination Goal:</label>
-                <select
-                  value={myTarget10YrGoal}
-                  onChange={(e) => setMyTarget10YrGoal(e.target.value)}
-                  className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white font-bold text-xs focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="Chief Human Resources Officer (CHRO)">Chief Human Resources Officer (CHRO)</option>
-                  <option value="VP of Human Resources / VP People">VP of Human Resources / VP People</option>
-                  <option value="Head of People & Operations">Head of People & Operations</option>
-                  <option value="Director of HRBP & Talent Strategy">Director of HRBP & Talent Strategy</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Action Bar */}
-            <div className="flex justify-between items-center bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">Analyze Shortfalls & Build 10-Year Strategic Roadmap</h4>
-                <p className="text-xs text-slate-600">Gemini AI evaluates candidate resume skills vs target 10-year CHRO destination goal.</p>
+            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center text-xl font-bold">
+                  {userName.charAt(0)}
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-0.5">My Blueprint Setup</span>
+                  <div className="flex items-center gap-3">
+                    <select 
+                      value={myCurrentRole}
+                      onChange={(e) => setMyCurrentRole(e.target.value)}
+                      className="text-sm font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-1.5 focus:ring-2 focus:ring-amber-500 outline-none"
+                    >
+                      <option value="Associate HR">Associate HR</option>
+                      <option value="Senior HR Lead / HR Generalist">Senior HR Lead / HR Generalist</option>
+                      <option value="HR Business Partner">HR Business Partner</option>
+                      <option value="Head of Talent Acquisition">Head of Talent Acquisition</option>
+                    </select>
+                    <i className="fa-solid fa-arrow-right text-slate-300"></i>
+                    <select
+                      value={myTarget10YrGoal}
+                      onChange={(e) => setMyTarget10YrGoal(e.target.value)}
+                      className="text-sm font-bold text-slate-900 bg-amber-50 border border-amber-200 rounded-lg p-1.5 focus:ring-2 focus:ring-amber-500 outline-none"
+                    >
+                      <option value="Chief Human Resources Officer (CHRO)">Chief Human Resources Officer (CHRO)</option>
+                      <option value="VP of Human Resources / VP People">VP of Human Resources / VP People</option>
+                      <option value="Head of People & Operations">Head of People & Operations</option>
+                      <option value="Director of HRBP & Talent Strategy">Director of HRBP & Talent Strategy</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <button
                 disabled={isGenerating}
-                onClick={handleGenerateBlueprint}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow flex items-center space-x-2 disabled:opacity-50 shrink-0"
+                onClick={handleSuggestBlueprint}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-lg flex items-center space-x-2 disabled:opacity-50 transition-transform transform active:scale-95 whitespace-nowrap"
               >
-                <i className="fa-solid fa-wand-magic-sparkles"></i>
-                <span>{isGenerating ? 'Analyzing Shortfalls...' : 'Generate AI Shortfall & 10-Yr Roadmap'}</span>
+                {isGenerating ? <i className="fa-solid fa-circle-notch fa-spin text-amber-400"></i> : <i className="fa-solid fa-wand-magic-sparkles text-amber-400"></i>}
+                <span>{isGenerating ? 'AI Architecting...' : 'Auto-Suggest Roadmap with Gemini'}</span>
               </button>
             </div>
 
-            {/* AI Generated Output Display */}
-            {aiBlueprint ? (
-              <div className="bg-slate-900 text-slate-100 p-6 rounded-xl border border-slate-800 text-xs font-mono leading-relaxed whitespace-pre-line max-h-[500px] overflow-y-auto">
-                <strong className="text-amber-300 block text-sm border-b border-slate-800 pb-2 mb-2">
-                  Gemini AI Executive Shortfall Analysis & 10-Year Blueprint ({userName}):
-                </strong>
-                {aiBlueprint}
-              </div>
-            ) : (
-              <div className="bg-slate-50 p-8 rounded-xl border border-slate-200 text-center text-xs text-slate-500">
-                Click &ldquo;Generate AI Shortfall & 10-Yr Roadmap&rdquo; above to run Gemini AI analysis on candidate {userName}&apos;s profile.
+            {aiAnalysis && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 shrink-0 flex items-start gap-3 animate-in zoom-in-95 duration-300">
+                <i className="fa-solid fa-robot text-indigo-500 text-lg mt-0.5"></i>
+                <div>
+                  <h4 className="text-xs font-bold text-indigo-900 mb-1">Gemini AI Shortfall Analysis</h4>
+                  <p className="text-xs text-indigo-800/80 leading-relaxed">{aiAnalysis}</p>
+                </div>
               </div>
             )}
+
+            <div className="flex-1 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-6 custom-scrollbar relative">
+              <div className="absolute left-[39px] top-6 bottom-6 w-0.5 bg-slate-200"></div>
+              
+              <div className="space-y-6 relative z-10 max-w-4xl">
+                {milestones.map((m) => (
+                  <div key={m.id} className="flex gap-6 group">
+                    <div className="w-16 shrink-0 text-right pt-2">
+                      <span className="font-black text-slate-400 text-sm">{m.year}</span>
+                    </div>
+                    
+                    <div className="relative pt-2">
+                      <div className="absolute left-[-29px] top-3 w-4 h-4 rounded-full bg-white border-4 border-amber-400 shadow-sm z-10 group-hover:scale-125 group-hover:border-amber-500 transition-transform"></div>
+                    </div>
+
+                    <div className="flex-1 bg-white border border-slate-200 rounded-xl p-4 shadow-sm group-hover:border-amber-300 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-bold text-slate-900 text-base">{m.title}</h4>
+                        <div className="flex items-center gap-3">
+                          <span className="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md border border-green-200">
+                            {m.ctc}
+                          </span>
+                          <button onClick={() => handleDeleteMilestone(m.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                            <i className="fa-solid fa-trash-can text-sm"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">{m.notes}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Add Milestone Form */}
+                <div className="flex gap-6 pt-4 border-t border-slate-200/60 border-dashed mt-8">
+                  <div className="w-16 shrink-0 text-right pt-4">
+                    <i className="fa-solid fa-plus text-slate-300 text-xl"></i>
+                  </div>
+                  
+                  <div className="relative pt-4">
+                    <div className="absolute left-[-29px] top-5 w-4 h-4 rounded-full bg-slate-100 border-2 border-slate-300 border-dashed z-10"></div>
+                  </div>
+
+                  <div className="flex-1 bg-white border border-slate-200 border-dashed rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4">Add Manual Milestone</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Year</label>
+                        <input type="text" value={newYear} onChange={e => setNewYear(e.target.value)} placeholder="e.g. 2028" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Target Role / Title</label>
+                        <input type="text" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="e.g. Global HR Director" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Target CTC</label>
+                        <input type="text" value={newCtc} onChange={e => setNewCtc(e.target.value)} placeholder="e.g. ₹55 LPA / $150k" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"/>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Key Focus / Notes</label>
+                        <textarea value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="e.g. Master ESOP structuring and M&A integration." rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <button 
+                        onClick={handleAddMilestone}
+                        disabled={!newYear || !newTitle}
+                        className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-900 font-bold text-xs px-4 py-2 rounded-lg shadow-sm transition-colors"
+                      >
+                        <i className="fa-solid fa-plus mr-1.5"></i> Save Milestone
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

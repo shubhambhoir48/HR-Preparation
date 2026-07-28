@@ -3,6 +3,11 @@
 import React, { useState } from 'react';
 import { callGeminiAI } from '@/lib/gemini';
 
+export interface HRToolsMasterclassViewProps {
+  completedIds?: string[];
+  onToggleComplete?: (id: string) => void;
+}
+
 export interface HRToolModule {
   id: string;
   name: string;
@@ -162,7 +167,7 @@ export const mnc30HRTools: HRToolModule[] = [
   }
 })();
 
-export const HRToolsMasterclassView: React.FC = () => {
+export const HRToolsMasterclassView: React.FC<HRToolsMasterclassViewProps> = ({ completedIds = [], onToggleComplete }) => {
   const [selectedTool, setSelectedTool] = useState<HRToolModule>(mnc30HRTools[0]);
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('ALL');
@@ -295,9 +300,27 @@ export const HRToolsMasterclassView: React.FC = () => {
                 <span className="text-[10px] font-extrabold text-cyan-700 uppercase">{selectedTool.category}</span>
                 <h3 className="font-bold text-slate-900 text-base">{selectedTool.name}</h3>
               </div>
-              <span className="bg-cyan-100 text-cyan-800 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-cyan-200">
-                <i className="fa-solid fa-laptop-code mr-1"></i>MNC Standard Platform
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="bg-cyan-100 text-cyan-800 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-cyan-200">
+                  <i className="fa-solid fa-laptop-code mr-1"></i>MNC Standard Platform
+                </span>
+                <button
+                  onClick={() => {
+                    if (onToggleComplete) onToggleComplete(selectedTool.id);
+                  }}
+                  className={`font-bold text-[11px] px-2.5 py-1 rounded-lg transition-colors border ${
+                    completedIds.includes(selectedTool.id) 
+                      ? 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200' 
+                      : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  {completedIds.includes(selectedTool.id) ? (
+                    <><i className="fa-solid fa-check mr-1"></i> Mastered</>
+                  ) : (
+                    <><i className="fa-solid fa-check-double mr-1"></i> Mark Mastered</>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Section 1: Overview & Why MNCs Use It */}
