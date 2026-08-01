@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { GeminiChatbot } from '@/components/common/GeminiChatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-slate-50 min-h-screen text-slate-800 antialiased`}>
         {children}
+        <GeminiChatbot />
       </body>
     </html>
   );

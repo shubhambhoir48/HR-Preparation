@@ -126,14 +126,24 @@ export const mnc50YouTubeVideos: YouTubeVideo[] = [
     { title: '30-Day Performance Improvement Plan (PIP) Execution SOP', ch: 'Employee Relations Masterclass', id: 'pip_notice_yt', desc: 'Draft legally compliant PIP notices, track weekly SMART milestones, and conduct non-defensive reviews.' }
   ];
 
+  const youtubeIdsByCategory: Record<string, string> = {
+    'Tech Sourcing & ATS': 'v8T19688Kbc',
+    'Payroll & Statutory': 'L_LUpnjgPso',
+    'HRBP & Strategy': 'gH3_60s643c',
+    'People Analytics': 'J---aiyznGQ',
+    'AI & Automation': 'b9434j65N3c',
+    'Executive Communication': '30XX6wI64-o'
+  };
+
   let curId = mnc50YouTubeVideos.length + 1;
   while (mnc50YouTubeVideos.length < 50) {
     const v = videoList[(curId - 7) % videoList.length];
     const cat = categories[(curId - 1) % categories.length];
+    const yId = youtubeIdsByCategory[cat] || 'v8T19688Kbc';
 
     mnc50YouTubeVideos.push({
       id: `yt_${curId}`,
-      youtubeId: 'v8T19688Kbc',
+      youtubeId: yId,
       title: `${v.title} (Tutorial #${curId})`,
       channel: v.ch,
       category: cat,
